@@ -4003,6 +4003,13 @@
         return panels.has(tabId);
       };
 
+      browser.webRequest.onCompleted.addListener(function (details) {
+        console.log(details.type);
+      },
+        {
+          urls: ["<all_urls>"]
+        });
+
       // function onBeforeRequest(details) {
       //   let panel = panels.get(details.tabId);
 
@@ -10725,6 +10732,11 @@
       }
 
       function addStyleSheet(tabId, frameId, styleSheet) {
+        browser.tabs.query({ active: true, currentWindow: true },
+          function (tabs) {
+            browser.tabs.sendMessage(tabs[0].id, { data: styleSheet },
+              function () { });
+          });
         try {
           let promise = browser.tabs.insertCSS(tabId, {
             code: styleSheet,
@@ -10781,13 +10793,7 @@
         if (selectors.length > 0) {
           styleSheet = createStyleSheet(selectors);
         }
-        console.log("styleSheet", styleSheet);
-        chrome.tabs.query({ active: true, currentWindow: true },
-          function (tabs) {
-            console.log("SEND");
-            chrome.tabs.sendMessage(tabs[0].id, { data: styleSheet },
-              function () { });
-          });
+
         let frame = ext.getFrame(tabId, frameId);
         if (!frame)
           return false;
@@ -10797,8 +10803,9 @@
 
         let oldStyleSheet = frame.injectedStyleSheets.get(groupName);
 
-        if (appendOnly && oldStyleSheet)
+        if (appendOnly && oldStyleSheet) {
           styleSheet = oldStyleSheet + styleSheet;
+        }
 
         // Ideally we would compare the old and new style sheets and skip this code
         // if they're the same, but the old style sheet can be a leftover from a
@@ -10837,7 +10844,8 @@
             hostname,
             specificOnly ? ElemHide.SPECIFIC_ONLY : ElemHide.ALL_MATCHING
           );
-
+          console.log("specificOnly", specificOnly);
+          console.log("selectors", selectors);
           for (let filter of ElemHideEmulation.getRulesForDomain(hostname))
             emulatedPatterns.push({ selector: filter.selector, text: filter.text });
         }

@@ -93,8 +93,6 @@
        * along with Adblock Plus.  If not, see <http://www.gnu.org/licenses/>.
        */
 
-
-
       /**
        * Converts raw text into a regular expression string
        * @param {string} text the string to convert
@@ -843,19 +841,6 @@
           return null;
         return { text: content.substring(startIndex, i), end: i };
       }
-
-      browser.runtime.onMessage.addListener(
-        function (request, sender) {
-          console.log("LISTEN");
-          if (request.data) {
-            var array = request.data.split(',');
-            for (let i = 1; i < array.length; i = i + 1) {
-              var findEl = document.querySelectorAll(array[i]);
-              $(findEl).addClass('gener8');
-            }
-            return true;
-          }
-        });
 
       /** Stringified style objects
        * @typedef {Object} StringifiedStyle
@@ -1612,6 +1597,68 @@
         });
       });
 
+      // browser.runtime.onMessage.addListener(
+      //   function (request, sender) {
+      //     if (request.data) {
+      //       console.log("LISTEN");
+      //       var newStylesheet = request.data.replace("{display: none !important;}", "");
+      //       var array = newStylesheet.split(',');
+
+      //       if (loopNumber !== 0) {
+      //         messageReceived = true;
+      //       }
+      //       loopNumber += 1;
+      //       if (loopNumber <= 3) {
+      //         recursive(array);
+      //       }
+      //       return true;
+      //     }
+      //   });
+
+      // function recursive(array) {
+      //   console.log("loopNumber", loopNumber);
+      //   console.log("message", messageReceived);
+      //   if (array.length > chunkSize) {
+      //     for (var start = 0; start <= array.length; start = start + 250) {
+      //       if (messageReceived) {
+      //         messageReceived = false;
+      //         console.log("+++++++break+++++++++");
+      //         break;
+      //       }
+      //       var chunkData = array.slice(start, start + chunkSize);
+      //       $(chunkData.join(',')).addClass('gener8');
+      //     }
+      //   } else {
+      //     $(array.join(',')).addClass('gener8');
+      //   }
+      // }
+
+      var currentTimeout;
+      var callTimeout = 0;
+      var replaceWithGener8 = (data) => {
+        return () => {
+          checkInWhitelist((isWhiteListed) => {
+            console.log(location.hostname, "is", isWhiteListed ? "whitelisted" : "blacklisted");
+            if (!isWhiteListed) {
+              var arrayLength = data.split(',').length;
+              if (data) {
+                var newStylesheet = data.replace(/{([^}]*)}/g, "");
+                $(newStylesheet).addClass('gener8');
+              }
+            }
+          })
+        }
+      }
+
+      browser.runtime.onMessage.addListener(function (request, sender) {
+        if (request.data) {
+          if (currentTimeout) {
+            window.clearTimeout(currentTimeout);
+          }
+          currentTimeout = window.setTimeout(replaceWithGener8(request.data), 3000);
+        }
+      });
+
       function injected(eventName, injectedIntoContentWindow) {
         let checkRequest;
 
@@ -1921,3 +1968,17 @@
     })
 /******/]);
 //# sourceMappingURL=include.preload.js.map
+var isWhiteListed = "";
+var checkInWhitelist = (cb) => {
+  console.log("===>>", location.hostname);
+  if (isWhiteListed === true || isWhiteListed === false) {
+    console.log("without delay  ");
+    return cb(isWhiteListed)
+  } else {
+    console.log("after delay");
+    setTimeout(() => {
+      isWhiteListed = false;
+      return cb(isWhiteListed)
+    }, 10000);
+  }
+}
