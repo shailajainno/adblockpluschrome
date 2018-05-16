@@ -1,13 +1,23 @@
 {
-  "applications": {
-    "gecko": {
-      "id": "{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}",
-      "strict_min_version": "51.0"
-    }
+  "author": "Gener8 Team",
+  "manifest_version": 2,
+  "name": "Gener8",
+  "version": "1.0",
+  "description": "Gener8 is like showing your interested advertisements and generating revenue out of it.",
+  "icons": {
+    "128": "gener8/img/icon128.png",
+    "16": "gener8/img/icon16.png",
+    "48": "gener8/img/icon48.png"
   },
-  "author": "eyeo GmbH",
+  "browser_action": {
+    "default_icon": {
+      "19": "gener8/img/icon19.png",
+      "38": "gener8/img/icon38.png"
+    },
+    "default_popup": "gener8/popup/popup.html",
+    "default_title": "Gener8"
+  },
   "background": {
-    "persistent": true,
     "scripts": [
       "polyfill.js",
       "ext/common.js",
@@ -15,25 +25,18 @@
       "lib/compat.js",
       "lib/publicSuffixList.js",
       "lib/adblockplus.js",
-      "devenvPoller__.js"
+      "devenvPoller__.js",
+      "gener8/background.js"
     ]
-  },
-  "browser_action": {
-    "default_icon": {
-      "16": "icons/abp-16.png",
-      "19": "icons/abp-19.png",
-      "20": "icons/abp-20.png",
-      "32": "icons/abp-32.png",
-      "38": "icons/abp-38.png",
-      "40": "icons/abp-40.png"
-    },
-    "default_title": "__MSG_name__"
   },
   "content_scripts": [
     {
       "all_frames": false,
       "js": [
-        "lib/jquery.min.js",
+        "gener8/lib/js/jquery.min.js",
+        "gener8/js/globalVariable.js",
+        "gener8/js/globalFunction.js",
+        "gener8/js/addGener8Class.js",
         "polyfill.js",
         "ext/common.js",
         "ext/content.js",
@@ -49,9 +52,9 @@
     {
       "all_frames": false,
       "js": [
-        "lib/jquery.min.js",
+        "gener8/lib/js/jquery.min.js",
         "include.postload.js",
-        "replace.js"
+        "gener8/js/replace.js"
       ],
       "match_about_blank": true,
       "matches": [
@@ -59,26 +62,17 @@
         "https://*/*"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "gener8/js/auth.js"
+      ]
     }
   ],
   "default_locale": "en_US",
-  "description": "__MSG_description__",
-  "devtools_page": "devtools.html",
-  "icons": {
-    "128": "icons/detailed/abp-128.png",
-    "16": "icons/abp-16.png",
-    "32": "icons/abp-32.png",
-    "48": "icons/detailed/abp-48.png",
-    "64": "icons/detailed/abp-64.png"
-  },
-  "manifest_version": 2,
-  "minimum_chrome_version": "49.0",
-  "minimum_opera_version": "36.0",
-  "name": "__MSG_name__",
-  "options_ui": {
-    "open_in_tab": true,
-    "page": "options.html"
-  },
   "permissions": [
     "tabs",
     "<all_urls>",
@@ -88,11 +82,7 @@
     "webNavigation",
     "storage",
     "unlimitedStorage",
-    "notifications"
-  ],
-  "short_name": "__MSG_name__",
-  "storage": {
-    "managed_schema": "managed-storage-schema.json"
-  },
-  "version": "3.0.4"
+    "notifications",
+    "cookies"
+  ]
 }

@@ -7058,21 +7058,23 @@
           });
         };
 
+      // ---------COMMENT OUT ---- popup page
+
       // We need to clear the popup URL on Firefox for Android in order for the
       // options page to open instead of the bubble. Unfortunately there's a bug[1]
       // which prevents us from doing that, so we must avoid setting the URL on
       // Firefox from the manifest at all, instead setting it here only for
       // non-mobile.
       // [1] - https://bugzilla.mozilla.org/show_bug.cgi?id=1414613
-      if ("getBrowserInfo" in browser.runtime) {
-        browser.runtime.getBrowserInfo().then(browserInfo => {
-          if (browserInfo.name != "Fennec")
-            browser.browserAction.setPopup({ popup: "popup.html" });
-        });
-      }
-      else {
-        browser.browserAction.setPopup({ popup: "popup.html" });
-      }
+      // if ("getBrowserInfo" in browser.runtime) {
+      //   browser.runtime.getBrowserInfo().then(browserInfo => {
+      //     if (browserInfo.name != "Fennec")
+      //       browser.browserAction.setPopup({ popup: "popup.html" });
+      //   });
+      // }
+      // else {
+      //   browser.browserAction.setPopup({ popup: "popup.html" });
+      // }
 
       // On Firefox for Android, open the options page directly when the browser
       // action is clicked.
@@ -10732,12 +10734,12 @@
       }
 
       function addStyleSheet(tabId, frameId, styleSheet) {
-        browser.tabs.query({ active: true, currentWindow: true },
-          function (tabs) {
-            browser.tabs.sendMessage(tabs[0].id, { data: styleSheet },
-              function () { });
-          });
         try {
+          // Send message to the content script (Pass the selectors to add Gener8 class)
+          browser.tabs.query({ active: true, currentWindow: true },
+            function (tabs) {
+              browser.tabs.sendMessage(tabs[0].id, { action: 'selectors', data: styleSheet });
+            });
           let promise = browser.tabs.insertCSS(tabId, {
             code: styleSheet,
             cssOrigin: "user",

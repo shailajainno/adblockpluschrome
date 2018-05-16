@@ -694,30 +694,41 @@
           }
         },
 
+        //Gener8 Check Token and whitelisting and then proceed with Ad Blocking and Replacement
         apply() {
-          browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
-            if (this.tracer)
-              this.tracer.disconnect();
-            this.tracer = null;
+          browser.runtime.onMessage.addListener(function (request, sender) {
+            if (request.action === 'catchToken' && request.data) {
+              ajaxCall("POST", "application/json", VALIDATE_WHITE_LIST, {
+                "domainName": location.hostname,
+              }, "JSON", request.data, function (success, error) {
+                if (success && success.data && !success.data.whitelisted) {
+                  browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
+                    if (this.tracer)
+                      this.tracer.disconnect();
+                    this.tracer = null;
 
-            if (response.trace)
-              this.tracer = new ElementHidingTracer();
+                    if (response.trace)
+                      this.tracer = new ElementHidingTracer();
 
-            this.inline = response.inline;
-            this.inlineEmulated = !!response.inlineEmulated;
+                    this.inline = response.inline;
+                    this.inlineEmulated = !!response.inlineEmulated;
 
-            if (this.inline)
-              this.addSelectorsInline(response.selectors, "standard");
+                    if (this.inline)
+                      this.addSelectorsInline(response.selectors, "standard");
 
-            if (this.tracer)
-              this.tracer.addSelectors(response.selectors);
+                    if (this.tracer)
+                      this.tracer.addSelectors(response.selectors);
 
-            // Prefer CSS selectors for -abp-has and -abp-contains unless the
-            // background page has asked us to use inline styles.
-            this.elemHideEmulation.useInlineStyles = this.inline ||
-              this.inlineEmulated;
+                    // Prefer CSS selectors for -abp-has and -abp-contains unless the
+                    // background page has asked us to use inline styles.
+                    this.elemHideEmulation.useInlineStyles = this.inline ||
+                      this.inlineEmulated;
 
-            this.elemHideEmulation.apply(response.emulatedPatterns);
+                    this.elemHideEmulation.apply(response.emulatedPatterns);
+                  });
+                }
+              });
+            }
           });
         }
       };
@@ -1631,33 +1642,7 @@
       //   } else {
       //     $(array.join(',')).addClass('gener8');
       //   }
-      // }
-
-      var currentTimeout;
-      var callTimeout = 0;
-      var replaceWithGener8 = (data) => {
-        return () => {
-          checkInWhitelist((isWhiteListed) => {
-            console.log(location.hostname, "is", isWhiteListed ? "whitelisted" : "blacklisted");
-            if (!isWhiteListed) {
-              var arrayLength = data.split(',').length;
-              if (data) {
-                var newStylesheet = data.replace(/{([^}]*)}/g, "");
-                $(newStylesheet).addClass('gener8');
-              }
-            }
-          })
-        }
-      }
-
-      browser.runtime.onMessage.addListener(function (request, sender) {
-        if (request.data) {
-          if (currentTimeout) {
-            window.clearTimeout(currentTimeout);
-          }
-          currentTimeout = window.setTimeout(replaceWithGener8(request.data), 3000);
-        }
-      });
+      // }      
 
       function injected(eventName, injectedIntoContentWindow) {
         let checkRequest;
@@ -1968,17 +1953,3 @@
     })
 /******/]);
 //# sourceMappingURL=include.preload.js.map
-var isWhiteListed = "";
-var checkInWhitelist = (cb) => {
-  console.log("===>>", location.hostname);
-  if (isWhiteListed === true || isWhiteListed === false) {
-    console.log("without delay  ");
-    return cb(isWhiteListed)
-  } else {
-    console.log("after delay");
-    setTimeout(() => {
-      isWhiteListed = false;
-      return cb(isWhiteListed)
-    }, 10000);
-  }
-}
