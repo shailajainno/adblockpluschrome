@@ -2,12 +2,8 @@ $(function () {
     //Check User Token whether to show Login Page or Dashboard
     getUserAccessToken(function (token) {
         if (token !== null) {
-            $('.gnr-ext-bdy-prt').append(dashboardPage);
-            cookieGet("gnr-ref-link", function (link) {
-                if (link) {
-                    $('#gnr-ref-link').val(link);
-                    $('#gnr-copy-ref-link').attr('data-clipboard-text', $('#gnr-ref-link').val());
-                }
+            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                getUserDetails(token, extractHostname(tabs[0].url));
             });
         } else {
             $('.gnr-ext-bdy-prt').append(loginPage);
@@ -84,20 +80,45 @@ $(function () {
         window.open(GENER8_FRONTEND_URL + FORGOT_PASS_URL);
     });
 
-    //Open Forgot Password webpage 
+    //Open Signup webpage 
     $(".gnr-ext-bdy-prt").on('click', '#gnr-sign-up', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + SIGN_UP_URL);
     });
 
-    //Check whitelist domain
+    //Open Dashboard webpage
+    $(".gnr-ext-bdy-prt").on('click', '#gnr-dashboard', function () {
+        window.close();
+        window.open(GENER8_FRONTEND_URL + DASHBOARD);
+    });
+
+    //Open Wallet webpage 
+    $(".gnr-ext-bdy-prt").on('click', '#gnr-wallet', function () {
+        window.close();
+        window.open(GENER8_FRONTEND_URL + WALLET);
+    });
+
+    //Checkmark whitelist domain
     $(".gnr-ext-bdy-prt").on('change', '#styled-checkbox-2', function () {
-        console.log("this", this.checked);
         let enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    whitelistDomain(extractHostname(tabs[0].url), token, enable);
+                    whitelistDomain(extractHostname(tabs[0].url), token, enable, function () {
+                        browser.tabs.reload(tabs[0].id);
+                    });
+                });
+            }
+        });
+    });
+
+    //Pause domain for one instance
+    $(".gnr-ext-bdy-prt").on('change', '#styled-checkbox-1', function () {
+        let enable = this.checked;
+        getUserAccessToken(function (token) {
+            if (token !== null) {
+                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                    browser.tabs.reload(tabs[0].id);
                 });
             }
         });
@@ -180,10 +201,6 @@ function checkEmailPass() {
             if (error && error.responseJSON && error.responseJSON.message) {
                 $('.gnr-error-server-msg').text(error.responseJSON.message);
             } else if (success && success.data) {
-                cookieSet("gnr-ref-link", success.data.referralLink);
-                $('.gnr-ext-bdy-prt').empty();
-                $('.gnr-ext-bdy-prt').append(dashboardPage);
-                $('#gnr-ref-link').val(success.data.referralLink);
                 browser.runtime.sendMessage({
                     action: 'saveToken',
                     data: success.data.token
@@ -193,9 +210,12 @@ function checkEmailPass() {
     }
 }
 
+
 browser.runtime.onMessage.addListener(function (request, sender) {
     if (request.action === 'getUserDetails' && request.data) {
-        getUserDetails(request.data);
+        browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            getUserDetails(request.data, extractHostname(tabs[0].url));
+        });
     }
 });
 
@@ -203,13 +223,13 @@ browser.runtime.onMessage.addListener(function (request, sender) {
  * @description Get User Details 
  * @param {string} token
  */
-function getUserDetails(token) {
+function getUserDetails(token, domainName) {
     ajaxCall("GET", "application/json", USER_DETAILS, null, "JSON", token, function (success, error) {
-        if (error && error.responseJSON && error.responseJSON.message) {
-            $('#gnr-ref-link').val('');
-        } else if (success && success.data && success.data.referralLink) {
-            cookieSet("gnr-ref-link", success.data.referralLink);
+        $('.gnr-ext-bdy-prt').empty();
+        $('.gnr-ext-bdy-prt').append(dashboardPage);
+        if (success && success.data) {
             $('#gnr-ref-link').val(success.data.referralLink);
+            //Checkbox check for whitelisting 
         }
     });
 }
@@ -218,14 +238,9 @@ function getUserDetails(token) {
  * @description Add/Remove domain from whitelisting 
  * @param {string} token
  */
-function whitelistDomain(domainName, token, enable) {
+function whitelistDomain(domainName, token, enable, callback) {
     ajaxCall("POST", "application/json", ADD_WHITELIST, { "domainName": domainName, "enable": enable }, "JSON", token, function (success, error) {
-        if (error && error.responseJSON && error.responseJSON.message) {
-            $('#gnr-ref-link').val('');
-        } else if (success && success.data && success.data.referralLink) {
-            cookieSet("gnr-ref-link", success.data.referralLink);
-            $('#gnr-ref-link').val(success.data.referralLink);
-        }
+        callback();
     });
 }
 

@@ -10,6 +10,8 @@ var FORGOT_PASS_URL = "#/forgot_password";
 var VALIDATE_WHITE_LIST = "user/validatedomain";
 var USER_DETAILS = "user/details";
 var ADD_WHITELIST = "user/whitelist";
+var DASHBOARD = "#/dashboard";
+var WALLET = "#/wallet";
 
 var EMAIL_IS_REQUIRED = "Email Id is required";
 var EMAIL_NOT_VALID = "Email Id isn't valid";

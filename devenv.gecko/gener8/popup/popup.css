@@ -550,6 +550,6 @@ cursor: pointer;
 
 /*AFTER-LOGIN-VIEW*/
 
-#gnr-forgot-password, #gnr-sign-up, #gnr-website {
+#gnr-forgot-password, #gnr-sign-up, #gnr-website, #gnr-wallet, #gnr-dashboard {
     cursor: pointer;
 }
