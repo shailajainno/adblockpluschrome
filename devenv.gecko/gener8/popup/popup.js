@@ -1,11 +1,13 @@
 $(function () {
     //Check User Token whether to show Login Page or Dashboard
+    $('.gnr-ext-bdy-prt').append(loader);
     getUserAccessToken(function (token) {
         if (token !== null) {
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url));
             });
         } else {
+            $('.gnr-ext-bdy-prt').empty();
             $('.gnr-ext-bdy-prt').append(loginPage);
         }
     });
@@ -224,13 +226,15 @@ browser.runtime.onMessage.addListener(function (request, sender) {
  * @param {string} token
  */
 function getUserDetails(token, domainName) {
-    ajaxCall("GET", "application/json", USER_DETAILS, null, "JSON", token, function (success, error) {
-        $('.gnr-ext-bdy-prt').empty();
-        $('.gnr-ext-bdy-prt').append(dashboardPage);
-        if (success && success.data) {
-            $('#gnr-ref-link').val(success.data.referralLink);
-            //Checkbox check for whitelisting 
-        }
+    ajaxCall("GET", "application/json", USER_DETAILS + '?domainName=' + domainName, null, "JSON", token, function (success, error) {
+        setTimeout(function () {
+            $('.gnr-ext-bdy-prt').empty();
+            $('.gnr-ext-bdy-prt').append(dashboardPage);
+            if (success && success.data) {
+                $('#gnr-ref-link').val(success.data.referralLink);
+                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.whitelisted : false);
+            }
+        }, 1000);
     });
 }
 

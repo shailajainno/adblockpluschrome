@@ -88,7 +88,7 @@ function ajaxCall(type, contentType, url, content, dataType, token, callback) {
         headers: {
             'authorization': token
         },
-        url: temp + url,
+        url: GENER8_BACKEND_URL + url,
         data: JSON.stringify(content),
         dataType: dataType,
         timeout: 60e3,

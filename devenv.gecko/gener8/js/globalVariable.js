@@ -16,5 +16,3 @@ var WALLET = "#/wallet";
 var EMAIL_IS_REQUIRED = "Email Id is required";
 var EMAIL_NOT_VALID = "Email Id isn't valid";
 var PASSWORD_IS_REQUIRED = "Password is required";
-
-var temp = "http://192.168.3.80:8001/";

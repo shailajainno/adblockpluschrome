@@ -129,3 +129,14 @@ var dashboardPage = [
     '</div>',
     '</div>'
 ].join("\n");
+
+var loader = [
+    '<div class="loader" style="display: block;">',
+    '<div class="animation-1">',
+    '<div class="box1"></div>',
+    '<div class="box2"></div>',
+    '<div class="box3"></div>',
+    '<div class="box4"></div>',
+    '</div>',
+    '</div>'
+].join("\n");

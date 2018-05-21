@@ -5281,7 +5281,7 @@
                 url = "firstRun.html";
               else
                 url = "updates.html";
-              browser.tabs.create({ url });
+              //browser.tabs.create({ url });
             }
           });
         }
@@ -7128,47 +7128,47 @@
 
 
 
-      const info = __webpack_require__(3);
-      const { isDataCorrupted } = __webpack_require__(16);
-      const { Prefs } = __webpack_require__(2);
-      const { Utils } = __webpack_require__(8);
+      // const info = __webpack_require__(3);
+      // const { isDataCorrupted } = __webpack_require__(16);
+      // const { Prefs } = __webpack_require__(2);
+      // const { Utils } = __webpack_require__(8);
 
-      let setUninstallURL =
-        /**
-         * Sets (or updates) the URL that is openend when the extension is uninstalled.
-         *
-         * Must be called after prefs got initialized and a data corruption
-         * if any was detected, as well when notification data change.
-         */
-        exports.setUninstallURL = () => {
-          let search = [];
-          for (let key of ["addonName", "addonVersion", "application",
-            "applicationVersion", "platform", "platformVersion"])
-            search.push(key + "=" + encodeURIComponent(info[key]));
+      // let setUninstallURL =
+      //   /**
+      //    * Sets (or updates) the URL that is openend when the extension is uninstalled.
+      //    *
+      //    * Must be called after prefs got initialized and a data corruption
+      //    * if any was detected, as well when notification data change.
+      //    */
+      //   exports.setUninstallURL = () => {
+      //     let search = [];
+      //     for (let key of ["addonName", "addonVersion", "application",
+      //       "applicationVersion", "platform", "platformVersion"])
+      //       search.push(key + "=" + encodeURIComponent(info[key]));
 
-          let downlCount = Prefs.notificationdata.downloadCount || 0;
+      //     let downlCount = Prefs.notificationdata.downloadCount || 0;
 
-          if (downlCount > 4) {
-            if (downlCount < 8)
-              downlCount = "5-7";
-            else if (downlCount < 30)
-              downlCount = "8-29";
-            else if (downlCount < 90)
-              downlCount = "30-89";
-            else if (downlCount < 180)
-              downlCount = "90-179";
-            else
-              downlCount = "180+";
-          }
+      //     if (downlCount > 4) {
+      //       if (downlCount < 8)
+      //         downlCount = "5-7";
+      //       else if (downlCount < 30)
+      //         downlCount = "8-29";
+      //       else if (downlCount < 90)
+      //         downlCount = "30-89";
+      //       else if (downlCount < 180)
+      //         downlCount = "90-179";
+      //       else
+      //         downlCount = "180+";
+      //     }
 
-          search.push("notificationDownloadCount=" + encodeURIComponent(downlCount));
-          search.push("dataCorrupted=" + (isDataCorrupted() ? "1" : "0"));
+      //     search.push("notificationDownloadCount=" + encodeURIComponent(downlCount));
+      //     search.push("dataCorrupted=" + (isDataCorrupted() ? "1" : "0"));
 
-          browser.runtime.setUninstallURL(Utils.getDocLink("uninstalled") + "&" +
-            search.join("&"));
-        };
+      //     browser.runtime.setUninstallURL(Utils.getDocLink("uninstalled") + "&" +
+      //       search.join("&"));
+      //   };
 
-      Prefs.on("notificationdata", setUninstallURL);
+      // Prefs.on("notificationdata", setUninstallURL);
 
 
       /***/
