@@ -6,16 +6,15 @@ var callTimeout = 0;
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
     return function () {
-        var arrayLength = data.split(',').length;
         if (data) {
             var newStylesheet = data.replace(/{([^}]*)}/g, '');
             $(newStylesheet).addClass('gener8');
         }
-    }
+    };
 };
 
 // Listen message from Background
-browser.runtime.onMessage.addListener(function (request, sender) {
+browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors' && request.data) {
         if (currentTimeout) {
             window.clearTimeout(currentTimeout);
@@ -24,6 +23,6 @@ browser.runtime.onMessage.addListener(function (request, sender) {
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();
     } else {
-        throw "Unexpected value for request action";
+        throw 'Unexpected value for request action';
     }
 });

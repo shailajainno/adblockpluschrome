@@ -22,10 +22,10 @@ function cookieGet(key, callback) {
  * Sends token to all content script
  * @param {string} action
  */
-function sendToAllContentScripts(action) {
+function sendToAllContentScripts(_action) {
     browser.tabs.query({}, function (tabs) {
         for (var i = 0; i < tabs.length; ++i) {
-            browser.tabs.sendMessage(tabs[i].id, { action: 'TokenFromBackGround' });
+            browser.tabs.sendMessage(tabs[i].id, { action: _action });
         }
     });
 }
@@ -45,7 +45,7 @@ browser.runtime.onMessage.addListener(processRequest);
 function processRequest(request, sender) {
     switch (request.action) {
         case 'openPopUpAndLogin':
-            browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: "popup", height: 900, width: 900, allowScriptsToClose: true });
+            browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: 'popup', height: 900, width: 900, allowScriptsToClose: true });
             break;
         case 'saveToken':
             var tkn = request.data;

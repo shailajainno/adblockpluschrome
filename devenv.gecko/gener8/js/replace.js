@@ -1,5 +1,5 @@
 $(function () {
-    let currentTimeout;    
+    let currentTimeout;
     function dumpCSSText(element) {
         var s = '';
         var o = getComputedStyle(element);
@@ -12,10 +12,8 @@ $(function () {
     var replaceGener8 = () => {
         if (currentTimeout) clearTimeout(currentTimeout);
         currentTimeout = setTimeout(function () {
-            var getAdTags = $('.gener8');
-            var arrayIframes = [];
-            var ArrayNodes = Array.prototype.slice.call(getAdTags);
-            ArrayNodes.forEach(function (node, index) {
+            var ArrayNodes = Array.prototype.slice.call($('.gener8'));
+            ArrayNodes.forEach(function (node) {
                 var iframe = $(node).find('iframe');
                 if (iframe.length !== 0) {
                     var iframeGenere = document.createElement('iframe');
@@ -25,7 +23,6 @@ $(function () {
                     iframeGenere.setAttribute('class', 'gener8Ad');
                     iframeGenere.scrolling = 'no';
                     $(iframeGenere).css('border', '1px solid red');
-                    arrayIframes.push(iframeGenere);
                     $(node).children().remove();
 
                     var divGener8 = document.createElement('div');
@@ -38,7 +35,8 @@ $(function () {
                 }
             });
         }, 2000);
-    }
+    };
+    
     replaceGener8();
 
     (function () {
@@ -47,7 +45,7 @@ $(function () {
                 [].filter.call(mutation.addedNodes, function (node) {
                     return node.nodeName === 'IFRAME';
                 }).forEach(function (node) {
-                    node.addEventListener('load', function (e) {
+                    node.addEventListener('load', function () {
                         replaceGener8();
                     });
                 });

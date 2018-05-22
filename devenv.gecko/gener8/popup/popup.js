@@ -50,13 +50,13 @@ $(function () {
         }
     });
 
-    //Call Login API  
+    //Call Login API
     generExtBody.on('click', '.gnr-ext-login-btn', function () {
         checkEmailPass();
     });
 
     //Copy Referral Link to the Clipboard
-    generExtBody.on("click", "#gnr-copy-ref-link", function () {
+    generExtBody.on('click', '#gnr-copy-ref-link', function () {
         $('#gnr-ref-link').select();
         document.execCommand('copy');
         document.selection.empty();
@@ -67,19 +67,19 @@ $(function () {
         openWindow(FB_CALLBACK_URL);
     });
 
-    //Open Gener8 website 
+    //Open Gener8 website
     generExtBody.on('click', '#gnr-website', function () {
         window.close();
         window.open(GENER8_WEBSITE);
     });
 
-    //Open Forgot Password webpage 
+    //Open Forgot Password webpage
     generExtBody.on('click', '#gnr-forgot-password', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + FORGOT_PASS_URL);
     });
 
-    //Open Signup webpage 
+    //Open Signup webpage
     generExtBody.on('click', '#gnr-sign-up', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + SIGN_UP_URL);
@@ -91,7 +91,7 @@ $(function () {
         window.open(GENER8_FRONTEND_URL + DASHBOARD);
     });
 
-    //Open Wallet webpage 
+    //Open Wallet webpage
     generExtBody.on('click', '#gnr-wallet', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + WALLET);
@@ -113,7 +113,6 @@ $(function () {
 
     //Pause domain for one instance
     generExtBody.on('change', '#styled-checkbox-1', function () {
-        const enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
@@ -125,7 +124,7 @@ $(function () {
 });
 
 /**
- * Open window for Social Logins 
+ * Open window for Social Logins
  * @author Innovify
  * @param {string} loginType
  */
@@ -139,7 +138,7 @@ function openWindow(loginType) {
  * Email validation
  * @author Innovify
  * @param {string} email
- * @returns {boolean} 
+ * @returns {boolean}
  */
 function emailValidation(email) {
     var emailValid = false;
@@ -156,14 +155,14 @@ function emailValidation(email) {
  * Password validation
  * @author Innovify
  * @param {string} password
- * @returns {boolean} 
+ * @returns {boolean}
  */
 function passwordValidation(password) {
     var passwordValid = false;
     if (!password) {
         $('.gnr-password .gnr-error-msg').text(PASSWORD_IS_REQUIRED);
     } else {
-        $('.gnr-password .gnr-error-msg').text("");
+        $('.gnr-password .gnr-error-msg').text('');
         passwordValid = true;
     }
     return passwordValid;
@@ -173,7 +172,7 @@ function passwordValidation(password) {
  * Regex validation for Email
  * @author Innovify
  * @param {string} email
- * @returns {boolean} 
+ * @returns {boolean}
  */
 function validateEmailRegex(email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -192,10 +191,10 @@ function checkEmailPass() {
     var passwordValid = passwordValidation(password);
 
     if (emailValid && passwordValid) {
-        ajaxCall("POST", "application/json", LOGIN_URL, {
-            "email": email,
-            "password": sha256_digest(password)
-        }, "JSON", null, function (success, error) {
+        ajaxCall('POST', 'application/json', LOGIN_URL, {
+            'email': email,
+            'password': sha256_digest(password)
+        }, 'JSON', null, function (success, error) {
             if (error && error.responseJSON && error.responseJSON.message) {
                 $('.gnr-error-server-msg').text(error.responseJSON.message);
             } else if (success && success.data) {
@@ -204,14 +203,14 @@ function checkEmailPass() {
                     data: success.data.token
                 });
             } else {
-                throw "Unexpected value of response";
+                throw 'Unexpected value of response';
             }
         });
     }
 }
 
 // Add listener to get user profile
-browser.runtime.onMessage.addListener(function (request, sender) {
+browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'getUserDetails' && request.data) {
         browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             getUserDetails(request.data, extractHostname(tabs[0].url));
@@ -226,7 +225,7 @@ browser.runtime.onMessage.addListener(function (request, sender) {
  * @param {string} domainName domain name
  */
 function getUserDetails(token, domainName) {
-    ajaxCall("GET", "application/json", USER_DETAILS + '?domainName=' + domainName, null, "JSON", token, function (success, error) {
+    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName, null, 'JSON', token, function (success) {
         setTimeout(function () {
             generExtBody.empty();
             generExtBody.append(dashboardPage);
@@ -240,14 +239,14 @@ function getUserDetails(token, domainName) {
 
 /**
  * @author Innovify
- * @description Add/Remove domain from whitelisting 
+ * @description Add/Remove domain from whitelisting
  * @param {string} token
  * @param {string} domainName
  * @param {string} enable
  * @param {string} callback
  */
 function whitelistDomain(domainName, token, enable, callback) {
-    ajaxCall("POST", "application/json", ADD_WHITELIST, { "domainName": domainName, "enable": enable }, "JSON", token, function (success, error) {
+    ajaxCall('POST', 'application/json', ADD_WHITELIST, { 'domainName': domainName, 'enable': enable }, 'JSON', token, function () {
         callback();
     });
 }
@@ -260,12 +259,12 @@ function extractHostname(url) {
 
     //find & remove protocol (http, ftp, etc.) and get hostname
     var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
-    
+
     //find & remove port number
     hostname = hostname.split(':')[0];
 
     //find & remove "?"
     hostname = hostname.split('?')[0];
-    
+
     return hostname;
 }

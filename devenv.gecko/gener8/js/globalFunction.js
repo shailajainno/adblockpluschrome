@@ -1,5 +1,5 @@
 /**
- * @description - get the user token from cookies
+ * Get the user access token from cookies
  * @returns {string} - token
  */
 function getUserAccessToken(callback) {
@@ -12,10 +12,10 @@ function getUserAccessToken(callback) {
     });
 }
 /**
- * @description set value in cookies
- * @param {string} key 
- * @param {string} value 
- * @param {function} callback 
+ * Set value in cookies
+ * @param {string} key
+ * @param {string} value
+ * @param {function} callback
  */
 function cookieSet(key, value, callback) {
     function setItem() {
@@ -32,31 +32,25 @@ function cookieSet(key, value, callback) {
 }
 
 /**
- * @description get any value from cookies
- * @param {string} key 
- * @param {function} callback 
+ * Get any value from cookies
+ * @param {string} key
+ * @param {function} callback
  */
 function cookieGet(key, callback) {
     function logCookie(cookie) {
-        if (cookie) {
-            callback(cookie.value, null);
-        } else {
-            callback(null, null);
-        }
+        callback(cookie ? cookie.value: null);
     }
-    function onError(error) {
-        callback(null, error);
-    }
+
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key
-    }).then(logCookie, onError);
+    }).then(logCookie);
 }
 
 /**
- * @description remove passed key value pair from cookies
- * @param {string} key 
- * @param {function} callback 
+ * Remove passed key value pair from cookies
+ * @param {string} key
+ * @param {function} callback
  */
 function storageRemove(key, callback) {
     function removeItem() {
@@ -72,14 +66,14 @@ function storageRemove(key, callback) {
 }
 
 /**
- * @description ajax call to back end
- * @param {string} type 
- * @param {string} contentType 
- * @param {string} url 
- * @param {array} content 
- * @param {string} dataType 
- * @param {string} token 
- * @param {function} callback 
+ * Ajax call to back end
+ * @param {string} type
+ * @param {string} contentType
+ * @param {string} url
+ * @param {array} content
+ * @param {string} dataType
+ * @param {string} token
+ * @param {function} callback
  */
 function ajaxCall(type, contentType, url, content, dataType, token, callback) {
     var obj = {
@@ -100,10 +94,10 @@ function ajaxCall(type, contentType, url, content, dataType, token, callback) {
         }
     };
     if (content == null) {
-        delete obj["data"];
+        delete obj['data'];
     }
     if (token == null) {
-        delete obj["headers"];
+        delete obj['headers'];
     }
     $.ajax(obj);
 }
