@@ -1,20 +1,16 @@
-var GENER8_BACKEND_URL = 'https://devapi.gener8ads.com/';
-var GENER8_FRONTEND_URL = 'https://dev.gener8ads.com/';
+const GENER8_BACKEND_URL = 'https://devapi.gener8ads.com/';
+const GENER8_FRONTEND_URL = 'https://dev.gener8ads.com/';
 /**
- * @description get any value from cookies
- * @param {string} key 
- * @param {function} callback 
+ * Get cookie
+ * @param {string} key
+ * @param {function} callback
  */
 function cookieGet(key, callback) {
     function logCookie(cookie) {
-        if (cookie) {
-            callback(cookie.value, null);
-        } else {
-            callback(null, null);
-        }
+        callback(cookie ? cookie.value: null);
     }
-    function onError(error) {
-        callback(null, error);
+    function onError() {
+        callback(null);
     }
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
@@ -22,8 +18,9 @@ function cookieGet(key, callback) {
     }).then(logCookie, onError);
 }
 
-/** @desc sends token to all content script
- * @param {Object} data
+/**
+ * Sends token to all content script
+ * @param {string} action
  */
 function sendToAllContentScripts(action) {
     browser.tabs.query({}, function (tabs) {
@@ -33,12 +30,19 @@ function sendToAllContentScripts(action) {
     });
 }
 
-/** @desc Listen to the messages and call processRequest*/
+// Listen to the messages and call processRequest
 browser.runtime.onMessage.addListener(processRequest);
-/** @desc process all actions
- *  @param {request,sender,sendResponse}        
+
+/**
+ * Process request for
+ * 1) Open login
+ * 2) Save token
+ * 3) Check token exists or not
+ * @author Innovify
+ * @param {Object} request
+ * @param {string} sender
  */
-function processRequest(request, sender, sendResponse) {
+function processRequest(request, sender) {
     switch (request.action) {
         case 'openPopUpAndLogin':
             browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: "popup", height: 900, width: 900, allowScriptsToClose: true });

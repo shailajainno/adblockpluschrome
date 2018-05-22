@@ -47,7 +47,7 @@ var loginPage = [
     '<div class="gnr-ext-login-smp">',
     '<a id="gnr-sign-up">Sign-Up</a>',
     '</div>'
-].join("\n");
+].join('\n');
 
 //Dashboard HTML for popup.html
 var dashboardPage = [
@@ -128,7 +128,7 @@ var dashboardPage = [
     '</div>',
     '</div>',
     '</div>'
-].join("\n");
+].join('\n');
 
 var loader = [
     '<div class="loader" style="display: block;">',
@@ -139,4 +139,4 @@ var loader = [
     '<div class="box4"></div>',
     '</div>',
     '</div>'
-].join("\n");
+].join('\n');

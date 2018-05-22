@@ -1,108 +1,105 @@
+var generExtBody = $('.gnr-ext-bdy-prt');
+
 $(function () {
     //Check User Token whether to show Login Page or Dashboard
-    $('.gnr-ext-bdy-prt').append(loader);
+    generExtBody.append(loader);
     getUserAccessToken(function (token) {
         if (token !== null) {
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url));
             });
         } else {
-            $('.gnr-ext-bdy-prt').empty();
-            $('.gnr-ext-bdy-prt').append(loginPage);
+            generExtBody.empty();
+            generExtBody.append(loginPage);
         }
     });
 
     //Focus In on email
-    $(".gnr-ext-bdy-prt").on('focusin', '#emailid', function () {
+    generExtBody.on('focusin', '#emailid', function () {
         $('.gnr-error-server-msg').text('');
     });
 
     //Focus In on password
-    $(".gnr-ext-bdy-prt").on('focusin', '#password', function () {
+    generExtBody.on('focusin', '#password', function () {
         $('.gnr-error-server-msg').text('');
     });
 
     //Check validations on Focus Out of Email Id
-    $(".gnr-ext-bdy-prt").on('focusout', '#emailid', function () {
+    generExtBody.on('focusout', '#emailid', function () {
         var email = $('#emailid').val();
         emailValidation(email);
     });
 
     //Check validations on Focus Out of Password
-    $(".gnr-ext-bdy-prt").on('focusout', '#password', function () {
+    generExtBody.on('focusout', '#password', function () {
         var password = $('#password').val();
         passwordValidation(password);
     });
 
     //Catch Enter event after password entered
-    $(".gnr-ext-bdy-prt").on('keypress', '#password', function (event) {
+    generExtBody.on('keypress', '#password', function (event) {
         if (event.which === 13) {
             checkEmailPass();
         }
     });
 
     //Catch Enter event on Login button
-    $(".gnr-ext-bdy-prt").on('keypress', '.gnr-ext-login-btn', function (event) {
+    generExtBody.on('keypress', '.gnr-ext-login-btn', function (event) {
         if (event.which === 13) {
             checkEmailPass();
         }
     });
 
     //Call Login API  
-    $(".gnr-ext-bdy-prt").on('click', '.gnr-ext-login-btn', function () {
+    generExtBody.on('click', '.gnr-ext-login-btn', function () {
         checkEmailPass();
     });
 
     //Copy Referral Link to the Clipboard
-    $(".gnr-ext-bdy-prt").on("click", "#gnr-copy-ref-link", function () {
+    generExtBody.on("click", "#gnr-copy-ref-link", function () {
         $('#gnr-ref-link').select();
         document.execCommand('copy');
         document.selection.empty();
     });
 
     //Call Facebook Login API
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-fbLoginBtn', function () {
+    generExtBody.on('click', '#gnr-fbLoginBtn', function () {
         openWindow(FB_CALLBACK_URL);
     });
 
-    //Call Twitter Login API
-    // $(".gnr-ext-bdy-prt").on('click', '#gnr-twLoginBtn', function () {
-    //     openWindow(TW_CALLBACK_URL);
-    // });
-
     //Open Gener8 website 
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-website', function () {
+    generExtBody.on('click', '#gnr-website', function () {
         window.close();
         window.open(GENER8_WEBSITE);
     });
 
     //Open Forgot Password webpage 
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-forgot-password', function () {
+    generExtBody.on('click', '#gnr-forgot-password', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + FORGOT_PASS_URL);
     });
 
     //Open Signup webpage 
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-sign-up', function () {
+    generExtBody.on('click', '#gnr-sign-up', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + SIGN_UP_URL);
     });
 
     //Open Dashboard webpage
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-dashboard', function () {
+    generExtBody.on('click', '#gnr-dashboard', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + DASHBOARD);
     });
 
     //Open Wallet webpage 
-    $(".gnr-ext-bdy-prt").on('click', '#gnr-wallet', function () {
+    generExtBody.on('click', '#gnr-wallet', function () {
         window.close();
         window.open(GENER8_FRONTEND_URL + WALLET);
     });
 
     //Checkmark whitelist domain
-    $(".gnr-ext-bdy-prt").on('change', '#styled-checkbox-2', function () {
-        let enable = this.checked;
+    generExtBody.on('change', '#styled-checkbox-2', function () {
+        const enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
@@ -115,8 +112,8 @@ $(function () {
     });
 
     //Pause domain for one instance
-    $(".gnr-ext-bdy-prt").on('change', '#styled-checkbox-1', function () {
-        let enable = this.checked;
+    generExtBody.on('change', '#styled-checkbox-1', function () {
+        const enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
@@ -128,18 +125,19 @@ $(function () {
 });
 
 /**
- * @description Open window for Social Logins 
+ * Open window for Social Logins 
+ * @author Innovify
  * @param {string} loginType
- * @returns {string} loginName
  */
 function openWindow(loginType) {
     browser.runtime.sendMessage({
         action: 'openPopUpAndLogin',
         data: loginType
-    }, function () { });
+    });
 }
 /**
- * @description show error messages for EmailId
+ * Email validation
+ * @author Innovify
  * @param {string} email
  * @returns {boolean} 
  */
@@ -148,19 +146,15 @@ function emailValidation(email) {
     if (!email) {
         $('.gnr-emailid .gnr-error-msg').text(EMAIL_IS_REQUIRED);
     } else {
-        var test = validateEmailRegex(email);
-        if (!test) {
-            $('.gnr-emailid .gnr-error-msg').text(EMAIL_NOT_VALID);
-        } else {
-            $('.gnr-emailid .gnr-error-msg').text("");
-            emailValid = true;
-        }
+        emailValid = validateEmailRegex(email);
+        $('.gnr-emailid .gnr-error-msg').text(emailValid ? '' : EMAIL_NOT_VALID);
     }
     return emailValid;
 }
 
 /**
- * @description show error messages for Password
+ * Password validation
+ * @author Innovify
  * @param {string} password
  * @returns {boolean} 
  */
@@ -176,7 +170,8 @@ function passwordValidation(password) {
 }
 
 /**
- * @description validate Email Address
+ * Regex validation for Email
+ * @author Innovify
  * @param {string} email
  * @returns {boolean} 
  */
@@ -186,7 +181,8 @@ function validateEmailRegex(email) {
 }
 
 /**
- * @description Check Email and Password Validations and call API for login
+ * Check Email and Password Validations and call API for login
+ * @author Innovify
  */
 function checkEmailPass() {
     var email = $('#emailid').val();
@@ -207,12 +203,14 @@ function checkEmailPass() {
                     action: 'saveToken',
                     data: success.data.token
                 });
+            } else {
+                throw "Unexpected value of response";
             }
         });
     }
 }
 
-
+// Add listener to get user profile
 browser.runtime.onMessage.addListener(function (request, sender) {
     if (request.action === 'getUserDetails' && request.data) {
         browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
@@ -222,14 +220,16 @@ browser.runtime.onMessage.addListener(function (request, sender) {
 });
 
 /**
- * @description Get User Details 
- * @param {string} token
+ * This function is being used to get user details
+ * @author Innovify
+ * @param {string} token Access token
+ * @param {string} domainName domain name
  */
 function getUserDetails(token, domainName) {
     ajaxCall("GET", "application/json", USER_DETAILS + '?domainName=' + domainName, null, "JSON", token, function (success, error) {
         setTimeout(function () {
-            $('.gnr-ext-bdy-prt').empty();
-            $('.gnr-ext-bdy-prt').append(dashboardPage);
+            generExtBody.empty();
+            generExtBody.append(dashboardPage);
             if (success && success.data) {
                 $('#gnr-ref-link').val(success.data.referralLink);
                 $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.whitelisted : false);
@@ -239,8 +239,12 @@ function getUserDetails(token, domainName) {
 }
 
 /**
+ * @author Innovify
  * @description Add/Remove domain from whitelisting 
  * @param {string} token
+ * @param {string} domainName
+ * @param {string} enable
+ * @param {string} callback
  */
 function whitelistDomain(domainName, token, enable, callback) {
     ajaxCall("POST", "application/json", ADD_WHITELIST, { "domainName": domainName, "enable": enable }, "JSON", token, function (success, error) {
@@ -249,20 +253,19 @@ function whitelistDomain(domainName, token, enable, callback) {
 }
 
 /**
-* @description its used to convert full website name to just name
+* This function is being used to parse domain name from URL
 * @param {string} url - full url link
 */
 function extractHostname(url) {
-    var hostname;
+
     //find & remove protocol (http, ftp, etc.) and get hostname
-    if (url.indexOf("://") > -1) {
-        hostname = url.split('/')[2];
-    } else {
-        hostname = url.split('/')[0];
-    }
+    var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
+    
     //find & remove port number
     hostname = hostname.split(':')[0];
+
     //find & remove "?"
     hostname = hostname.split('?')[0];
+    
     return hostname;
 }

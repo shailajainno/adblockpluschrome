@@ -1,7 +1,15 @@
 $(function () {
-    var replaceGener8;
-    let currentTimeout;
-    replaceGener8 = () => {
+    let currentTimeout;    
+    function dumpCSSText(element) {
+        var s = '';
+        var o = getComputedStyle(element);
+        for (var i = 0; i < o.length; i++) {
+            s += o[i] + ':' + o.getPropertyValue(o[i]) + ';';
+        }
+        return s;
+    }
+
+    var replaceGener8 = () => {
         if (currentTimeout) clearTimeout(currentTimeout);
         currentTimeout = setTimeout(function () {
             var getAdTags = $('.gener8');
@@ -10,17 +18,17 @@ $(function () {
             ArrayNodes.forEach(function (node, index) {
                 var iframe = $(node).find('iframe');
                 if (iframe.length !== 0) {
-                    var iframeGenere = document.createElement("iframe");
+                    var iframeGenere = document.createElement('iframe');
                     iframeGenere.height = $(iframe)[0].height;
                     iframeGenere.width = $(iframe)[0].width;
-                    iframeGenere.src = "https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png";
+                    iframeGenere.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';
                     iframeGenere.setAttribute('class', 'gener8Ad');
-                    iframeGenere.scrolling = "no";
+                    iframeGenere.scrolling = 'no';
                     $(iframeGenere).css('border', '1px solid red');
                     arrayIframes.push(iframeGenere);
                     $(node).children().remove();
 
-                    var divGener8 = document.createElement("div");
+                    var divGener8 = document.createElement('div');
                     divGener8.setAttribute('class', 'gener8Container');
                     divGener8.style = dumpCSSText(node);
                     $(divGener8).css('display', '');
@@ -33,20 +41,11 @@ $(function () {
     }
     replaceGener8();
 
-    function dumpCSSText(element) {
-        var s = '';
-        var o = getComputedStyle(element);
-        for (var i = 0; i < o.length; i++) {
-            s += o[i] + ':' + o.getPropertyValue(o[i]) + ';';
-        }
-        return s;
-    }
-
-    ((params) => {
+    (function () {
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
                 [].filter.call(mutation.addedNodes, function (node) {
-                    return node.nodeName == 'IFRAME';
+                    return node.nodeName === 'IFRAME';
                 }).forEach(function (node) {
                     node.addEventListener('load', function (e) {
                         replaceGener8();
