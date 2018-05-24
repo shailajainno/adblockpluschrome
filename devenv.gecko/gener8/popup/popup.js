@@ -26,7 +26,9 @@ $(function () {
 
     //Check validations on Focus Out of Email Id
     generExtBody.on('focusout', '#emailid', function () {
-        var email = $('#emailid').val();
+        let email = $('#emailid').val();
+        email = email.trim();
+        $('#emailid').val(email);
         emailValidation(email);
     });
 
@@ -69,32 +71,32 @@ $(function () {
 
     //Open Gener8 website
     generExtBody.on('click', '#gnr-website', function () {
-        window.close();
         window.open(GENER8_WEBSITE);
+        window.close();
     });
 
     //Open Forgot Password webpage
     generExtBody.on('click', '#gnr-forgot-password', function () {
-        window.close();
         window.open(GENER8_FRONTEND_URL + FORGOT_PASS_URL);
+        window.close();
     });
 
     //Open Signup webpage
     generExtBody.on('click', '#gnr-sign-up', function () {
-        window.close();
         window.open(GENER8_FRONTEND_URL + SIGN_UP_URL);
+        window.close();
     });
 
-    //Open Dashboard webpage
+    //Open Dashboard webpage  
     generExtBody.on('click', '#gnr-dashboard', function () {
-        window.close();
         window.open(GENER8_FRONTEND_URL + DASHBOARD);
+        window.close();
     });
 
     //Open Wallet webpage
     generExtBody.on('click', '#gnr-wallet', function () {
-        window.close();
         window.open(GENER8_FRONTEND_URL + WALLET);
+        window.close();
     });
 
     //Checkmark whitelist domain
