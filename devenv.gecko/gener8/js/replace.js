@@ -15,27 +15,47 @@ $(function () {
             var ArrayNodes = Array.prototype.slice.call($('.gener8'));
             ArrayNodes.forEach(function (node) {
                 var iframe = $(node).find('iframe');
-                if (iframe.length !== 0) {
-                    var iframeGenere = document.createElement('iframe');
-                    iframeGenere.height = $(iframe)[0].height;
-                    iframeGenere.width = $(iframe)[0].width;
-                    iframeGenere.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';
-                    iframeGenere.setAttribute('class', 'gener8Ad');
-                    iframeGenere.scrolling = 'no';
-                    $(iframeGenere).css('border', '1px solid red');
-                    $(node).children().remove();
-
-                    var divGener8 = document.createElement('div');
-                    divGener8.setAttribute('class', 'gener8Container');
-                    divGener8.style = dumpCSSText(node);
-                    $(divGener8).css('display', '');
-                    $(divGener8).append(iframeGenere);
-                    $(node).after(divGener8);
-                    $(node).remove();
+                if (iframe.length === 0) {
+                    return;
                 }
+
+                var height = $(iframe)[0].height;
+                var width = $(iframe)[0].width;
+                
+                // If ad is more then 800 x 800
+                if(height > 800 && width > 800){
+                    return;
+                }
+
+                // If ad is more then 50 x 50
+                if(height < 50 &&  width < 50){
+                    return;
+                }
+
+                createIframe(iframe, node, height, width);
+                return;
             });
         }, 2000);
     };
+
+    function createIframe (iframe, node, height, width) {
+        var iframeGenere = document.createElement('iframe');
+        iframeGenere.height = height;
+        iframeGenere.width = width;
+        iframeGenere.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';
+        iframeGenere.setAttribute('class', 'gener8Ad');
+        iframeGenere.scrolling = 'no';
+        $(iframeGenere).css('border', '1px solid red');
+        $(node).children().remove();
+
+        var divGener8 = document.createElement('div');
+        divGener8.setAttribute('class', 'gener8Container');
+        divGener8.style = dumpCSSText(node);
+        $(divGener8).css('display', '');
+        $(divGener8).append(iframeGenere);
+        $(node).after(divGener8);
+        $(node).remove();
+    }
     
     replaceGener8();
 
