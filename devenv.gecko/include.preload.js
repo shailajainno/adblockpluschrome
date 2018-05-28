@@ -700,6 +700,7 @@
             if (request.action === 'catchToken' && request.data) {
               ajaxCall("POST", "application/json", VALIDATE_WHITE_LIST, {
                 "domainName": location.hostname,
+                "pageName":location.href.split('?')[0]
               }, "JSON", request.data, function (success, error) {
                 if (success && success.data && !success.data.whitelisted) {
                   browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {

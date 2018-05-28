@@ -6,7 +6,7 @@ $(function () {
     getUserAccessToken(function (token) {
         if (token !== null) {
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                getUserDetails(token, extractHostname(tabs[0].url));
+                getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
             });
         } else {
             generExtBody.empty();
@@ -102,10 +102,11 @@ $(function () {
     //Checkmark whitelist domain
     generExtBody.on('change', '#styled-checkbox-2', function () {
         const enable = this.checked;
+        $('#styled-checkbox-1').prop( "disabled", enable );
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    whitelistDomain(extractHostname(tabs[0].url), token, enable, function () {
+                    whitelistDomain('domain', extractHostname(tabs[0].url), token, enable, function (reload) {
                         browser.tabs.reload(tabs[0].id);
                     });
                 });
@@ -115,15 +116,22 @@ $(function () {
 
     //Pause domain for one instance
     generExtBody.on('change', '#styled-checkbox-1', function () {
+        const enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    browser.tabs.reload(tabs[0].id);
+                    whitelistDomain('page', extractLink(tabs[0].url), token, enable, function (reload) {
+                        browser.tabs.reload(tabs[0].id);
+                    });
                 });
             }
         });
     });
 });
+
+function addWhitelist(){
+    
+}
 
 /**
  * Open window for Social Logins
@@ -215,7 +223,7 @@ function checkEmailPass() {
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'getUserDetails' && request.data) {
         browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            getUserDetails(request.data, extractHostname(tabs[0].url));
+            getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
         });
     }
 });
@@ -226,14 +234,18 @@ browser.runtime.onMessage.addListener(function (request) {
  * @param {string} token Access token
  * @param {string} domainName domain name
  */
-function getUserDetails(token, domainName) {
-    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName, null, 'JSON', token, function (success) {
+function getUserDetails(token, domainName, pageName) {
+     
+    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName+'&pageName='+ encodeURI(pageName), null, 'JSON', token, function (success) {
         setTimeout(function () {
             generExtBody.empty();
             generExtBody.append(dashboardPage);
             if (success && success.data) {
                 $('#gnr-ref-link').val(success.data.referralLink);
-                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.whitelisted : false);
+                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.domainWhitelisted : false);
+                $('#styled-checkbox-1').prop('checked', success.data.web ? success.data.web.pageWhitelisted : false);
+                $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.domainWhitelisted : false );
+                $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
             }
         }, 1000);
     });
@@ -247,8 +259,13 @@ function getUserDetails(token, domainName) {
  * @param {string} enable
  * @param {string} callback
  */
-function whitelistDomain(domainName, token, enable, callback) {
-    ajaxCall('POST', 'application/json', ADD_WHITELIST, { 'domainName': domainName, 'enable': enable }, 'JSON', token, function () {
+function whitelistDomain(key, domainName, token, enable, callback) {
+    var body = {
+        enable: enable,
+        type: key,
+        domainName: domainName
+    };
+    ajaxCall('POST', 'application/json', ADD_WHITELIST , body, 'JSON', token, function () {
         callback();
     });
 }
@@ -269,4 +286,12 @@ function extractHostname(url) {
     hostname = hostname.split('?')[0];
 
     return hostname;
+}
+
+/**
+* This function is being used to parse link
+* @param {string} url - full url link
+*/
+function extractLink(url) {
+    return url.split('?')[0];
 }
