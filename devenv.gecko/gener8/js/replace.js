@@ -1,5 +1,4 @@
 $(function () {
-    let currentTimeout;
     function dumpCSSText(element) {
         var s = '';
         var o = getComputedStyle(element);
@@ -10,8 +9,7 @@ $(function () {
     }
 
     var replaceGener8 = () => {
-        if (currentTimeout) clearTimeout(currentTimeout);
-        currentTimeout = setTimeout(function () {
+      
             var ArrayNodes = Array.prototype.slice.call($('.gener8'));
             ArrayNodes.forEach(function (node) {
                 var iframe = $(node).find('iframe');
@@ -35,7 +33,7 @@ $(function () {
                 createIframe(iframe, node, height, width);
                 return;
             });
-        }, 2000);
+        
     };
     var i = 0;
     function createIframe (iframe, node, height, width) {
