@@ -19,6 +19,7 @@
   },
   "background": {
     "scripts": [
+      "gener8/lib/js/jquery.min.js",
       "polyfill.js",
       "ext/common.js",
       "ext/background.js",
@@ -83,6 +84,12 @@
     "storage",
     "unlimitedStorage",
     "notifications",
-    "cookies"
+    "cookies",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources": [
+    "*.*",
+    "**/*.*"
   ]
 }

@@ -346,16 +346,16 @@
 
       function hideElement(element) {
         function doHide() {
-          let propertyName = "display";
-          let propertyValue = "none";
-          if (element.localName == "frame") {
-            propertyName = "visibility";
-            propertyValue = "hidden";
-          }
+          // let propertyName = "display";
+          // let propertyValue = "none";
+          // if (element.localName == "frame") {
+          //   propertyName = "visibility";
+          //   propertyValue = "hidden";
+          // }
 
-          if (element.style.getPropertyValue(propertyName) != propertyValue ||
-            element.style.getPropertyPriority(propertyName) != "important")
-            element.style.setProperty(propertyName, propertyValue, "important");
+          // if (element.style.getPropertyValue(propertyName) != propertyValue ||
+          //   element.style.getPropertyPriority(propertyName) != "important")
+          //   element.style.setProperty(propertyName, propertyValue, "important");
         }
 
         doHide();
@@ -648,7 +648,7 @@
             let selector = preparedSelectors.slice(
               i, i + this.selectorGroupSize
             ).join(", ");
-            style.sheet.insertRule(selector + "{display: none !important;}",
+            style.sheet.insertRule(selector,
               style.sheet.cssRules.length);
           }
         },
