@@ -89,7 +89,7 @@
     "https://*/*"
   ],
   "web_accessible_resources": [
-    "*.*",
-    "**/*.*"
+    "http://*/*",
+    "https://*/*"
   ]
 }

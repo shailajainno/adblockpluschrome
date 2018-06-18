@@ -68,3 +68,37 @@ function processRequest(request, sender) {
             break;
     }
 }
+
+let a = 1;
+browser.webRequest.onBeforeRequest.addListener(function(details){
+    // console.log(details.url);
+    console.log(details.type);
+        var redirectUrl = 'https://www.gener8ads.com/';
+      if(details.url.indexOf('gener8') === -1 && details.url.indexOf('youtube') === -1){
+        console.log(details.url, a++);
+        // // console.log('done1', details.url);
+        // return new Promise((resolve) => {
+        // //     console.log('done', details.url);
+        //     window.setTimeout(() => {
+        //         resolve({redirectUrl});                                                                                                                                                                                                                                                                                                                                                                                                                                                                        resolve({redirectUrl})
+        //     }, 1000);
+        //   });
+        return {cancel: true}
+      }
+  },{
+       urls: ["<all_urls>"], types: ["sub_frame","other","image"] 
+}, ["blocking"]);
+
+browser.webRequest.onCompleted.addListener(function(details){
+    // console.log(details.url);
+    
+    if(details.type === 'beacon'){
+        console.log("beacon ===>>",details);    
+    }else if(details.type === 'xmlhttprequest'){
+        console.log("request ===>>",details);    
+    }
+  },{
+       urls: ["<all_urls>"], types: ["xmlhttprequest", "beacon"] 
+});
+
+console.log('loaded///////////////////');

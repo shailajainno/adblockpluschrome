@@ -6423,85 +6423,16 @@
         );
       }
 
-      browser.webRequest.onBeforeRequest.addListener(details => {
-        // Never block top-level documents.
-        if (details.type == "main_frame")
-          return;
-
-        // Filter out requests from non web protocols. Ideally, we'd explicitly
-        // specify the protocols we are interested in (i.e. http://, https://,
-        // ws:// and wss://) with the url patterns, given below, when adding this
-        // listener. But unfortunately, Chrome <=57 doesn't support the WebSocket
-        // protocol and is causing an error if it is given.
-        let url = new URL(details.url);
-        if (url.protocol != "http:" && url.protocol != "https:" &&
-          url.protocol != "ws:" && url.protocol != "wss:")
-          return;
-
-        // Firefox provides us with the full origin URL, while Chromium (>=63)
-        // provides only the protocol + host of the (top-level) document which
-        // the request originates from through the "initiator" property.
-        let originUrl = details.originUrl ? new URL(details.originUrl) :
-          details.initiator ? new URL(details.initiator) : null;
-
-        // Ignore requests sent by extensions or by Firefox itself:
-        // * Firefox intercepts requests sent by any extensions, indicated with
-        //   an "originURL" starting with "moz-extension:".
-        // * Chromium intercepts requests sent by this extension only, indicated
-        //   on Chromium >=63 with an "initiator" starting with "chrome-extension:".
-        // * On Firefox, requests that don't relate to any document or extension are
-        //   indicated with an "originUrl" starting with "chrome:".
-        if (originUrl && (originUrl.protocol == extensionProtocol ||
-          originUrl.protocol == "chrome:"))
-          return;
-
-        let page = new ext.Page({ id: details.tabId });
-        let frame = ext.getFrame(
-          details.tabId,
-          // We are looking for the frame that contains the element which
-          // has triggered this request. For most requests (e.g. images) we
-          // can just use the request's frame ID, but for subdocument requests
-          // (e.g. iframes) we must instead use the request's parent frame ID.
-          details.type == "sub_frame" ? details.parentFrameId : details.frameId
-        );
-
-        // On Chromium >= 63, if both the frame is unknown and we haven't get
-        // an "initator", this implies a request sent by the browser itself
-        // (on older versions of Chromium, due to the lack of "initator",
-        // this can also indicate a request sent by a Shared/Service Worker).
-        if (!frame && !originUrl)
-          return;
-
-        if (checkWhitelisted(page, frame, originUrl))
-          return;
-
-        let type = resourceTypes.get(details.type) || "OTHER";
-        let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
-          originUrl);
-        let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
-          sitekey, specificOnly);
-
-        getRelatedTabIds(details).then(tabIds => {
-          logRequest(tabIds, urlString, type, docDomain,
-            thirdParty, sitekey, specificOnly, filter);
-        });
-
-        if (filter instanceof BlockingFilter ){
-          console.log("ad came from ==>> ",details.type, details.url);
-          switch (details.type) {
-            case "sub_frame":
-              console.log("replace html");
-              return { redirectUrl: 'https://www.gener8ads.com/' };  
-            case "script":
-              console.log("replace script");
-              return { redirectUrl: 'https://raw.githubusercontent.com/harsh-innovify/test/master/script.js ' };  
-            default:
-              console.log("replace image");
-              return { redirectUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png' };
-          } 
-        }
-          
-      }, { urls: ["<all_urls>"], types: ['sub_frame'] }, ["blocking"]);
+      // browser.webRequest.onBeforeRequest.addListener(function(details){
+      //   console.log(details.url);
+      //     // Never block top-level documents.
+      //     if(details.url.indexOf('gener8') !== -1 || details.url.indexOf('youtube') !== -1){
+      //       return {
+      //         cancel: true
+      //       };
+      //     }
+      // }, { urls: ["http://*/*", "https://*/*"],
+      // types: ["sub_frame"] }, ["blocking"]);
 
       port.on("filters.collapse", (message, sender) => {
         let { page, frame } = sender;
@@ -9763,40 +9694,43 @@
       // Versions of Firefox before 54 do not support
       // webNavigation.onCreatedNavigationTarget
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1190687
-      if ("onCreatedNavigationTarget" in browser.webNavigation) {
-        browser.webNavigation.onCreatedNavigationTarget.addListener(details => {
-          if (loadingPopups.size == 0) {
-            browser.webRequest.onBeforeRequest.addListener(
-              onPopupURLChanged,
-              {
-                urls: ["http://*/*", "https://*/*"],
-                types: ["main_frame"]
-              }
-            );
-            browser.webNavigation.onCommitted.addListener(onPopupURLChanged);
-            browser.webNavigation.onCompleted.addListener(onCompleted);
-            browser.tabs.onRemoved.addListener(forgetPopup);
-          }
 
-          let popup = {
-            url: details.url,
-            sourcePage: new ext.Page({ id: details.sourceTabId }),
-            sourceFrame: null
-          };
+      //Commented by hrsd
 
-          loadingPopups.set(details.tabId, popup);
+      // if ("onCreatedNavigationTarget" in browser.webNavigation) {
+      //   browser.webNavigation.onCreatedNavigationTarget.addListener(details => {
+      //     if (loadingPopups.size == 0) {
+      //       browser.webRequest.onBeforeRequest.addListener(
+      //         onPopupURLChanged,
+      //         {
+      //           urls: ["http://*/*", "https://*/*"],
+      //           types: ["main_frame"]
+      //         }
+      //       );
+      //       browser.webNavigation.onCommitted.addListener(onPopupURLChanged);
+      //       browser.webNavigation.onCompleted.addListener(onCompleted);
+      //       browser.tabs.onRemoved.addListener(forgetPopup);
+      //     }
 
-          let frame = ext.getFrame(details.sourceTabId, details.sourceFrameId);
+      //     let popup = {
+      //       url: details.url,
+      //       sourcePage: new ext.Page({ id: details.sourceTabId }),
+      //       sourceFrame: null
+      //     };
 
-          if (checkWhitelisted(popup.sourcePage, frame)) {
-            forgetPopup(details.tabId);
-          }
-          else {
-            popup.sourceFrame = frame;
-            checkPotentialPopup(details.tabId, popup);
-          }
-        });
-      }
+      //     loadingPopups.set(details.tabId, popup);
+
+      //     let frame = ext.getFrame(details.sourceTabId, details.sourceFrameId);
+
+      //     if (checkWhitelisted(popup.sourcePage, frame)) {
+      //       forgetPopup(details.tabId);
+      //     }
+      //     else {
+      //       popup.sourceFrame = frame;
+      //       checkPotentialPopup(details.tabId, popup);
+      //     }
+      //   });
+      // }
 
 
       /***/
@@ -11384,4 +11318,3 @@
       /***/
     })
 /******/]);
-//# sourceMappingURL=adblockplus.js.map

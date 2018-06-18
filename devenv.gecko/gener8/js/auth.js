@@ -1,6 +1,6 @@
 
 // Send token to background js and close the login popup
-if (document.getElementsByTagName('p')) {
+if (document.getElementsByTagName('p').length > 0) {
     var id = document.getElementsByTagName('p')[0].id;
     if (id === 'authToken') {
         browser.runtime.sendMessage({
@@ -11,5 +11,5 @@ if (document.getElementsByTagName('p')) {
         });
     }
 } else {
-    window.close();
+    console.log("console.log(window.status)",window.status);
 }
