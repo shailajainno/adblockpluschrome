@@ -354,18 +354,18 @@
     setIcon(path) {
       this._addChange("iconPath", path);
     },
-    setBadge(badge) {
-      if (!badge) {
-        this._addChange("badgeText", "");
-      }
-      else {
-        if ("number" in badge)
-          this._addChange("badgeText", badge.number.toString());
+    // setBadge(badge) {
+    //   if (!badge) {
+    //     this._addChange("badgeText", "");
+    //   }
+    //   else {
+    //     if ("number" in badge)
+    //       this._addChange("badgeText", badge.number.toString());
 
-        if ("color" in badge)
-          this._addChange("badgeColor", badge.color);
-      }
-    }
+    //     if ("color" in badge)
+    //       this._addChange("badgeColor", badge.color);
+    //   }
+    // }
   };
 
 

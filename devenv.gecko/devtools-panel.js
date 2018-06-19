@@ -27,8 +27,9 @@ browser.runtime.sendMessage({type: "types.get"},
     for (let type of filterTypes)
     {
       filterStyleElem.innerHTML +=
-        `#items[data-filter-type=${type}] tr:not([data-type=${type}])` +
-        "{display: none;}";
+        `#items[data-filter-type=${type}] tr:not([data-type=${type}])`;
+        //GENER8EDITS
+        //  + "{display: none;}";
       let optionNode = document.createElement("option");
       optionNode.appendChild(document.createTextNode(type));
       filterTypesElem.appendChild(optionNode);

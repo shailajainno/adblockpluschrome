@@ -4003,12 +4003,12 @@
         return panels.has(tabId);
       };
 
-      browser.webRequest.onCompleted.addListener(function (details) {
-        console.log(details.type);
-      },
-        {
-          urls: ["<all_urls>"]
-        });
+      // browser.webRequest.onCompleted.addListener(function (details) {
+      //   console.log(details.type);
+      // },
+      //   {
+      //     urls: ["<all_urls>"]
+      //   });
 
       // function onBeforeRequest(details) {
       //   let panel = panels.get(details.tabId);
@@ -6429,73 +6429,81 @@
           specificOnly, filter
         );
       }
+      var iframeCount = 0, apiCount = 0;
+      browser.webRequest.onBeforeRequest.addListener(details => {
+        // Never block top-level documents.
+        if (details.type == "main_frame")
+          return;
 
-      // browser.webRequest.onBeforeRequest.addListener(details => {
-      //   // Never block top-level documents.
-      //   if (details.type == "main_frame")
-      //     return;
+        // Filter out requests from non web protocols. Ideally, we'd explicitly
+        // specify the protocols we are interested in (i.e. http://, https://,
+        // ws:// and wss://) with the url patterns, given below, when adding this
+        // listener. But unfortunately, Chrome <=57 doesn't support the WebSocket
+        // protocol and is causing an error if it is given.
+        let url = new URL(details.url);
+        if (url.protocol != "http:" && url.protocol != "https:" &&
+          url.protocol != "ws:" && url.protocol != "wss:")
+          return;
 
-      //   // Filter out requests from non web protocols. Ideally, we'd explicitly
-      //   // specify the protocols we are interested in (i.e. http://, https://,
-      //   // ws:// and wss://) with the url patterns, given below, when adding this
-      //   // listener. But unfortunately, Chrome <=57 doesn't support the WebSocket
-      //   // protocol and is causing an error if it is given.
-      //   let url = new URL(details.url);
-      //   if (url.protocol != "http:" && url.protocol != "https:" &&
-      //     url.protocol != "ws:" && url.protocol != "wss:")
-      //     return;
+        // Firefox provides us with the full origin URL, while Chromium (>=63)
+        // provides only the protocol + host of the (top-level) document which
+        // the request originates from through the "initiator" property.
+        let originUrl = details.originUrl ? new URL(details.originUrl) :
+          details.initiator ? new URL(details.initiator) : null;
 
-      //   // Firefox provides us with the full origin URL, while Chromium (>=63)
-      //   // provides only the protocol + host of the (top-level) document which
-      //   // the request originates from through the "initiator" property.
-      //   let originUrl = details.originUrl ? new URL(details.originUrl) :
-      //     details.initiator ? new URL(details.initiator) : null;
+        // Ignore requests sent by extensions or by Firefox itself:
+        // * Firefox intercepts requests sent by any extensions, indicated with
+        //   an "originURL" starting with "moz-extension:".
+        // * Chromium intercepts requests sent by this extension only, indicated
+        //   on Chromium >=63 with an "initiator" starting with "chrome-extension:".
+        // * On Firefox, requests that don't relate to any document or extension are
+        //   indicated with an "originUrl" starting with "chrome:".
+        if (originUrl && (originUrl.protocol == extensionProtocol ||
+          originUrl.protocol == "chrome:"))
+          return;
 
-      //   // Ignore requests sent by extensions or by Firefox itself:
-      //   // * Firefox intercepts requests sent by any extensions, indicated with
-      //   //   an "originURL" starting with "moz-extension:".
-      //   // * Chromium intercepts requests sent by this extension only, indicated
-      //   //   on Chromium >=63 with an "initiator" starting with "chrome-extension:".
-      //   // * On Firefox, requests that don't relate to any document or extension are
-      //   //   indicated with an "originUrl" starting with "chrome:".
-      //   if (originUrl && (originUrl.protocol == extensionProtocol ||
-      //     originUrl.protocol == "chrome:"))
-      //     return;
+        let page = new ext.Page({ id: details.tabId });
+        let frame = ext.getFrame(
+          details.tabId,
+          // We are looking for the frame that contains the element which
+          // has triggered this request. For most requests (e.g. images) we
+          // can just use the request's frame ID, but for subdocument requests
+          // (e.g. iframes) we must instead use the request's parent frame ID.
+          details.type == "sub_frame" ? details.parentFrameId : details.frameId
+        );
 
-      //   let page = new ext.Page({ id: details.tabId });
-      //   let frame = ext.getFrame(
-      //     details.tabId,
-      //     // We are looking for the frame that contains the element which
-      //     // has triggered this request. For most requests (e.g. images) we
-      //     // can just use the request's frame ID, but for subdocument requests
-      //     // (e.g. iframes) we must instead use the request's parent frame ID.
-      //     details.type == "sub_frame" ? details.parentFrameId : details.frameId
-      //   );
+        // On Chromium >= 63, if both the frame is unknown and we haven't get
+        // an "initator", this implies a request sent by the browser itself
+        // (on older versions of Chromium, due to the lack of "initator",
+        // this can also indicate a request sent by a Shared/Service Worker).
+        if (!frame && !originUrl)
+          return;
 
-      //   // On Chromium >= 63, if both the frame is unknown and we haven't get
-      //   // an "initator", this implies a request sent by the browser itself
-      //   // (on older versions of Chromium, due to the lack of "initator",
-      //   // this can also indicate a request sent by a Shared/Service Worker).
-      //   if (!frame && !originUrl)
-      //     return;
+        if (checkWhitelisted(page, frame, originUrl))
+          return;
 
-      //   if (checkWhitelisted(page, frame, originUrl))
-      //     return;
+        let type = resourceTypes.get(details.type) || "OTHER";
+        let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
+          originUrl);
+        let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
+          sitekey, specificOnly);
 
-      //   let type = resourceTypes.get(details.type) || "OTHER";
-      //   let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
-      //     originUrl);
-      //   let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
-      //     sitekey, specificOnly);
+        getRelatedTabIds(details).then(tabIds => {
+          logRequest(tabIds, urlString, type, docDomain,
+            thirdParty, sitekey, specificOnly, filter);
+        });
 
-      //   getRelatedTabIds(details).then(tabIds => {
-      //     logRequest(tabIds, urlString, type, docDomain,
-      //       thirdParty, sitekey, specificOnly, filter);
-      //   });
-
-      //   if (filter instanceof BlockingFilter)
-      //     return { cancel: true };
-      // }, { urls: ["<all_urls>"] }, ["blocking"]);
+        if (filter instanceof BlockingFilter){
+          // if(details.type === "sub_frame"){
+          //   return {redirectUrl: 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png'};
+          // } else {
+            return {cancel: true};
+          // }
+        }
+      }, { 
+        urls: ["<all_urls>"],
+        types: ["sub_frame", "xmlhttprequest", "image", "beacon"] 
+      }, ["blocking"]);
 
       port.on("filters.collapse", (message, sender) => {
         let { page, frame } = sender;
@@ -10705,7 +10713,9 @@
 
       function* createRules(selectors) {
         for (let selectorGroup of splitSelectors(selectors)) {
-          yield selectorGroup.join(", ") + " {display: none !important;}";
+          yield selectorGroup.join(", ");
+          // GENER8EDITS
+          //+ " {display: none !important;}";
         }
       }
 
@@ -10826,8 +10836,8 @@
             hostname,
             specificOnly ? ElemHide.SPECIFIC_ONLY : ElemHide.ALL_MATCHING
           );
-          console.log("specificOnly", specificOnly);
-          console.log("selectors", selectors);
+          // console.log("specificOnly", specificOnly);
+          // console.log("selectors", selectors);
           for (let filter of ElemHideEmulation.getRulesForDomain(hostname))
             emulatedPatterns.push({ selector: filter.selector, text: filter.text });
         }
@@ -11378,4 +11388,3 @@
       /***/
     })
 /******/]);
-//# sourceMappingURL=adblockplus.js.map
