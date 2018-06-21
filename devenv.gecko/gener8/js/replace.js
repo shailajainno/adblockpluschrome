@@ -12,7 +12,7 @@ $(function () {
             var ArrayNodes = Array.prototype.slice.call($('.gener8'));
             ArrayNodes.forEach(function (node) {
                 iframe = $(node).find('iframe');
-                if(iframe.hasClass('gener8Ad')){
+                if(iframe.hasClass('gener8Ad') && iframe.attr('src')){
                     return;
                 }
                 iframe.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';

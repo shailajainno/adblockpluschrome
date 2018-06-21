@@ -6494,11 +6494,11 @@
         });
 
         if (filter instanceof BlockingFilter){
-          // if(details.type === "sub_frame"){
-          //   return {redirectUrl: 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png'};
-          // } else {
-            return {cancel: true};
-          // }
+          if(details.type === "sub_frame"){
+            return {redirectUrl: 'https://www.gener8ads.com'};
+          } else {
+            return { cancel: true };
+          }
         }
       }, { 
         urls: ["<all_urls>"],
@@ -10529,10 +10529,11 @@
 
           // Update number in icon
           if (Prefs.show_statsinicon) {
-            page.browserAction.setBadge({
-              color: badgeColor,
-              number: blocked
-            });
+            //GENER8EDIT
+            // page.browserAction.setBadge({
+            //   color: badgeColor,
+            //   number: blocked
+            // });
           }
         }
 
