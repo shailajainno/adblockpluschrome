@@ -201,11 +201,15 @@ function checkEmailPass() {
     var passwordValid = passwordValidation(password);
 
     if (emailValid && passwordValid) {
+        generExtBody.empty();
+        generExtBody.append(loader);
         ajaxCall('POST', 'application/json', LOGIN_URL, {
             'email': email,
             'password': sha256_digest(password)
         }, 'JSON', null, function (success, error) {
             if (error && error.responseJSON && error.responseJSON.message) {
+                generExtBody.empty();
+                generExtBody.append(loginPage);
                 $('.gnr-error-server-msg').text(error.responseJSON.message);
             } else if (success && success.data) {
                 browser.runtime.sendMessage({
@@ -213,6 +217,8 @@ function checkEmailPass() {
                     data: success.data.token
                 });
             } else {
+                generExtBody.empty();
+                generExtBody.append(loginPage);
                 throw 'Unexpected value of response';
             }
         });
@@ -235,17 +241,22 @@ browser.runtime.onMessage.addListener(function (request) {
  * @param {string} domainName domain name
  */
 function getUserDetails(token, domainName, pageName) {
-     
-    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName+'&pageName='+ encodeURI(pageName), null, 'JSON', token, function (success) {
+    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName+'&pageName='+ encodeURI(pageName), null, 'JSON', token, function (success, error) {
         setTimeout(function () {
             generExtBody.empty();
-            generExtBody.append(dashboardPage);
             if (success && success.data) {
                 $('#gnr-ref-link').val(success.data.referralLink);
                 $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.domainWhitelisted : false);
                 $('#styled-checkbox-1').prop('checked', success.data.web ? success.data.web.pageWhitelisted : false);
                 $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.domainWhitelisted : false );
                 $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
+            }else {
+                if(error.status === 423){
+                    generExtBody.append(suspendPage(error.responseJSON.message));
+                    browser.runtime.sendMessage({ action: 'deleteToken' });
+                } else {
+                    generExtBody.append(loginPage);
+                }
             }
         }, 1000);
     });

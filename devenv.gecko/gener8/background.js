@@ -65,6 +65,12 @@ function processRequest(request, sender) {
                 }
             });
             break;
+        case 'deleteToken':
+            browser.cookies.remove({
+                url: GENER8_FRONTEND_URL,
+                name: 'gnr-ext-token'
+            })
+            break;
         default:
             break;
     }

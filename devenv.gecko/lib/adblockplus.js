@@ -6494,11 +6494,27 @@
         });
 
         if (filter instanceof BlockingFilter){
-          if(details.type === "sub_frame"){
-            return {redirectUrl: 'https://www.gener8ads.com'};
-          } else {
-            return { cancel: true };
-          }
+          return new Promise((resolve, reject)=>{
+              browser.cookies.get({
+                url: GENER8_FRONTEND_URL,
+                name: 'gnr-ext-token'
+              }).then((t)=>{
+                if(t){
+                  let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
+                  let cancel = { cancel: true };
+                  return resolve(details.type === "sub_frame" ? redirect: cancel);
+                }else{
+                  browser.tabs.get(details.tabId)
+                  .then((tab)=>{
+                    console.log('2==>>', tab.url);
+                  }, (error)=>{
+                    console.log('1==>>', error);
+                  });
+                }
+              }, (e)=>{
+                reject();
+              });
+          })
         }
       }, { 
         urls: ["<all_urls>"],
