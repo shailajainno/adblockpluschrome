@@ -697,35 +697,38 @@
         //Gener8 Check Token and whitelisting and then proceed with Ad Blocking and Replacement
         apply() {
           browser.runtime.onMessage.addListener(function (request, sender) {
-            console.log('===>>',this);
-            var self = this;
             if (request.action === 'catchToken' && request.data) {
-             
+              ajaxCall("POST", "application/json", VALIDATE_WHITE_LIST, {
+                "domainName": location.hostname,
+                "pageName":location.href.split('?')[0]
+              }, "JSON", request.data, function (success, error) {
+                if (success && success.data && !success.data.whitelisted) {
                   browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
-                    if (self.tracer)
-                      self.tracer.disconnect();
-                    self.tracer = null;
+                    if (this.tracer)
+                      this.tracer.disconnect();
+                    this.tracer = null;
 
                     if (response.trace)
-                      self.tracer = new ElementHidingTracer();
+                      this.tracer = new ElementHidingTracer();
 
-                    self.inline = response.inline;
-                    self.inlineEmulated = !!response.inlineEmulated;
+                    this.inline = response.inline;
+                    this.inlineEmulated = !!response.inlineEmulated;
 
-                    if (self.inline)
-                      self.addSelectorsInline(response.selectors, "standard");
+                    if (this.inline)
+                      this.addSelectorsInline(response.selectors, "standard");
 
-                    if (self.tracer)
-                      self.tracer.addSelectors(response.selectors);
+                    if (this.tracer)
+                      this.tracer.addSelectors(response.selectors);
 
                     // Prefer CSS selectors for -abp-has and -abp-contains unless the
                     // background page has asked us to use inline styles.
-                    self.elemHideEmulation.useInlineStyles = self.inline ||
-                      self.inlineEmulated;
+                    this.elemHideEmulation.useInlineStyles = this.inline ||
+                      this.inlineEmulated;
 
-                    self.elemHideEmulation.apply(response.emulatedPatterns);
+                    this.elemHideEmulation.apply(response.emulatedPatterns);
                   });
-                
+                }
+              });
             }
           });
         }

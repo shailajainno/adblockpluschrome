@@ -245,6 +245,7 @@ function getUserDetails(token, domainName, pageName) {
         setTimeout(function () {
             generExtBody.empty();
             if (success && success.data) {
+                generExtBody.append(dashboardPage);
                 $('#gnr-ref-link').val(success.data.referralLink);
                 $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.domainWhitelisted : false);
                 $('#styled-checkbox-1').prop('checked', success.data.web ? success.data.web.pageWhitelisted : false);

@@ -6500,16 +6500,44 @@
                 name: 'gnr-ext-token'
               }).then((t)=>{
                 if(t){
-                  let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
-                  let cancel = { cancel: true };
-                  return resolve(details.type === "sub_frame" ? redirect: cancel);
-                }else{
                   browser.tabs.get(details.tabId)
                   .then((tab)=>{
-                    console.log('2==>>', tab.url);
+                    $.ajax({
+                      url: GENER8_BACKEND_URL + VALIDATE_WHITE_LIST,
+                      method: "POST",
+                      dataType: "json",
+                      crossDomain: true,
+                      contentType: "application/json; charset=utf-8",
+                      data: JSON.stringify({
+                        "domainName": tab.url.split("/")[2],
+                        "pageName":tab.url.split('?')[0]
+                      }),
+                      beforeSend: function (xhr) {
+                          xhr.setRequestHeader("Authorization", t.value);
+                      },
+                      success: function (success) {
+                        console.log("whitelisted==>", success.data.whitelisted)
+                        if (success && success.data && !success.data.whitelisted) {
+                          console.log("testsaad");
+                          let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
+                          let cancel = { cancel: true };
+                          resolve(details.type === "sub_frame" ? redirect: cancel);
+                          return;
+                        }else{
+                          reject();
+                          return;
+                        }  
+                      },
+                      error: function (jqXHR, textStatus, errorThrown) {
+                        reject();
+                        return;
+                      }
+                    });
                   }, (error)=>{
                     console.log('1==>>', error);
                   });
+                }else{
+                  reject()
                 }
               }, (e)=>{
                 reject();
@@ -10526,11 +10554,11 @@
         if (details.frameId == 0) {
           let page = new ext.Page({ id: details.tabId });
           let blocked = blockedPerPage.get(page);
-
-          page.browserAction.setBadge(blocked && {
-            color: badgeColor,
-            number: blocked
-          });
+          //GEBER8EDIT Remove badges
+          // page.browserAction.setBadge(blocked && {
+          //   color: badgeColor,
+          //   number: blocked
+          // });
         }
       });
 
