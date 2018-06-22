@@ -163,12 +163,13 @@ var loader = `
 `
 
 var suspendPage = function(message){
+    message = "Your account has been frozen because we've detected suspicious activity. One of our team will get in touch with you over email soon."
     return `
-    <div class="gnr-ext-log">
-       <a id="gnr-website"><img src="../img/logo.svg"></a>
-    </div>
-    <div class="gnr-ext-login">
-       <h3>${message}</h3>
+    
+    <div class="gnr-ext-login gnr-ext-suspag">
+        <img src="../img/icon128.png" style="">
+        <h3>Account Suspended</h3>
+        <p>${message}</p>
     </div>
     `
 };

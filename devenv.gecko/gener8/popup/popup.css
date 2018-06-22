@@ -679,3 +679,8 @@ cursor: pointer;
          transform: translate(-0px, -0px) rotate(180deg);
      }
    }
+
+   .gnr-ext-suspag{text-align: center;}
+   .gnr-ext-suspag img{width: 80px;padding-top: 50px;}
+   .gnr-ext-suspag h3{font-family: Metropolis-regular;font-size: 20px;margin-bottom: 0;}
+   .gnr-ext-suspag p{font-family: Metropolis-Regular;line-height: 140%;}
