@@ -253,9 +253,11 @@ function getUserDetails(token, domainName, pageName) {
                 $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
             }else {
                 if(error.status === 423){
-                    generExtBody.append(suspendPage(error.responseJSON.message));
+                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
                     browser.runtime.sendMessage({ action: 'deleteToken' });
-                } else {
+                } else if(error.status === 503){
+                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                }else{
                     generExtBody.append(loginPage);
                 }
             }

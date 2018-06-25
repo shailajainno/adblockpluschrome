@@ -6430,6 +6430,7 @@
         );
       }
       var iframeCount = 0, apiCount = 0;
+
       browser.webRequest.onBeforeRequest.addListener(details => {
         // Never block top-level documents.
         if (details.type == "main_frame")
@@ -6516,9 +6517,7 @@
                           xhr.setRequestHeader("Authorization", t.value);
                       },
                       success: function (success) {
-                        console.log("whitelisted==>", success.data.whitelisted)
                         if (success && success.data && !success.data.whitelisted) {
-                          console.log("testsaad");
                           let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
                           let cancel = { cancel: true };
                           resolve(details.type === "sub_frame" ? redirect: cancel);
@@ -6534,7 +6533,8 @@
                       }
                     });
                   }, (error)=>{
-                    console.log('1==>>', error);
+                      reject();
+                      return;
                   });
                 }else{
                   reject()

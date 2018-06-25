@@ -9,6 +9,7 @@ var replaceWithGener8 = function (data) {
         if (data) {
             var newStylesheet = data.replace(/{([^}]*)}/g, '');
             $(newStylesheet).addClass('gener8');
+            $('div[id*=google_ads_iframe]').addClass('gener8');
         }
     };
 };
