@@ -11,8 +11,15 @@ var replaceWithGener8 = function (data) {
             $(newStylesheet).addClass('gener8');
             $('div[id*=google_ads_iframe]').addClass('gener8');
         }
+        checkWebBased('iframe[id^=atwAdFrame]');
     };
 };
+
+function checkWebBased(regex) {
+    if(window.location.hostname === 'www.engadget.com'){
+        $(regex).addClass('gener8');
+    }
+}
 
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
