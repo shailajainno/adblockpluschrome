@@ -247,9 +247,10 @@ function getUserDetails(token, domainName, pageName) {
             if (success && success.data) {
                 generExtBody.append(dashboardPage);
                 $('#gnr-ref-link').val(success.data.referralLink);
-                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.domainWhitelisted : false);
+                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.userWhitelist : false);
                 $('#styled-checkbox-1').prop('checked', success.data.web ? success.data.web.pageWhitelisted : false);
-                $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.domainWhitelisted : false );
+                $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.userWhitelist || success.data.web.adminWhitelist : false );
+                $('#styled-checkbox-2').prop( "disabled", success.data.web ? success.data.web.adminWhitelist : false );
                 $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
             }else {
                 if(error.status === 423){
