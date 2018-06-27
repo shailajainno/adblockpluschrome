@@ -1,7 +1,7 @@
 
 // Send token to background js and close the login popup
 if (document.getElementsByTagName('p')) {
-    var id = document.getElementsByTagName('p')[0].id;
+    var id = document.getElementsByTagName('p') ? document.getElementsByTagName('p')[0].id : '';
     if (id === 'authToken') {
         browser.runtime.sendMessage({
             action: 'saveToken',
