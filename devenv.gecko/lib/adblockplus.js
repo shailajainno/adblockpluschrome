@@ -6496,52 +6496,42 @@
 
         if (filter instanceof BlockingFilter){
           return new Promise((resolve, reject)=>{
-              browser.cookies.get({
-                url: GENER8_FRONTEND_URL,
-                name: 'gnr-ext-token'
-              }).then((t)=>{
-                if(t){
-                  browser.tabs.get(details.tabId)
-                  .then((tab)=>{
-                    $.ajax({
-                      url: GENER8_BACKEND_URL + VALIDATE_WHITE_LIST,
-                      method: "POST",
-                      dataType: "json",
-                      crossDomain: true,
-                      contentType: "application/json; charset=utf-8",
-                      data: JSON.stringify({
-                        "domainName": tab.url.split("/")[2],
-                        "pageName":tab.url.split('?')[0]
-                      }),
-                      beforeSend: function (xhr) {
-                          xhr.setRequestHeader("Authorization", t.value);
-                      },
-                      success: function (success) {
-                        if (success && success.data && !success.data.whitelisted) {
+              try {
+                browser.cookies.get({
+                  url: GENER8_FRONTEND_URL,
+                  name: 'gnr-ext-token'
+                }).then((t)=>{
+                  if(t){
+                    browser.tabs.get(details.tabId).then((tab)=>{
+                      browser.storage.local.get().then((gener8Data)=>{
+                        const currentDomain = tab.url.split("/")[2];
+                        const gener8CurrentPage = tab.url.split('?')[0];
+                        if(!gener8Data.isGener8On || 
+                          gener8Data.userSuspend || 
+                          gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 || 
+                          gener8Data.whitelist.indexOf(currentDomain) > -1){
+                          reject();
+                        }else{
                           let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
                           let cancel = { cancel: true };
-                          resolve(details.type === "sub_frame" ? redirect: cancel);
-                          return;
-                        }else{
-                          reject();
-                          return;
-                        }  
-                      },
-                      error: function (jqXHR, textStatus, errorThrown) {
+                          return resolve(details.type === "sub_frame" ? redirect: cancel);
+                        }
+                      }, _error=>{
+                          console.log('errrrr',_error)  
+                      } );
+                    }, (error)=>{
                         reject();
                         return;
-                      }
                     });
-                  }, (error)=>{
-                      reject();
-                      return;
-                  });
-                }else{
-                  reject()
-                }
-              }, (e)=>{
-                reject();
-              });
+                  }else{
+                    reject()
+                  }
+                }, (e)=>{
+                  reject(e);
+                });
+              } catch (__error) {
+                console.log(__error);
+              }
           })
         }
       }, { 

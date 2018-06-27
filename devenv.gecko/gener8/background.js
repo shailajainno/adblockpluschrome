@@ -1,8 +1,3 @@
-const GENER8_BACKEND_URL = 'https://devapi.gener8ads.com/';
-const GENER8_FRONTEND_URL = 'https://dev.gener8ads.com/';
-var VALIDATE_WHITE_LIST = 'user/validatedomain';
-
-
 /**
  * Get cookie
  * @param {string} key

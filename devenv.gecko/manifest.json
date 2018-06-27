@@ -19,7 +19,9 @@
   },
   "background": {
     "scripts": [
+      "gener8/bg_constants.js",
       "gener8/lib/js/jquery.min.js",
+      "gener8/scheduler.js",
       "polyfill.js",
       "ext/common.js",
       "ext/background.js",
