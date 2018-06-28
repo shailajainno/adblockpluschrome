@@ -5,7 +5,6 @@
         name: 'gnr-ext-token'
       }).then((t)=>{
         if(t){
-            console.log('..??',GENER8_BACKEND_URL + SCHEDULER)
             $.ajax({
               url: GENER8_BACKEND_URL + SCHEDULER,
               method: "GET",
@@ -19,7 +18,8 @@
                 browser.storage.local.set({
                     isGener8On: success.data.isGener8On,
                     pageWhitelist: success.data.pageWhitelist,
-                    whitelist: success.data.whitelist
+                    whitelist: success.data.whitelist,
+                    token: t.value
                 });
               },
               error: function (jqXHR, textStatus, errorThrown) {
@@ -27,16 +27,15 @@
               }
             });
         }else{
-            console.log('===>3')
-    
+            console.log('Not logged in yet')
         }
       }, (e)=>{
-        console.log('===>4',e)
-
+        console.log('===>',e)
       });
    } 
    scheduler();
    setInterval(()=>{
-       scheduler()
-   },60000)
-})()
+      console.log("Sechedular start at ", new Date());
+      scheduler()
+   },1000 * 60 * SCHEDULER_DELAY_MIN);
+})();

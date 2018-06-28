@@ -37,8 +37,8 @@ var loginPage = `
             </a>
          </li>
          <li>
-            <a id="gnr-twLoginBtn" style="cursor: not-allowed;opacity:0.5;">
-            <img src="../img/twt.png" >
+            <a id="gnr-twLoginBtn" style="cursor:pointer;">
+                <img src="../img/twt.png" >
             </a>
          </li>
       </ul>

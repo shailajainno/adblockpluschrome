@@ -698,37 +698,47 @@
         apply() {
           browser.runtime.onMessage.addListener(function (request, sender) {
             if (request.action === 'catchToken' && request.data) {
-              ajaxCall("POST", "application/json", VALIDATE_WHITE_LIST, {
-                "domainName": location.hostname,
-                "pageName":location.href.split('?')[0]
-              }, "JSON", request.data, function (success, error) {
-                if (success && success.data && !success.data.whitelisted) {
-                  browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
-                    if (this.tracer)
-                      this.tracer.disconnect();
-                    this.tracer = null;
+              browser.storage.local.get().then((gener8Data)=>{	
+                const currentDomain =location.hostname;
+                const gener8CurrentPage = location.href.split('?')[0];
+                console.log('1on', gener8Data.isGener8On);
+                console.log('1sus', gener8Data.userSuspend);
+                console.log('1page', gener8Data.pageWhitelist);
+                console.log('1domain', gener8Data.whitelist);
 
-                    if (response.trace)
-                      this.tracer = new ElementHidingTracer();
 
-                    this.inline = response.inline;
-                    this.inlineEmulated = !!response.inlineEmulated;
-
-                    if (this.inline)
-                      this.addSelectorsInline(response.selectors, "standard");
-
-                    if (this.tracer)
-                      this.tracer.addSelectors(response.selectors);
-
-                    // Prefer CSS selectors for -abp-has and -abp-contains unless the
-                    // background page has asked us to use inline styles.
-                    this.elemHideEmulation.useInlineStyles = this.inline ||
-                      this.inlineEmulated;
-
-                    this.elemHideEmulation.apply(response.emulatedPatterns);
-                  });
+                if(gener8Data.isGener8On &&
+                  !gener8Data.userSuspend && 
+                  gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1 && 
+                  gener8Data.whitelist.indexOf(currentDomain) === -1){
+                    browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
+                      if (this.tracer)
+                        this.tracer.disconnect();
+                      this.tracer = null;
+            
+                      if (response.trace)
+                        this.tracer = new ElementHidingTracer();
+            
+                      this.inline = response.inline;
+                      this.inlineEmulated = !!response.inlineEmulated;
+            
+                      if (this.inline)
+                        this.addSelectorsInline(response.selectors, "standard");
+            
+                      if (this.tracer)
+                        this.tracer.addSelectors(response.selectors);
+            
+                      // Prefer CSS selectors for -abp-has and -abp-contains unless the
+                      // background page has asked us to use inline styles.
+                      this.elemHideEmulation.useInlineStyles = this.inline ||
+                        this.inlineEmulated;
+            
+                      this.elemHideEmulation.apply(response.emulatedPatterns);
+                    });
                 }
-              });
+              }, _error=>{
+                  console.log('errrrr',_error)  
+              } );
             }
           });
         }

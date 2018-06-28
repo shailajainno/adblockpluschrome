@@ -17,7 +17,15 @@ var replaceWithGener8 = function (data) {
 
 function checkWebBased(regex) {
     if(window.location.hostname === 'www.engadget.com'){
-        $(regex).addClass('gener8');
+        var i = 0;
+        $('iframe[id^=atwAdFrame]').addClass('gener8');
+        var timeout = setInterval(()=>{
+            $('iframe[id^=atwAdFrame]').addClass('gener8');
+            i++;
+            if(i > 10){
+                clearInterval(timeout);
+            }
+        }, 3000)
     }
 }
 

@@ -8,13 +8,21 @@ $(function () {
         return s;
     }
 
+    $('img[alt=AdChoices]').remove();
+
     var replaceGener8 = () => {
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
         ArrayNodes.forEach(function (node) {
             iframe = $(node).find('iframe');
             createIFrame(iframe);
+            // $(node).find("div").each(()=>{
+            //     if($(this).text() === "Advertisement"){
+            //         $(this).remove();
+            //     }
+            // })
             return;
         });
+        $('img[alt=AdChoices]').remove();
     };
 
 
@@ -47,7 +55,6 @@ $(function () {
     }
     
     replaceGener8();
-
     (function () {
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {

@@ -69,6 +69,11 @@ $(function () {
         openWindow(FB_CALLBACK_URL);
     });
 
+    //Call Twitter Login API
+    $(".gnr-ext-bdy-prt").on('click', '#gnr-twLoginBtn', function () {
+        openWindow(TW_CALLBACK_URL);
+    });
+
     //Open Gener8 website
     generExtBody.on('click', '#gnr-website', function () {
         window.open(GENER8_WEBSITE);
@@ -99,6 +104,27 @@ $(function () {
         window.close();
     });
 
+    function updateStorage(type, enable, hostName) {
+        browser.storage.local.get(['type']).then((local)=>{
+            if(enable){
+                 if(local[type]){
+                     local[type].push(hostName);
+                 }else{
+                     local[type] = [hostName]
+                 }
+            }else{
+                 if(local[type]){
+                     local[type].splice(local[type].indexOf(hostName), 1);
+                 }else{
+                     local[type] = [];
+                 }
+            }
+            browser.storage.local.set({
+                [type]: local[type]
+            })
+         });
+    }
+
     //Checkmark whitelist domain
     generExtBody.on('change', '#styled-checkbox-2', function () {
         const enable = this.checked;
@@ -106,7 +132,9 @@ $(function () {
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    whitelistDomain('domain', extractHostname(tabs[0].url), token, enable, function (reload) {
+                    const hostName = extractHostname(tabs[0].url);
+                    whitelistDomain('domain', hostName, token, enable, function (reload) {
+                        updateStorage('whitelist', enable, hostName);
                         browser.tabs.reload(tabs[0].id);
                     });
                 });
@@ -120,7 +148,9 @@ $(function () {
         getUserAccessToken(function (token) {
             if (token !== null) {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    whitelistDomain('page', extractLink(tabs[0].url), token, enable, function (reload) {
+                    const hostName = extractLink(tabs[0].url);
+                    whitelistDomain('page',  hostName, token, enable, function (reload) {
+                        updateStorage('pageWhitelist', enable, hostName);
                         browser.tabs.reload(tabs[0].id);
                     });
                 });
@@ -129,9 +159,6 @@ $(function () {
     });
 });
 
-function addWhitelist(){
-    
-}
 
 /**
  * Open window for Social Logins
@@ -216,6 +243,7 @@ function checkEmailPass() {
                     action: 'saveToken',
                     data: success.data.token
                 });
+                schedulerAPI(success.data.token);
             } else {
                 generExtBody.empty();
                 generExtBody.append(loginPage);
@@ -223,6 +251,30 @@ function checkEmailPass() {
             }
         });
     }
+}
+
+function schedulerAPI(token){
+    $.ajax({
+        url: GENER8_BACKEND_URL + SCHEDULER,
+        method: "GET",
+        dataType: "json",
+        crossDomain: true,
+        contentType: "application/json; charset=utf-8",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", token);
+        },
+        success: function (success) {
+          browser.storage.local.set({
+              isGener8On: success.data.isGener8On,
+              pageWhitelist: success.data.pageWhitelist,
+              whitelist: success.data.whitelist,
+              token:token
+          });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          return;
+        }
+      });
 }
 
 // Add listener to get user profile
@@ -252,6 +304,11 @@ function getUserDetails(token, domainName, pageName) {
                 $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.userWhitelist || success.data.web.adminWhitelist : false );
                 $('#styled-checkbox-2').prop( "disabled", success.data.web ? success.data.web.adminWhitelist : false );
                 $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
+                browser.storage.local.get('token').then((tokenData)=>{
+                    if(tokenData.token !== token){
+                        schedulerAPI(token);
+                    }
+                })
             }else {
                 if(error.status === 423){
                     generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));

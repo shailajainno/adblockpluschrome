@@ -6429,9 +6429,49 @@
           specificOnly, filter
         );
       }
-      var iframeCount = 0, apiCount = 0;
+    
+      
+      var gener8TabData = {
+        whitelist: {
+
+        }
+      };
+      // Add this to reduce onBeforeRequest loading time;
+      browser.tabs.onUpdated.addListener(( a,b ,tab)=>{
+        if(tab.url.indexOf('about:') !== 0){
+          browser.cookies.get({
+            url: GENER8_FRONTEND_URL,
+            name: 'gnr-ext-token'
+          }).then((t)=>{
+            if(t){
+              browser.storage.local.get().then((gener8Data)=>{
+                  const currentDomain = tab.url.split("/")[2];
+                  const gener8CurrentPage = tab.url.split('?')[0];
+                  console.log('on', gener8Data.isGener8On);
+                  console.log('sus', gener8Data.userSuspend);
+                  console.log('page', gener8Data.pageWhitelist);
+                  console.log('domain', gener8Data.whitelist);
+                  
+                  gener8TabData.whitelist[a] = !gener8Data.isGener8On || 
+                    gener8Data.userSuspend ||
+                    gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
+                    gener8Data.whitelist.indexOf(currentDomain) > -1;
+                    console.log('tab', gener8TabData.whitelist);
+                }, _error=>{
+                  return;  
+                } );
+            }else{
+              gener8TabData.whitelist[a] = true;
+              return;
+            }
+          }, (e)=>{
+            return;
+          });
+        }
+      })
 
       browser.webRequest.onBeforeRequest.addListener(details => {
+       
         // Never block top-level documents.
         if (details.type == "main_frame")
           return;
@@ -6494,46 +6534,14 @@
             thirdParty, sitekey, specificOnly, filter);
         });
 
-        if (filter instanceof BlockingFilter){
-          return new Promise((resolve, reject)=>{
-              try {
-                browser.cookies.get({
-                  url: GENER8_FRONTEND_URL,
-                  name: 'gnr-ext-token'
-                }).then((t)=>{
-                  if(t){
-                    browser.tabs.get(details.tabId).then((tab)=>{
-                      browser.storage.local.get().then((gener8Data)=>{
-                        const currentDomain = tab.url.split("/")[2];
-                        const gener8CurrentPage = tab.url.split('?')[0];
-                        if(!gener8Data.isGener8On || 
-                          gener8Data.userSuspend || 
-                          gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 || 
-                          gener8Data.whitelist.indexOf(currentDomain) > -1){
-                          reject();
-                        }else{
-                          let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
-                          let cancel = { cancel: true };
-                          return resolve(details.type === "sub_frame" ? redirect: cancel);
-                        }
-                      }, _error=>{
-                          console.log('errrrr',_error)  
-                      } );
-                    }, (error)=>{
-                        reject();
-                        return;
-                    });
-                  }else{
-                    reject()
-                  }
-                }, (e)=>{
-                  reject(e);
-                });
-              } catch (__error) {
-                console.log(__error);
-              }
-          })
-        }
+          if (filter instanceof BlockingFilter){
+            console.log('ads', gener8TabData.whitelist[details.tabId]);
+             if(!gener8TabData.whitelist[details.tabId]){
+              let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
+              let cancel = { cancel: true };
+              return details.type === "sub_frame" ? redirect: cancel;
+             }
+          }
       }, { 
         urls: ["<all_urls>"],
         types: ["sub_frame", "xmlhttprequest", "image", "beacon"] 
