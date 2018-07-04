@@ -11,21 +11,35 @@ var replaceWithGener8 = function (data) {
             $(newStylesheet).addClass('gener8');
             $('div[id*=google_ads_iframe]').addClass('gener8');
         }
+
+        // setTimeout(()=>{
+        //     $('div[id*=google_ads_iframe]').addClass('gener8');
+        // }, 3000);
+
         checkWebBased('iframe[id^=atwAdFrame]');
     };
 };
 
 function checkWebBased(regex) {
-    if(window.location.hostname === 'www.engadget.com'){
-        var i = 0;
-        $('iframe[id^=atwAdFrame]').addClass('gener8');
-        var timeout = setInterval(()=>{
+    switch (window.location.hostname) {
+        case 'www.engadget.com':
+            var i = 0;
             $('iframe[id^=atwAdFrame]').addClass('gener8');
-            i++;
-            if(i > 10){
-                clearInterval(timeout);
-            }
-        }, 3000)
+            var timeout = setInterval(()=>{
+                $('iframe[id^=atwAdFrame]').addClass('gener8');
+                i++;
+                if(i > 10){
+                    clearInterval(timeout);
+                }
+            }, 3000)
+        break;
+
+        case 'www.mirror.co.uk':
+            $('.onscroll-injected-ad').addClass('gener8');
+        break;
+    
+        default:
+            break;
     }
 }
 

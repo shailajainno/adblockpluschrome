@@ -72,37 +72,13 @@ var dashboardPage = `
          <li>
             <input id="check02" type="checkbox" name="noti"/>
             <label for="check02"><img src="../img/noti.png" alt="noti" /></label>
-            <ul class="submenu">
+            <ul class="submenu" id="notificationList">
                <div class="gnr-arrow-up"></div>
+               <a href="#" id="all" class="gnr-noti-semr redirect">See More</a>
                <li>
-                  <a class="read" href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a class="read" href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <li>
-                  <a class="read" href="#">Lorem Ipsum is simply dummy text of the printing and</a>
-                  <p><img src="../img/cross.svg" alt="cross"/></p>
-               </li>
-               <a href="#" class="gnr-noti-semr">See More</a>
+                <a class="read" href="#">test is simply dummy text of the printing and</a>
+                <p><img src="../img/cross.svg" alt="cross"/></p>
+                </li>
             </ul>
          </li>
       </ul>

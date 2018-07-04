@@ -1,13 +1,4 @@
 $(function () {
-    function dumpCSSText(element) {
-        var s = '';
-        var o = getComputedStyle(element);
-        for (var i = 0; i < o.length; i++) {
-            s += o[i] + ':' + o.getPropertyValue(o[i]) + ';';
-        }
-        return s;
-    }
-
     $('img[alt=AdChoices]').remove();
 
     var replaceGener8 = () => {
@@ -70,3 +61,6 @@ $(function () {
         observer.observe(document.body, { childList: true, subtree: true });
     })();
 });
+
+browser.runtime.sendMessage({ action: 'SetBadge' });
+  

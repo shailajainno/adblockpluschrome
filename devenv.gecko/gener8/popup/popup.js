@@ -64,6 +64,75 @@ $(function () {
         document.selection.empty();
     });
 
+    generExtBody.on('click', '.see-all', function () {
+        browser.tabs.create({
+            url: GENER8_FRONTEND_URL + '#/notifications'
+        });
+        window.close();
+    });
+
+
+    generExtBody.on('click', '.redirection', function () {
+        console.log("test...", $(this).attr('id'));
+        browser.tabs.create({
+            url: GENER8_FRONTEND_URL + '#/notifications/'+$(this).attr('id')
+        });
+        window.close();
+    });
+
+    generExtBody.on('change', '#check02', function () {
+        $('#notificationList').children('li').remove();
+        var text = function (text, id ) {
+            if(text.length > 30){
+                console.log(text.length);
+                text = text.substring(0, 30) + '...';
+                console.log(text.length, text);
+            }
+            return `<li>
+                <a class="read redirection" id="${id}" href="#">${text}</a>
+                <p><img src="../img/cross.svg" alt="cross"/></p>
+            </li>`;
+        }
+        var test = [
+            {
+                id: 1,
+                text : "asdasdasdasdsaf vsdfsfsdfsa dfas fdsfsdafsadf sdfsdaf sadfsadfsd"
+            },
+            {
+                id: 2,
+                text : "1234567890123456789012345678901"
+            },{
+                id: 3,
+                text : "123456789012345678901234567890"
+            },{
+                id: 4,
+                text : "123456"
+            },{
+                id: 5,
+                text : "123456"
+            },{
+                id: 6,
+                text : "123456"
+            },{
+                id: 7,
+                text : "123456"
+            },{
+                id: 8,
+                text : "123456"
+            },{
+                id: 9,
+                text : "123456"
+            },{
+                id: 10,
+                text : "123456789012345678901234567890123456789012345678901234567890"
+            }
+        ]
+
+        test.forEach(t=>{
+            $('#notificationList').append(text(t.text, t.id));
+        })
+    });           
+
     //Call Facebook Login API
     generExtBody.on('click', '#gnr-fbLoginBtn', function () {
         openWindow(FB_CALLBACK_URL);
@@ -242,6 +311,9 @@ function checkEmailPass() {
                 browser.runtime.sendMessage({
                     action: 'saveToken',
                     data: success.data.token
+                });
+                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                    getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
                 });
                 schedulerAPI(success.data.token);
             } else {

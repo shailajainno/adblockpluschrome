@@ -1,5 +1,24 @@
 (()=>{
+
+   function setBadge(count){
+    // browser.tabs.query({ }, function (tabs) {
+    //   tabs.forEach((data)=>{
+    //     browser.browserAction.setBadgeBackgroundColor(
+    //       {
+    //         color: "black",
+    //         tabId: data.id
+    //       }
+    //     )
+    //     browser.browserAction.setBadgeText({
+    //       text: count.toString(),
+    //       tabId: data.id
+    //     });
+    //   });
+    // });
+   }
+
    var scheduler = () => {
+    setBadge(10);
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: 'gnr-ext-token'
@@ -36,6 +55,6 @@
    scheduler();
    setInterval(()=>{
       console.log("Sechedular start at ", new Date());
-      scheduler()
+      scheduler();
    },1000 * 60 * SCHEDULER_DELAY_MIN);
 })();
