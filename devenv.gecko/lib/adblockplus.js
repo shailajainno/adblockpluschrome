@@ -6438,7 +6438,9 @@
       };
       // Add this to reduce onBeforeRequest loading time;
       browser.tabs.onUpdated.addListener(( a,b ,tab)=>{
-        if(tab.url.indexOf('about:') !== 0){
+        console.log("in,,,", tab.url);
+        
+          console.log("in,,,2");
           browser.cookies.get({
             url: GENER8_FRONTEND_URL,
             name: 'gnr-ext-token'
@@ -6447,6 +6449,15 @@
               browser.storage.local.get().then((gener8Data)=>{
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
+                  console.log('-=-=-?>',gener8Data);
+                  browser.browserAction.setBadgeBackgroundColor({
+                      color: "black",
+                      tabId: tab.id
+                  });
+                  browser.browserAction.setBadgeText({
+                    text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+                    tabId: tab.id
+                  });
                   console.log('on', gener8Data.isGener8On);
                   console.log('sus', gener8Data.userSuspend);
                   console.log('page', gener8Data.pageWhitelist);
@@ -6457,6 +6468,7 @@
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.whitelist.indexOf(currentDomain) > -1;
                     console.log('tab', gener8TabData.whitelist);
+                    
                 }, _error=>{
                   return;  
                 } );
@@ -6467,7 +6479,6 @@
           }, (e)=>{
             return;
           });
-        }
       })
 
       browser.webRequest.onBeforeRequest.addListener(details => {

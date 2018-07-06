@@ -2,6 +2,7 @@ var generExtBody = $('.gnr-ext-bdy-prt');
 
 $(function () {
     //Check User Token whether to show Login Page or Dashboard
+    generExtBody.empty();
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
         if (token !== null) {
@@ -64,7 +65,7 @@ $(function () {
         document.selection.empty();
     });
 
-    generExtBody.on('click', '.see-all', function () {
+    generExtBody.on('click', '#seeMore', function () {
         browser.tabs.create({
             url: GENER8_FRONTEND_URL + '#/notifications'
         });
@@ -73,65 +74,99 @@ $(function () {
 
 
     generExtBody.on('click', '.redirection', function () {
-        console.log("test...", $(this).attr('id'));
         browser.tabs.create({
             url: GENER8_FRONTEND_URL + '#/notifications/'+$(this).attr('id')
         });
         window.close();
     });
 
-    generExtBody.on('change', '#check02', function () {
-        $('#notificationList').children('li').remove();
-        var text = function (text, id ) {
-            if(text.length > 30){
-                console.log(text.length);
-                text = text.substring(0, 30) + '...';
-                console.log(text.length, text);
-            }
-            return `<li>
-                <a class="read redirection" id="${id}" href="#">${text}</a>
-                <p><img src="../img/cross.svg" alt="cross"/></p>
-            </li>`;
-        }
-        var test = [
-            {
-                id: 1,
-                text : "asdasdasdasdsaf vsdfsfsdfsa dfas fdsfsdafsadf sdfsdaf sadfsadfsd"
+    function notificationList(token){
+        $.ajax({
+            url: GENER8_BACKEND_URL + NOTIFICATION+'?limit=' + NOTIFICATION_VIEW_LIMIT,
+            method: "GET",
+            dataType: "json",
+            crossDomain: true,
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", token.value);
             },
-            {
-                id: 2,
-                text : "1234567890123456789012345678901"
-            },{
-                id: 3,
-                text : "123456789012345678901234567890"
-            },{
-                id: 4,
-                text : "123456"
-            },{
-                id: 5,
-                text : "123456"
-            },{
-                id: 6,
-                text : "123456"
-            },{
-                id: 7,
-                text : "123456"
-            },{
-                id: 8,
-                text : "123456"
-            },{
-                id: 9,
-                text : "123456"
-            },{
-                id: 10,
-                text : "123456789012345678901234567890123456789012345678901234567890"
+            success: function (success) {
+                generExtBody.empty();
+                generExtBody.append(notificationPage);
+                console.log('---------------', success.data.updates);
+                if(success.data && success.data.updates){
+                    
+                    success.data.updates.forEach((notification)=>{
+                        const notificationHTML = `
+                        <li>
+                            <a href="#" class="notification-msg" data-redirect="${notification.actionurl}">
+                                ${notification.message},
+                            </a>
+                            <p id="${notification._id}" class="notification-close"><img src="../img/cross.svg" alt="cross" ></p>
+                        </li>
+                        `;
+                        console.log(notificationHTML)
+                        $('#notificationList').append(notificationHTML);
+                    })
+                }
+            },
+            error: function (jqXHR) {
+              console.log("error in notification")
+              return;
             }
-        ]
+        });
+    }
 
-        test.forEach(t=>{
-            $('#notificationList').append(text(t.text, t.id));
-        })
+    generExtBody.on('click', '.notification-msg', function () {
+        let URL = $(this).attr('data-redirect');
+        if(URL.indexOf('https://') !== 0 || URL.indexOf('http://') !== 0){
+            URL = 'https://'+ URL;
+        }
+        browser.tabs.create({
+            url: URL
+        });
+        window.close();
+    });
+
+    generExtBody.on('change', '#check02', function () {
+        browser.cookies.get({
+            url: GENER8_FRONTEND_URL,
+            name: 'gnr-ext-token'
+          }).then((token)=>{
+            if(token){
+              notificationList(token);
+            }else{
+                console.log('Not logged in yet')
+            }
+          }, (e)=>{
+            console.log('===>',e)
+          });
+        
+        // var text = function (text, id ) {
+        //     if(text.length > 30){
+        //         text = text.substring(0, 30) + '...';
+        //         console.log(text.length, text);
+        //     }
+        //     return `<li>
+        //         <a class="read redirection" id="${id}" href="#">${text}</a>
+        //         <p><img src="../img/cross.svg" alt="cross"/></p>
+        //     </li>`;
+        // }
+    });
+    
+    generExtBody.on('click', '#back', function () {
+        getUserAccessToken(function (token) {
+            if (token !== null) {
+                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                    getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
+                });
+            } else {
+                generExtBody.empty();
+                generExtBody.append(loginPage);
+            }
+        });
     });           
+
 
     //Call Facebook Login API
     generExtBody.on('click', '#gnr-fbLoginBtn', function () {
@@ -174,7 +209,7 @@ $(function () {
     });
 
     function updateStorage(type, enable, hostName) {
-        browser.storage.local.get(['type']).then((local)=>{
+        browser.storage.local.get([type]).then((local)=>{
             if(enable){
                  if(local[type]){
                      local[type].push(hostName);
@@ -203,7 +238,7 @@ $(function () {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     const hostName = extractHostname(tabs[0].url);
                     whitelistDomain('domain', hostName, token, enable, function (reload) {
-                        updateStorage('whitelist', enable, hostName);
+                        updateStorage('userWhitelist', enable, hostName);
                         browser.tabs.reload(tabs[0].id);
                     });
                 });
@@ -315,7 +350,7 @@ function checkEmailPass() {
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
                 });
-                schedulerAPI(success.data.token);
+                //schedulerAPI(success.data.token);
             } else {
                 generExtBody.empty();
                 generExtBody.append(loginPage);
@@ -323,30 +358,6 @@ function checkEmailPass() {
             }
         });
     }
-}
-
-function schedulerAPI(token){
-    $.ajax({
-        url: GENER8_BACKEND_URL + SCHEDULER,
-        method: "GET",
-        dataType: "json",
-        crossDomain: true,
-        contentType: "application/json; charset=utf-8",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", token);
-        },
-        success: function (success) {
-          browser.storage.local.set({
-              isGener8On: success.data.isGener8On,
-              pageWhitelist: success.data.pageWhitelist,
-              whitelist: success.data.whitelist,
-              token:token
-          });
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          return;
-        }
-      });
 }
 
 // Add listener to get user profile
@@ -365,34 +376,91 @@ browser.runtime.onMessage.addListener(function (request) {
  * @param {string} domainName domain name
  */
 function getUserDetails(token, domainName, pageName) {
-    ajaxCall('GET', 'application/json', USER_DETAILS + '?domainName=' + domainName+'&pageName='+ encodeURI(pageName), null, 'JSON', token, function (success, error) {
-        setTimeout(function () {
-            generExtBody.empty();
-            if (success && success.data) {
-                generExtBody.append(dashboardPage);
-                $('#gnr-ref-link').val(success.data.referralLink);
-                $('#styled-checkbox-2').prop('checked', success.data.web ? success.data.web.userWhitelist : false);
-                $('#styled-checkbox-1').prop('checked', success.data.web ? success.data.web.pageWhitelisted : false);
-                $('#styled-checkbox-1').prop( "disabled", success.data.web ? success.data.web.userWhitelist || success.data.web.adminWhitelist : false );
-                $('#styled-checkbox-2').prop( "disabled", success.data.web ? success.data.web.adminWhitelist : false );
-                $('#gener8Wallet').html(success.data.walletToken ? success.data.walletToken : 0.00);
-                browser.storage.local.get('token').then((tokenData)=>{
-                    if(tokenData.token !== token){
-                        schedulerAPI(token);
+    console.log("test..??")
+    browser.storage.local.get(['token','isGener8On','pageWhitelist','userWhitelist','user','userStatusCode','notificationCount']).then((tokenData)=>{
+        console.log(tokenData);
+        if(tokenData.token !== token){
+            console.log("not match...");
+            $.ajax({
+                url: GENER8_BACKEND_URL + SCHEDULER,
+                method: "GET",
+                dataType: "json",
+                crossDomain: true,
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", token);
+                },
+                success: function (success) {
+                    const userData = success.data;
+                    browser.storage.local.set({
+                        isGener8On: userData.isGener8On,
+                        pageWhitelist: userData.pageWhitelist,
+                        userWhitelist: userData.userWhitelist,
+                        token:token,
+                        user : userData.user,
+                        adminWhitelist : userData.adminWhitelist,
+                        userStatusCode: null
+                    });
+                    generExtBody.empty();
+                    loadDashboard(userData, domainName, pageName);
+                },
+                error: function (error) {
+                    browser.storage.local.set({
+                        'userStatusCode': error.status
+                    });
+                    if(error.status === 423){
+                        generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                        browser.runtime.sendMessage({ action: 'deleteToken' });
+                    } else if(error.status === 503){
+                        generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                    }else{
+                        generExtBody.append(loginPage);
                     }
-                })
-            }else {
-                if(error.status === 423){
-                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                    browser.runtime.sendMessage({ action: 'deleteToken' });
-                } else if(error.status === 503){
-                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
-                }else{
-                    generExtBody.append(loginPage);
                 }
+              });
+        }else{
+            generExtBody.empty();
+            switch (tokenData.userStatusCode) {
+                case 423:
+                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                    browser.runtime.sendMessage({ action: 'deleteToken' });    
+                    break;
+                case 503: 
+                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                    break;
+                default:
+                    loadDashboard(tokenData, domainName, pageName);
             }
-        }, 1000);
-    });
+        }
+    })
+}
+
+function loadDashboard(userData, domainName, pageName){
+    generExtBody.append(dashboardPage);
+    let isAdminWhitelisted = userData.adminWhitelist && userData.adminWhitelist.indexOf(domainName) > -1;
+    let isWhitelist = userData.userWhitelist && userData.userWhitelist.indexOf(domainName) > -1;
+    let isPageWhitelist = userData.pageWhitelist && userData.pageWhitelist.indexOf(pageName) > -1;
+    console.log(userData.adminWhitelist, 'isAdminWhitelisted',isAdminWhitelisted);
+    console.log(userData.userWhitelist, 'isWhitelist',isWhitelist);
+    console.log(userData.pageWhitelist, 'isPageWhitelist',isPageWhitelist);
+    $('#styled-checkbox-2').prop('checked', isWhitelist);
+    $('#styled-checkbox-1').prop('checked', isPageWhitelist);
+    $('#styled-checkbox-1').prop( "disabled", isAdminWhitelisted || isWhitelist );
+    $('#styled-checkbox-2').prop( "disabled", isAdminWhitelisted);
+    $('#gener8Wallet').html(userData.user ? userData.user.walletToken : 0.00);
+    $('#gnr-ref-link').val(userData.user.referralLink);
+    $("#currentLevel").html(userData.user.statusLevel.name);
+    $('.cstatus').html(userData.user.statusLevel.startLevel);
+    $('.nstatus').html(userData.user.statusLevel.endLevel);
+    $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
+    if(userData.notificationCount){
+        console.log("in.....creating notification badge");
+        if(!$('.gnr-noti').find('#badge').length){
+            $('.gnr-noti').append(`<span id="badge"></span>`)
+        }
+    }else{
+        $('.gnr-noti').find('#badge').remove();
+    }
 }
 
 /**

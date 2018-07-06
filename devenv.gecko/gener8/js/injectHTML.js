@@ -72,24 +72,14 @@ var dashboardPage = `
          <li>
             <input id="check02" type="checkbox" name="noti"/>
             <label for="check02"><img src="../img/noti.png" alt="noti" /></label>
-            <ul class="submenu" id="notificationList">
-               <div class="gnr-arrow-up"></div>
-               <a href="#" id="all" class="gnr-noti-semr redirect">See More</a>
-               <li>
-                <a class="read" href="#">test is simply dummy text of the printing and</a>
-                <p><img src="../img/cross.svg" alt="cross"/></p>
-                </li>
-            </ul>
          </li>
       </ul>
-      <span></span>
    </div>
 </div>
 <div class="gnr-login-page">
    <div class="gnr-ext-login">
       <div class="gnr-status-name">
-         <p>Status Level : <b>Level 1</b></p>
-         <img src="../img/mover.png" alt="mover" />
+         <p>Status Level : <b id="currentLevel"></b></p>
       </div>
       <div class="gnr-slider-prog">
          <div class="progress"></div>
@@ -127,6 +117,22 @@ var dashboardPage = `
 </div>
 `;
 
+var notificationPage = `
+<div class="gnr-ext-log gnr-txt-left">
+   <div id="back" class="gnr-back">
+    < Back
+   </div>
+</div>
+
+<div class="gnr-notification-nw">
+    <ul id="notificationList">
+
+    </ul>
+    <a class="see-more" id="seeMore" href="#">See More</a>
+</div>
+
+`;
+
 var loader = `
 <div class="loader" style="display: block;">
    <div class="animation-1">
@@ -147,3 +153,6 @@ var suspendPage = function(title, message){
     </div>
     `
 };
+
+//loginPage = dashboardPage;
+// dashboardPage = notificationPage;
