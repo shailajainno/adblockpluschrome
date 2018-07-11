@@ -362,14 +362,15 @@ left: -12px;
 
 /*statusname*/
 .gnr-status-name {
-    height: 28px;
+    display: flex;
+    justify-content: space-between;
 }
 .gnr-status-name p{
-    float: left;
     margin: 0;
 }
 .gnr-status-name img{
-    float: right;
+   position: relative;
+   top:-7px;
 }
 /*statusname*/
 
