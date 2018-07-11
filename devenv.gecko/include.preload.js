@@ -701,16 +701,20 @@
               browser.storage.local.get().then((gener8Data)=>{	
                 const currentDomain =location.hostname;
                 const gener8CurrentPage = location.href.split('?')[0];
-                console.log('1on', gener8Data.isGener8On);
-                console.log('1sus', gener8Data.userSuspend);
-                console.log('1page', gener8Data.pageWhitelist);
-                console.log('1domain', gener8Data.whitelist);
-
+                
+                  console.log(gener8Data.isGener8On)
+                  console.log(!gener8Data.userSuspend)
+                  console.log(gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1)
+                  console.log(gener8Data.userWhitelist.indexOf(currentDomain) === -1)
+                  console.log(gener8Data.adminWhitelist.indexOf(currentDomain) === -1)
+                     
+                    
 
                 if(gener8Data.isGener8On &&
-                  !gener8Data.userSuspend && 
+                  !gener8Data.userSuspend &&
                   gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1 && 
-                  gener8Data.whitelist.indexOf(currentDomain) === -1){
+                  gener8Data.userWhitelist.indexOf(currentDomain) === -1 && 
+                  gener8Data.adminWhitelist.indexOf(currentDomain) === -1){
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
                       if (this.tracer)
                         this.tracer.disconnect();

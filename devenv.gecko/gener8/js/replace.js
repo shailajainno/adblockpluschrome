@@ -60,7 +60,6 @@ $(function () {
         });
         observer.observe(document.body, { childList: true, subtree: true });
     })();
+    browser.runtime.sendMessage({ action: 'SetBadge' });
 });
-
-browser.runtime.sendMessage({ action: 'SetBadge' });
   

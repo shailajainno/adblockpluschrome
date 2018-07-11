@@ -92,4 +92,14 @@
    setInterval(()=>{
       scheduler();
    },1000 * 60 * SCHEDULER_DELAY_MIN);
+
+   browser.runtime.onMessage.addListener(function (request) {
+    if (request.action === 'resetNotification') {
+      setBadge('');
+      browser.storage.local.set({
+        'notificationCount': undefined
+      });
+    }
+  });
 })();
+

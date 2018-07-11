@@ -93,20 +93,23 @@ $(function () {
             success: function (success) {
                 generExtBody.empty();
                 generExtBody.append(notificationPage);
-                console.log('---------------', success.data.updates);
                 if(success.data && success.data.updates){
-                    
                     success.data.updates.forEach((notification)=>{
+                        let text = notification.message;
+                        if(notification.message.length > 60){
+                            text = notification.message.substring(0, 60) + '...';
+                        }
                         const notificationHTML = `
                         <li>
-                            <a href="#" class="notification-msg" data-redirect="${notification.actionurl}">
-                                ${notification.message},
+                            <a href="#" class="notification-msg" data-redirect="${GENER8_FRONTEND_URL+'#'+notification.actionurl}">
+                                ${text}
                             </a>
-                            <p id="${notification._id}" class="notification-close"><img src="../img/cross.svg" alt="cross" ></p>
                         </li>
                         `;
-                        console.log(notificationHTML)
                         $('#notificationList').append(notificationHTML);
+                        browser.runtime.sendMessage({action: "resetNotification"}, function(response) {
+                            console.log(response.farewell);
+                        });
                     })
                 }
             },
@@ -118,12 +121,8 @@ $(function () {
     }
 
     generExtBody.on('click', '.notification-msg', function () {
-        let URL = $(this).attr('data-redirect');
-        if(URL.indexOf('https://') !== 0 || URL.indexOf('http://') !== 0){
-            URL = 'https://'+ URL;
-        }
         browser.tabs.create({
-            url: URL
+            url: $(this).attr('data-redirect')
         });
         window.close();
     });
@@ -141,17 +140,6 @@ $(function () {
           }, (e)=>{
             console.log('===>',e)
           });
-        
-        // var text = function (text, id ) {
-        //     if(text.length > 30){
-        //         text = text.substring(0, 30) + '...';
-        //         console.log(text.length, text);
-        //     }
-        //     return `<li>
-        //         <a class="read redirection" id="${id}" href="#">${text}</a>
-        //         <p><img src="../img/cross.svg" alt="cross"/></p>
-        //     </li>`;
-        // }
     });
     
     generExtBody.on('click', '#back', function () {

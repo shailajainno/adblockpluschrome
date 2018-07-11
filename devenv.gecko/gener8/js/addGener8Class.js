@@ -5,22 +5,14 @@ var callTimeout = 0;
 
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
-    return function () {
-        if (data) {
-            var newStylesheet = data.replace(/{([^}]*)}/g, '');
-            $(newStylesheet).addClass('gener8');
-            $('div[id*=google_ads_iframe]').addClass('gener8');
-        }
-
-        // setTimeout(()=>{
-        //     $('div[id*=google_ads_iframe]').addClass('gener8');
-        // }, 3000);
-
-        checkWebBased('iframe[id^=atwAdFrame]');
-    };
+    if (data) {
+        var newStylesheet = data.replace(/{([^}]*)}/g, '');
+        $(newStylesheet).addClass('gener8');
+    }
+    checkWebBased();
 };
 
-function checkWebBased(regex) {
+function checkWebBased() {
     switch (window.location.hostname) {
         case 'www.engadget.com':
             var i = 0;
@@ -28,7 +20,7 @@ function checkWebBased(regex) {
             var timeout = setInterval(()=>{
                 $('iframe[id^=atwAdFrame]').addClass('gener8');
                 i++;
-                if(i > 10){
+                if(i > 4){
                     clearInterval(timeout);
                 }
             }, 3000)

@@ -374,16 +374,6 @@ left: -12px;
 /*statusname*/
 
 /*slider-prog*/
-.gnr-slider-prog:after{
-    position: absolute;
-    left: 0;
-    right: 0;
-    width: 2px;
-    background-color: #ccc;
-    content: '';
-    top: -3px;
-    height: 16px; 
-}
 .gnr-slider-prog{
     height: 11px;
     margin-bottom: 5px;
