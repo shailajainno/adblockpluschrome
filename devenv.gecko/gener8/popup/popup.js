@@ -365,9 +365,10 @@ browser.runtime.onMessage.addListener(function (request) {
  */
 function getUserDetails(token, domainName, pageName) {
     console.log("test..??")
-    browser.storage.local.get(['token','isGener8On','pageWhitelist','userWhitelist','user','userStatusCode','notificationCount']).then((tokenData)=>{
-        console.log(tokenData);
-        if(tokenData.token !== token){
+    const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount'];
+    browser.storage.local.get(localStorageKeys).then((tokenData)=>{
+        const currentToken = tokenData.token;
+        if(currentToken !== token){
             console.log("not match...");
             $.ajax({
                 url: GENER8_BACKEND_URL + SCHEDULER,
@@ -394,7 +395,13 @@ function getUserDetails(token, domainName, pageName) {
                 },
                 error: function (error) {
                     browser.storage.local.set({
-                        'userStatusCode': error.status
+                        userStatusCode: error.status,
+                        isGener8On: null,
+                        pageWhitelist: null,
+                        userWhitelist: null,
+                        token:token,
+                        user : null,
+                        adminWhitelist : null
                     });
                     if(error.status === 423){
                         generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
@@ -408,6 +415,7 @@ function getUserDetails(token, domainName, pageName) {
               });
         }else{
             generExtBody.empty();
+            console.log(generExtBody);
             switch (tokenData.userStatusCode) {
                 case 423:
                     generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
@@ -428,9 +436,6 @@ function loadDashboard(userData, domainName, pageName){
     let isAdminWhitelisted = userData.adminWhitelist && userData.adminWhitelist.indexOf(domainName) > -1;
     let isWhitelist = userData.userWhitelist && userData.userWhitelist.indexOf(domainName) > -1;
     let isPageWhitelist = userData.pageWhitelist && userData.pageWhitelist.indexOf(pageName) > -1;
-    console.log(userData.adminWhitelist, 'isAdminWhitelisted',isAdminWhitelisted);
-    console.log(userData.userWhitelist, 'isWhitelist',isWhitelist);
-    console.log(userData.pageWhitelist, 'isPageWhitelist',isPageWhitelist);
     $('#styled-checkbox-2').prop('checked', isWhitelist);
     $('#styled-checkbox-1').prop('checked', isPageWhitelist);
     $('#styled-checkbox-1').prop( "disabled", isAdminWhitelisted || isWhitelist );
@@ -442,7 +447,6 @@ function loadDashboard(userData, domainName, pageName){
     $('.nstatus').html(userData.user.statusLevel.endLevel);
     $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
     if(userData.notificationCount){
-        console.log("in.....creating notification badge");
         if(!$('.gnr-noti').find('#badge').length){
             $('.gnr-noti').append(`<span id="badge"></span>`)
         }

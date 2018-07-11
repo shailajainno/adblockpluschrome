@@ -29,11 +29,12 @@
           xhr.setRequestHeader("Authorization", token.value);
       },
       success: function (success) {
+        console.log('scheduler api', success.data);
         browser.storage.local.set({
           isGener8On: success.data.isGener8On,
           pageWhitelist: success.data.pageWhitelist,
           userWhitelist: success.data.userWhitelist,
-          token:token,
+          token:token.value,
           user : success.data.user,
           adminWhitelist : success.data.adminWhitelist,
           userStatusCode: null
@@ -62,8 +63,10 @@
           const notificationCount = success.data.total > 0 ? success.data.total: '';
           setBadge(notificationCount);
           browser.storage.local.set({
-            'notificationCount': notificationCount
+            notificationCount: notificationCount
           });
+
+          browser.storage.local.get().then(t=>console.log('--->>', t));
         },
         error: function (jqXHR) {
           console.log("error in notification")
