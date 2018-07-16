@@ -6431,14 +6431,10 @@
         );
       }
     
-      
-      var gener8TabData = {
-        whitelist: {
-
-        }
-      };
       // Add this to reduce onBeforeRequest loading time;
       browser.tabs.onUpdated.addListener(( a,b ,tab)=>{
+          if(b.status !== 'loading')
+            return;
           browser.cookies.get({
             url: GENER8_FRONTEND_URL,
             name: 'gnr-ext-token'
@@ -6455,14 +6451,12 @@
                     text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
                     tabId: tab.id
                   });
-                  console.log('on', gener8Data.isGener8On);
-                  console.log('sus', gener8Data.userSuspend);
+                  
                   console.log('page', gener8Data.pageWhitelist);
                   console.log('user domain', gener8Data.userWhitelist);
                   console.log('admin domain', gener8Data.adminWhitelist);
-                  
-                  gener8TabData.whitelist[a] = !gener8Data.isGener8On || 
-                    gener8Data.userSuspend ||
+                  console.log('statusCode',gener8Data.userStatusCode, !gener8Data.userStatusCode)
+                  gener8TabData.whitelist[a] = !!gener8Data.userStatusCode || 
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
@@ -6512,6 +6506,9 @@
           originUrl.protocol == "chrome:"))
           return;
 
+        if(gener8TabData.whitelist[details.tabId])
+          return
+
         let page = new ext.Page({ id: details.tabId });
         let frame = ext.getFrame(
           details.tabId,
@@ -6529,27 +6526,16 @@
         if (!frame && !originUrl)
           return;
 
-        if (checkWhitelisted(page, frame, originUrl))
-          return;
-
         let type = resourceTypes.get(details.type) || "OTHER";
         let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
           originUrl);
         let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
           sitekey, specificOnly);
 
-        getRelatedTabIds(details).then(tabIds => {
-          logRequest(tabIds, urlString, type, docDomain,
-            thirdParty, sitekey, specificOnly, filter);
-        });
-
           if (filter instanceof BlockingFilter){
-            console.log('ads', gener8TabData.whitelist[details.tabId]);
-             if(!gener8TabData.whitelist[details.tabId]){
-              let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
-              let cancel = { cancel: true };
-              return details.type === "sub_frame" ? redirect: cancel;
-             }
+            let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
+            let cancel = { cancel: true };
+            return details.type === "sub_frame" ? redirect: cancel;
           }
       }, { 
         urls: ["<all_urls>"],

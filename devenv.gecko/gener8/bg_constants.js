@@ -4,3 +4,8 @@ const VALIDATE_WHITE_LIST = 'user/validatedomain';
 const SCHEDULER = 'user/ext/scheduler-api';
 const SCHEDULER_DELAY_MIN = 1; // 60 * hours
 const NOTIFICATION = 'notification/updates'
+var gener8TabData = {
+    whitelist: {
+
+    }
+};

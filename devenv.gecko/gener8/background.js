@@ -57,8 +57,14 @@ function processRequest(request, sender) {
             break;
         case 'tokenExists':
             cookieGet('gnr-ext-token', function (token) {
+                console.log('---------------------------------------', token);
+                console.log('in,...................', gener8TabData);
                 if (token) {
-                    browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: token });
+                    console.log(sender);
+                    browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
+                        token,
+                        isBlocked: gener8TabData.whitelist[sender.tab.id]
+                    } });
                 }
             });
             break;

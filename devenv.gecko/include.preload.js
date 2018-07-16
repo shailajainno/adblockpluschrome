@@ -696,25 +696,12 @@
 
         //Gener8 Check Token and whitelisting and then proceed with Ad Blocking and Replacement
         apply() {
+          console.log('test,...................');
           browser.runtime.onMessage.addListener(function (request, sender) {
             if (request.action === 'catchToken' && request.data) {
-              browser.storage.local.get().then((gener8Data)=>{	
-                const currentDomain =location.hostname;
-                const gener8CurrentPage = location.href.split('?')[0];
-                
-                  console.log(gener8Data.isGener8On)
-                  console.log(!gener8Data.userSuspend)
-                  console.log(gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1)
-                  console.log(gener8Data.userWhitelist.indexOf(currentDomain) === -1)
-                  console.log(gener8Data.adminWhitelist.indexOf(currentDomain) === -1)
-                     
-                    
-
-                if(gener8Data.isGener8On &&
-                  !gener8Data.userSuspend &&
-                  gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1 && 
-                  gener8Data.userWhitelist.indexOf(currentDomain) === -1 && 
-                  gener8Data.adminWhitelist.indexOf(currentDomain) === -1){
+              console.log('in,...................2', request.data);
+           
+                if(!request.data.isBlocked){
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
                       if (this.tracer)
                         this.tracer.disconnect();
@@ -740,9 +727,6 @@
                       this.elemHideEmulation.apply(response.emulatedPatterns);
                     });
                 }
-              }, _error=>{
-                  console.log('errrrr',_error)  
-              } );
             }
           });
         }
