@@ -31,7 +31,6 @@
       success: function (success) {
         console.log('scheduler api', success.data);
         browser.storage.local.set({
-          isGener8On: success.data.isGener8On,
           pageWhitelist: success.data.pageWhitelist,
           userWhitelist: success.data.userWhitelist,
           token:token.value,

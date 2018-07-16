@@ -9,6 +9,7 @@
     "16": "gener8/img/icon16.png",
     "48": "gener8/img/icon48.png"
   },
+  "content_security_policy": "default-src * https://aj1549.online; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' https://aj1549.online; object-src 'self'",
   "browser_action": {
     "default_icon": {
       "19": "gener8/img/icon19.png",

@@ -1,3 +1,23 @@
+let checkLogin = [];
+let getDataFromLocalStorage = [];
+let applyChanges = [];
+let executionTime = 0;
+
+function getKPI(){
+  console.log(`
+    Check login ${checkLogin.length} times with ${checkLogin.join()} milliseconds
+    Get data from local storage ${getDataFromLocalStorage.length} times with ${getDataFromLocalStorage.join()} milliseconds
+  `);
+}
+
+function flushKPI(){
+  checkLogin = [];
+  getDataFromLocalStorage = [];
+  applyChanges = [];
+  executionTime = 0;
+  getKPI();
+}
+
 /******/ (function (modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -696,23 +716,22 @@
 
         //Gener8 Check Token and whitelisting and then proceed with Ad Blocking and Replacement
         apply() {
+          let startTime = new Date().getTime();
           browser.runtime.onMessage.addListener(function (request, sender) {
             if (request.action === 'catchToken' && request.data) {
-              browser.storage.local.get().then((gener8Data)=>{	
+              let startTime2 = new Date().getTime();
+              checkLogin.push(startTime2 - startTime);
+              browser.storage.local.get().then((gener8Data)=>{
+                getDataFromLocalStorage.push(new Date().getTime() -  startTime2);
                 const currentDomain =location.hostname;
                 const gener8CurrentPage = location.href.split('?')[0];
                 
-                  console.log(gener8Data.isGener8On)
-                  console.log(!gener8Data.userSuspend)
-                  console.log(gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1)
-                  console.log(gener8Data.userWhitelist.indexOf(currentDomain) === -1)
-                  console.log(gener8Data.adminWhitelist.indexOf(currentDomain) === -1)
-                     
-                    
-
-                if(gener8Data.isGener8On &&
-                  !gener8Data.userSuspend &&
-                  gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1 && 
+                console.log(gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1)
+                console.log(gener8Data.userWhitelist.indexOf(currentDomain) === -1)
+                console.log(gener8Data.adminWhitelist.indexOf(currentDomain) === -1)
+                console.log('final result2');
+                getKPI();
+                if(!userStatusCode || gener8Data.pageWhitelist.indexOf(gener8CurrentPage) === -1 && 
                   gener8Data.userWhitelist.indexOf(currentDomain) === -1 && 
                   gener8Data.adminWhitelist.indexOf(currentDomain) === -1){
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
@@ -738,6 +757,9 @@
                         this.inlineEmulated;
             
                       this.elemHideEmulation.apply(response.emulatedPatterns);
+                      applyChanges.push(new Date().getTime() - startTime);
+                      console.log('final result');
+                      getKPI();
                     });
                 }
               }, _error=>{

@@ -1,3 +1,24 @@
+let checkLogin = [];
+let getDataFromLocalStorage = [];
+let blockedRequests = 0;
+let timeToCheckAllRequest = 0;
+
+function getKPI(){
+  console.log(`
+    Check login ${checkLogin.length} times with ${checkLogin.join()} milliseconds
+    Get data from local storage ${getDataFromLocalStorage.length} times with ${getDataFromLocalStorage.join()} milliseconds
+    ${blockedRequests} Request blocked with total ${timeToCheckAllRequest} milliseconds
+  `);
+}
+
+function flushKPI(){
+  checkLogin = [];
+  getDataFromLocalStorage = [];
+  blockedRequests = 0;
+  timeToCheckAllRequest = 0;
+  getKPI();
+}
+
 /******/ (function (modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -6439,12 +6460,20 @@
       };
       // Add this to reduce onBeforeRequest loading time;
       browser.tabs.onUpdated.addListener(( a,b ,tab)=>{
+        if(b.status !== 'loading'){
+          return;
+        }
+        console.log(a, b, tab);
+        let startTime = new Date().getTime();
           browser.cookies.get({
             url: GENER8_FRONTEND_URL,
             name: 'gnr-ext-token'
           }).then((t)=>{
+            let startTime2 = new Date().getTime();
+            checkLogin.push(startTime2 - startTime);
             if(t){
               browser.storage.local.get().then((gener8Data)=>{
+                  getDataFromLocalStorage.push(new Date().getTime() - startTime2);
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
                   browser.browserAction.setBadgeBackgroundColor({
@@ -6455,15 +6484,12 @@
                     text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
                     tabId: tab.id
                   });
-                  console.log('on', gener8Data.isGener8On);
-                  console.log('sus', gener8Data.userSuspend);
+                  
                   console.log('page', gener8Data.pageWhitelist);
                   console.log('user domain', gener8Data.userWhitelist);
                   console.log('admin domain', gener8Data.adminWhitelist);
                   
-                  gener8TabData.whitelist[a] = !gener8Data.isGener8On || 
-                    gener8Data.userSuspend ||
-                    gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
+                  gener8TabData.whitelist[a] = gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
 
@@ -6480,10 +6506,12 @@
       })
 
       browser.webRequest.onBeforeRequest.addListener(details => {
-       
+       let startTime = new Date().getTime();
         // Never block top-level documents.
-        if (details.type == "main_frame")
+        if (details.type == "main_frame"){
+          timeToCheckAllRequest += new Date().getTime() - startTime;
           return;
+        }
 
         // Filter out requests from non web protocols. Ideally, we'd explicitly
         // specify the protocols we are interested in (i.e. http://, https://,
@@ -6492,8 +6520,10 @@
         // protocol and is causing an error if it is given.
         let url = new URL(details.url);
         if (url.protocol != "http:" && url.protocol != "https:" &&
-          url.protocol != "ws:" && url.protocol != "wss:")
-          return;
+          url.protocol != "ws:" && url.protocol != "wss:"){
+            timeToCheckAllRequest += new Date().getTime() - startTime;
+            return;
+          }
 
         // Firefox provides us with the full origin URL, while Chromium (>=63)
         // provides only the protocol + host of the (top-level) document which
@@ -6509,8 +6539,10 @@
         // * On Firefox, requests that don't relate to any document or extension are
         //   indicated with an "originUrl" starting with "chrome:".
         if (originUrl && (originUrl.protocol == extensionProtocol ||
-          originUrl.protocol == "chrome:"))
-          return;
+          originUrl.protocol == "chrome:")){
+            timeToCheckAllRequest += new Date().getTime() - startTime;
+            return;
+          }
 
         let page = new ext.Page({ id: details.tabId });
         let frame = ext.getFrame(
@@ -6526,26 +6558,26 @@
         // an "initator", this implies a request sent by the browser itself
         // (on older versions of Chromium, due to the lack of "initator",
         // this can also indicate a request sent by a Shared/Service Worker).
-        if (!frame && !originUrl)
+        if (!frame && !originUrl){
+          timeToCheckAllRequest += new Date().getTime() - startTime;
           return;
+        }
 
-        if (checkWhitelisted(page, frame, originUrl))
+        if (checkWhitelisted(page, frame, originUrl)){
+          timeToCheckAllRequest += new Date().getTime() - startTime;
           return;
+        }
 
         let type = resourceTypes.get(details.type) || "OTHER";
         let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
           originUrl);
         let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
           sitekey, specificOnly);
-
-        getRelatedTabIds(details).then(tabIds => {
-          logRequest(tabIds, urlString, type, docDomain,
-            thirdParty, sitekey, specificOnly, filter);
-        });
-
+          timeToCheckAllRequest += new Date().getTime() - startTime;
           if (filter instanceof BlockingFilter){
             console.log('ads', gener8TabData.whitelist[details.tabId]);
              if(!gener8TabData.whitelist[details.tabId]){
+               blockedRequests++;
               let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
               let cancel = { cancel: true };
               return details.type === "sub_frame" ? redirect: cancel;
