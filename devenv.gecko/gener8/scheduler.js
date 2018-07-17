@@ -37,13 +37,21 @@
           token:token.value,
           user : success.data.user,
           adminWhitelist : success.data.adminWhitelist,
-          userStatusCode: null
+          userStatusCode: null,
+          errorMessage: ''
         });
       },
       error: function (error) {
         browser.storage.local.set({
-          'userStatusCode': error.status
+          userStatusCode: error.status,
+          errorMessage: error.responseJSON.message
         });
+        if(error.status === 401){
+          browser.cookies.remove({
+            url: GENER8_FRONTEND_URL,
+            name: 'gnr-ext-token'
+          })
+        }
         return;
       }
     });
@@ -65,8 +73,6 @@
           browser.storage.local.set({
             notificationCount: notificationCount
           });
-
-          browser.storage.local.get().then(t=>console.log('--->>', t));
         },
         error: function (jqXHR) {
           console.log("error in notification")

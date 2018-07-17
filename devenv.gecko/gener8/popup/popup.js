@@ -365,7 +365,7 @@ browser.runtime.onMessage.addListener(function (request) {
  */
 function getUserDetails(token, domainName, pageName) {
     console.log("test..??")
-    const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount'];
+    const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
     browser.storage.local.get(localStorageKeys).then((tokenData)=>{
         const currentToken = tokenData.token;
         if(currentToken !== token){
@@ -388,7 +388,8 @@ function getUserDetails(token, domainName, pageName) {
                         token:token,
                         user : userData.user,
                         adminWhitelist : userData.adminWhitelist,
-                        userStatusCode: null
+                        userStatusCode: null,
+                        errorMessage: ''
                     });
                     generExtBody.empty();
                     loadDashboard(userData, domainName, pageName);
@@ -401,31 +402,42 @@ function getUserDetails(token, domainName, pageName) {
                         userWhitelist: null,
                         token:token,
                         user : null,
-                        adminWhitelist : null
+                        adminWhitelist : null,
+                        errorMessage: error.responseJSON.message
                     });
-                    if(error.status === 423){
-                        generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                        browser.runtime.sendMessage({ action: 'deleteToken' });
-                    } else if(error.status === 503){
-                        generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
-                    }else{
-                        generExtBody.append(loginPage);
+
+                    switch (error.status) {
+                        case 423:
+                            generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                            browser.runtime.sendMessage({ action: 'deleteToken' });
+                            break;
+                        case 503:
+                            generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                            break;
+                        case 401:
+                            browser.runtime.sendMessage({ action: 'deleteToken' });
+                            generExtBody.append(loginPage);
+                            break;
+                        default:
+                            generExtBody.append(loginPage);
+                            break;
                     }
                 }
               });
         }else{
             generExtBody.empty();
-            console.log(generExtBody);
+            console.log('--->>', tokenData);
             switch (tokenData.userStatusCode) {
                 case 423:
-                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                    browser.runtime.sendMessage({ action: 'deleteToken' });    
+                    generExtBody.append(suspendPage('Account Suspended', tokenData.errorMessage ? tokenData.errorMessage: null));
+                    browser.runtime.sendMessage({ action: 'deleteToken' });
                     break;
                 case 503: 
-                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                    generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
                     break;
                 default:
                     loadDashboard(tokenData, domainName, pageName);
+                    break;
             }
         }
     })
