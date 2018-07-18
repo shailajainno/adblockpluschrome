@@ -6484,6 +6484,7 @@
         // ws:// and wss://) with the url patterns, given below, when adding this
         // listener. But unfortunately, Chrome <=57 doesn't support the WebSocket
         // protocol and is causing an error if it is given.
+        console.log(details.originUrl);
         let url = new URL(details.url);
         if (url.protocol != "http:" && url.protocol != "https:" &&
           url.protocol != "ws:" && url.protocol != "wss:")
@@ -6494,6 +6495,7 @@
         // the request originates from through the "initiator" property.
         let originUrl = details.originUrl ? new URL(details.originUrl) :
           details.initiator ? new URL(details.initiator) : null;
+
 
         // Ignore requests sent by extensions or by Firefox itself:
         // * Firefox intercepts requests sent by any extensions, indicated with

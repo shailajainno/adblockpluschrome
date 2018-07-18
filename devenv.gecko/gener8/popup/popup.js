@@ -82,10 +82,15 @@ $(function () {
 
     function notificationList(token){
         $.ajax({
-            url: GENER8_BACKEND_URL + NOTIFICATION+'?limit=' + NOTIFICATION_VIEW_LIMIT,
-            method: "GET",
+            url: GENER8_BACKEND_URL + NOTIFICATION_LIST,
+            method: "POST",
             dataType: "json",
             crossDomain: true,
+            data: JSON.stringify({
+                limit: NOTIFICATION_VIEW_LIMIT,
+                filter:0,
+                page:1
+            }),
             contentType: "application/json; charset=utf-8",
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", token.value);
@@ -93,23 +98,30 @@ $(function () {
             success: function (success) {
                 generExtBody.empty();
                 generExtBody.append(notificationPage);
-                if(success.data && success.data.updates){
-                    success.data.updates.forEach((notification)=>{
+                console.log(success.data);
+                if(success.data && success.data.notification){
+                    success.data.notification.forEach((notification)=>{
                         let text = notification.message;
                         if(notification.message.length > 60){
                             text = notification.message.substring(0, 60) + '...';
                         }
-                        const notificationHTML = `
-                        <li>
-                            <a href="#" class="notification-msg" data-redirect="${GENER8_FRONTEND_URL+'#'+notification.actionurl}">
+                        let notificationHTML;
+                        if(notification.status === 'read'){
+                        notificationHTML = ` <li>
+                            <a href="#" class="notification-msg" data-id="${notification._id}" data-status="${notification.status}" data-redirect="${GENER8_FRONTEND_URL+'#'+notification.actionurl}">
                                 ${text}
                             </a>
                         </li>
-                        `;
+                        `
+                        }else{
+                         notificationHTML = ` <li>
+                            <a href="#" class="notification-msg" data-id="${notification._id}" data-status="${notification.status}" data-redirect="${GENER8_FRONTEND_URL+'#'+notification.actionurl}">
+                                <b>${text}</b>
+                            </a>
+                        </li>`
+                        }
                         $('#notificationList').append(notificationHTML);
-                        browser.runtime.sendMessage({action: "resetNotification"}, function(response) {
-                            console.log(response.farewell);
-                        });
+                        browser.runtime.sendMessage({action: "resetNotification"});
                     })
                 }
             },
@@ -121,11 +133,42 @@ $(function () {
     }
 
     generExtBody.on('click', '.notification-msg', function () {
-        browser.tabs.create({
-            url: $(this).attr('data-redirect')
-        });
-        window.close();
+        if($(this).attr('data-status') !== 'read'){
+            browser.cookies.get({
+                url: GENER8_FRONTEND_URL,
+                name: 'gnr-ext-token'
+              }).then((token)=>{
+                $.ajax({
+                    url: GENER8_BACKEND_URL + NOTIFICATION_READ,
+                    method: "POST",
+                    dataType: "json",
+                    crossDomain: true,
+                    data: JSON.stringify({
+                        id: $(this).attr('data-id')
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", token.value);
+                    },
+                    success: ()=>{
+                        openNewTab($(this).attr('data-redirect'))
+                    },
+                    error: ()=>{
+                        openNewTab($(this).attr('data-redirect'))
+                    }
+                });    
+              }, (e)=>{
+                openNewTab($(this).attr('data-redirect'))
+            });
+        }else{
+            openNewTab($(this).attr('data-redirect'))
+        }
     });
+
+    function openNewTab(url){
+        browser.tabs.create({url});
+        window.close();
+    }
 
     generExtBody.on('change', '#check02', function () {
         browser.cookies.get({
@@ -336,7 +379,7 @@ function checkEmailPass() {
                     data: success.data.token
                 });
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
+                    getUserDetails(success.data.token, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
                 });
                 //schedulerAPI(success.data.token);
             } else {
@@ -426,7 +469,6 @@ function getUserDetails(token, domainName, pageName) {
               });
         }else{
             generExtBody.empty();
-            console.log('--->>', tokenData);
             switch (tokenData.userStatusCode) {
                 case 423:
                     generExtBody.append(suspendPage('Account Suspended', tokenData.errorMessage ? tokenData.errorMessage: null));

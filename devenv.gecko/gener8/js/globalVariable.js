@@ -18,4 +18,6 @@ const EMAIL_NOT_VALID = 'Email Id isn\'t valid';
 const PASSWORD_IS_REQUIRED = 'Password is required';
 
 const NOTIFICATION = 'notification/updates';
+const NOTIFICATION_LIST = 'notification/getnotification';
 const NOTIFICATION_VIEW_LIMIT = 7;
+const NOTIFICATION_READ = 'notification/readnotification';

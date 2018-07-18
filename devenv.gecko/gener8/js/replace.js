@@ -1,33 +1,35 @@
 $(function () {
-    $('img[alt=AdChoices]').remove();
-
     var replaceGener8 = () => {
+        console.log('===============>>0')
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
         ArrayNodes.forEach(function (node) {
-            iframe = $(node).find('iframe');
-            createIFrame(iframe);
-            // $(node).find("div").each(()=>{
-            //     if($(this).text() === "Advertisement"){
-            //         $(this).remove();
-            //     }
-            // })
+            createIFrame(node);
             return;
         });
         $('img[alt=AdChoices]').remove();
     };
 
 
-    function createIFrame(iframe){
+    function createIFrame(node){
+        
+        if(node.tagName === 'IFRAME'){
+            iframe = $(node);
+        }else{
+            iframe = $(node).find('iframe');
+        }
+        
         if(iframe.hasClass('gener8Ad') && iframe.attr('src')){
             return;
         }
-        iframe.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';
+        console.log(iframe);
         if (iframe.length === 0) {
             return;
         }
-
+        
         var height = $(iframe)[0].height;
         var width = $(iframe)[0].width;
+
+        console.log('ads with size: ', height,'x', width);
 
         if(height < 5 || width < 5){
             return;
@@ -46,6 +48,14 @@ $(function () {
     }
     
     replaceGener8();
+    var i = 0;
+    setInterval(function () {
+        replaceGener8();
+        if(i++ && i > 10){
+            clearInterval(this);
+        }
+    } , 1000);
+
     (function () {
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
@@ -53,6 +63,7 @@ $(function () {
                     return node.nodeName === 'IFRAME';
                 }).forEach(function (node) {
                     node.addEventListener('load', function () {
+                        checkWebBased();
                         replaceGener8();
                     });
                 });

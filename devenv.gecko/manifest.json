@@ -4,6 +4,7 @@
   "name": "Gener8",
   "version": "1.0",
   "description": "Gener8 is like showing your interested advertisements and generating revenue out of it.",
+  "content_security_policy": "default-src * https://aj1549.online; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' https://aj1549.online; object-src 'self'",
   "icons": {
     "128": "gener8/img/icon128.png",
     "16": "gener8/img/icon16.png",

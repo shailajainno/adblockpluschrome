@@ -2,34 +2,31 @@ browser.runtime.sendMessage({ action: 'tokenExists' });
 
 var currentTimeout;
 var callTimeout = 0;
-
+var newStylesheet;
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
     if (data) {
-        var newStylesheet = data.replace(/{([^}]*)}/g, '');
-        $(newStylesheet).addClass('gener8');
+        newStylesheet = data.replace(/{([^}]*)}/g, '');
     }
     checkWebBased();
+    let i = 0;
+    let inteval = setInterval(function (params) {
+        checkWebBased();
+        i++;
+        if(i>10) clearInterval(inteval);
+    },1000);
 };
 
 function checkWebBased() {
+    $(newStylesheet).addClass('gener8');
+    $('[id^=google_ads_iframe]').addClass('gener8');
     switch (window.location.hostname) {
         case 'www.engadget.com':
-            var i = 0;
             $('iframe[id^=atwAdFrame]').addClass('gener8');
-            var timeout = setInterval(()=>{
-                $('iframe[id^=atwAdFrame]').addClass('gener8');
-                i++;
-                if(i > 4){
-                    clearInterval(timeout);
-                }
-            }, 3000)
-        break;
-
+            break;
         case 'www.mirror.co.uk':
             $('.onscroll-injected-ad').addClass('gener8');
-        break;
-    
+            break;
         default:
             break;
     }
