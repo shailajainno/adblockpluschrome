@@ -6456,6 +6456,7 @@
                   console.log('user domain', gener8Data.userWhitelist);
                   console.log('admin domain', gener8Data.adminWhitelist);
                   console.log('statusCode',gener8Data.userStatusCode, !gener8Data.userStatusCode)
+                  console.log(a);
                   gener8TabData.whitelist[a] = !!gener8Data.userStatusCode || 
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
@@ -6479,12 +6480,14 @@
         if (details.type == "main_frame")
           return;
 
+        if(details.originUrl === 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html')
+          return;
+
         // Filter out requests from non web protocols. Ideally, we'd explicitly
         // specify the protocols we are interested in (i.e. http://, https://,
         // ws:// and wss://) with the url patterns, given below, when adding this
         // listener. But unfortunately, Chrome <=57 doesn't support the WebSocket
         // protocol and is causing an error if it is given.
-        console.log(details.originUrl);
         let url = new URL(details.url);
         if (url.protocol != "http:" && url.protocol != "https:" &&
           url.protocol != "ws:" && url.protocol != "wss:")
@@ -6507,7 +6510,6 @@
         if (originUrl && (originUrl.protocol == extensionProtocol ||
           originUrl.protocol == "chrome:"))
           return;
-
         if(gener8TabData.whitelist[details.tabId])
           return
 
@@ -6535,7 +6537,9 @@
           sitekey, specificOnly);
 
           if (filter instanceof BlockingFilter){
-            let redirect =  {redirectUrl: 'https://www.gener8ads.com'};
+            let redirect =  {
+              redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html'
+            };
             let cancel = { cancel: true };
             return details.type === "sub_frame" ? redirect: cancel;
           }

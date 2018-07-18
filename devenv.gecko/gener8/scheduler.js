@@ -59,7 +59,7 @@
    
    function notificationCount(token){
       $.ajax({
-        url: GENER8_BACKEND_URL + NOTIFICATION+'?limit=0',
+        url: GENER8_BACKEND_URL + NOTIFICATION_COUNT+'?limit=0',
         method: "GET",
         dataType: "json",
         crossDomain: true,
@@ -68,11 +68,9 @@
             xhr.setRequestHeader("Authorization", token.value);
         },
         success: function (success) {
-          const notificationCount = success.data.total > 0 ? success.data.total: '';
-          setBadge(notificationCount);
-          browser.storage.local.set({
-            notificationCount: notificationCount
-          });
+          const count = success.data.total > 0 ? success.data.total: '';
+          setBadge(count);
+          browser.storage.local.set({count});
         },
         error: function (jqXHR) {
           console.log("error in notification")

@@ -1,6 +1,5 @@
 $(function () {
     var replaceGener8 = () => {
-        console.log('===============>>0')
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
         ArrayNodes.forEach(function (node) {
             createIFrame(node);
@@ -11,7 +10,6 @@ $(function () {
 
 
     function createIFrame(node){
-        
         if(node.tagName === 'IFRAME'){
             iframe = $(node);
         }else{
@@ -21,15 +19,13 @@ $(function () {
         if(iframe.hasClass('gener8Ad') && iframe.attr('src')){
             return;
         }
-        console.log(iframe);
+        
         if (iframe.length === 0) {
             return;
         }
         
         var height = $(iframe)[0].height;
         var width = $(iframe)[0].width;
-
-        console.log('ads with size: ', height,'x', width);
 
         if(height < 5 || width < 5){
             return;
@@ -63,7 +59,6 @@ $(function () {
                     return node.nodeName === 'IFRAME';
                 }).forEach(function (node) {
                     node.addEventListener('load', function () {
-                        checkWebBased();
                         replaceGener8();
                     });
                 });
@@ -74,3 +69,24 @@ $(function () {
     browser.runtime.sendMessage({ action: 'SetBadge' });
 });
   
+
+
+window.addEventListener("message", receiveMessage, true);
+function receiveMessage(event, d ,a,b){
+    console.log('----test---'); 
+    console.log(event,d, a,b);
+    if (event.origin !== "http://example.org:8080")
+        return;
+
+  // ...
+}
+
+function receiveMessage(event, d ,a,b){
+    console.log('----test2---'); 
+    console.log(event,d, a,b);
+    if (event.origin !== "http://example.org:8080")
+        return;
+
+  // ...
+}
+window.attachEvent("onmessage", displayMessage2);

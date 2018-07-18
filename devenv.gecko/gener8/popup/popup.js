@@ -81,6 +81,7 @@ $(function () {
     });
 
     function notificationList(token){
+        console.log("-----------------sss")
         $.ajax({
             url: GENER8_BACKEND_URL + NOTIFICATION_LIST,
             method: "POST",
@@ -498,8 +499,10 @@ function loadDashboard(userData, domainName, pageName){
     $('#gnr-ref-link').val(userData.user.referralLink);
     $("#currentLevel").html(userData.user.statusLevel.name);
     $('.cstatus').html(userData.user.statusLevel.startLevel);
+    $('.progress').width(userData.user.statusLevel.levelPercent+'%');
     $('.nstatus').html(userData.user.statusLevel.endLevel);
     $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
+    
     if(userData.notificationCount){
         if(!$('.gnr-noti').find('#badge').length){
             $('.gnr-noti').append(`<span id="badge"></span>`)
