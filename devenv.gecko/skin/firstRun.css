@@ -56,3 +56,12 @@ body
   .p-3{padding:1rem !important; }
   .img-fluid{max-width: 100%;}
   a{color:#4375b9;}
+  .btn{padding: .8rem 2rem;font-size: 1.25rem;color: #ffffff;text-decoration: none;margin-right: 10px;margin-top: 15px;border-radius: 5px;
+ background: rgba(69,177,172,1);
+ background: -moz-linear-gradient(top, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);
+ background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(69,177,172,1)), color-stop(100%, rgba(63,129,187,1)));
+ background: -webkit-linear-gradient(top, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);
+ background: -o-linear-gradient(top, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);
+ background: -ms-linear-gradient(top, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);
+ background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);
+ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45b1ac', endColorstr='#3f81bb', GradientType=0 );}
