@@ -376,8 +376,8 @@ function checkEmailPass() {
                 $('.gnr-error-server-msg').text(error.responseJSON.message);
             } else if (success && success.data) {
                 browser.runtime.sendMessage({
-                    action: 'saveToken',
-                    data: success.data.token
+                    action: 'saveLoginDetails',
+                    data: success.data
                 });
                 browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     getUserDetails(success.data.token, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
