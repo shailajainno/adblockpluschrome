@@ -21,3 +21,4 @@ const NOTIFICATION_COUNT = 'notification/updates';
 const NOTIFICATION_LIST = 'notification/getnotification';
 const NOTIFICATION_VIEW_LIMIT = 7;
 const NOTIFICATION_READ = 'notification/readnotification';
+let adTags = {};

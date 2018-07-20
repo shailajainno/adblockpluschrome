@@ -699,8 +699,7 @@
           console.log('test,...................');
           browser.runtime.onMessage.addListener(function (request, sender) {
             if (request.action === 'catchToken' && request.data) {
-              console.log('in,...................2', request.data);
-           
+              adTags = request.data.adTags;
                 if(!request.data.isBlocked){
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
                       if (this.tracer)

@@ -1,3 +1,4 @@
+
 (()=>{
 
    function setBadge(count){
@@ -39,6 +40,10 @@
           adminWhitelist : success.data.adminWhitelist,
           userStatusCode: null,
           errorMessage: ''
+        });
+        success.data.adtags.forEach(tag=>{
+          console.log(tag.width+'x'+tag.height, tag.content);
+          adTags[tag.width+'x'+tag.height] = tag.content;
         });
       },
       error: function (error) {

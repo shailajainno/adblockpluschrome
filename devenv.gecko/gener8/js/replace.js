@@ -8,12 +8,13 @@ $(function () {
         $('img[alt=AdChoices]').remove();
     };
 
+    console.log('====>>', adTags);
 
     function createIFrame(node){
         if(node.tagName === 'IFRAME'){
             iframe = $(node);
         }else{
-            iframe = $(node).find('iframe');
+            iframe = $(node).find('iframe');    
         }
         
         if(iframe.hasClass('gener8Ad') && iframe.attr('src')){
@@ -27,18 +28,25 @@ $(function () {
         var height = $(iframe)[0].height;
         var width = $(iframe)[0].width;
 
+
         if(height < 5 || width < 5){
             return;
         }
+
+        console.log('test....???', height , width);
+        let currentTag = adTags[width+'x'+height];
+        if(!currentTag){
+            $(node).remove();
+            return;
+        };
         
         var iframeGenere = document.createElement('iframe');
         iframeGenere.height = height;
         iframeGenere.width = width;
-        iframeGenere.src = 'https://res.cloudinary.com/djpktt9hp/image/upload/v1525686806/gen.png';
-        iframeGenere.setAttribute('class', 'gener8Ad');
+        iframeGenere.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag='+ currentTag;
+        console.log(iframeGenere.src);
         iframeGenere.scrolling = 'no';
-        $(iframeGenere).css('border', '1px solid red');
-        $(iframeGenere).css('background', '#78C8D5');
+        iframeGenere.setAttribute('class', 'gener8Ad');
         iframe.after(iframeGenere);
         iframe.remove();
     }
@@ -71,22 +79,17 @@ $(function () {
   
 
 
-window.addEventListener("message", receiveMessage, true);
-function receiveMessage(event, d ,a,b){
-    console.log('----test---'); 
-    console.log(event,d, a,b);
-    if (event.origin !== "http://example.org:8080")
-        return;
+    // function receiveMessage(event){
+    //     console.log('----test---', event);
+    //     event.postMessage("replying to you beta",'*')
+    // }
 
-  // ...
-}
+    // window.postMessage({d:'testr'}, '*');   
 
-function receiveMessage(event, d ,a,b){
-    console.log('----test2---'); 
-    console.log(event,d, a,b);
-    if (event.origin !== "http://example.org:8080")
-        return;
-
-  // ...
-}
-window.attachEvent("onmessage", displayMessage2);
+    // if (window.addEventListener) {
+    // 	// For standards-compliant web browsers
+    // 	window.addEventListener("message", receiveMessage, false);
+    // }
+    // else {
+    // 	window.attachEvent("onmessage", receiveMessage);
+    // }

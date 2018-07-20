@@ -6440,18 +6440,16 @@
             name: 'gnr-ext-token'
           }).then((t)=>{
             if(t){
-              browser.storage.local.get().then((gener8Data)=>{
+              browser.storage.local.get([
+                'pageWhitelist',
+                'userWhitelist',
+                'userStatusCode',
+                'adminWhitelist',
+                'notificationCount',
+                'adTags'
+              ]).then((gener8Data)=>{
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
-                  browser.browserAction.setBadgeBackgroundColor({
-                      color: "black",
-                      tabId: tab.id
-                  });
-                  browser.browserAction.setBadgeText({
-                    text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
-                    tabId: tab.id
-                  });
-                  
                   console.log('page', gener8Data.pageWhitelist);
                   console.log('user domain', gener8Data.userWhitelist);
                   console.log('admin domain', gener8Data.adminWhitelist);
@@ -6461,7 +6459,23 @@
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
-
+                    console.log("now i can whitelist anything... :)")
+                    browser.browserAction.setBadgeBackgroundColor({
+                      color: "black",
+                      tabId: tab.id
+                    });
+                    browser.browserAction.setBadgeText({
+                      text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+                      tabId: tab.id
+                    });
+                    console.log(gener8TabData.whitelist[a]);
+                    if(!gener8TabData.whitelist[a]){
+                      
+                      browser.tabs.sendMessage(tab.id, { action: 'catchToken', data: {
+                        token,
+                        isBlocked: gener8TabData.whitelist[tab.id]
+                      } });
+                    }
                 }, _error=>{
                   return;  
                 } );
@@ -6480,7 +6494,8 @@
         if (details.type == "main_frame")
           return;
 
-        if(details.originUrl === 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html')
+        console.log(details.originUrl);
+        if(details.originUrl && details.originUrl.indexOf('s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html') > -1)
           return;
 
         // Filter out requests from non web protocols. Ideally, we'd explicitly
@@ -6510,6 +6525,7 @@
         if (originUrl && (originUrl.protocol == extensionProtocol ||
           originUrl.protocol == "chrome:"))
           return;
+        console.log('ads',details.tabId, gener8TabData.whitelist[details.tabId]);
         if(gener8TabData.whitelist[details.tabId])
           return
 
@@ -6537,11 +6553,13 @@
           sitekey, specificOnly);
 
           if (filter instanceof BlockingFilter){
-            let redirect =  {
-              redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html'
-            };
-            let cancel = { cancel: true };
-            return details.type === "sub_frame" ? redirect: cancel;
+            if(details.type === "sub_frame"){
+              return {
+                redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag=CommingSoon'
+              }
+            }else{
+              return { cancel: true };
+            }
           }
       }, { 
         urls: ["<all_urls>"],

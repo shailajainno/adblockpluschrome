@@ -61,7 +61,8 @@ function processRequest(request, sender) {
                     console.log(sender);
                     browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                         token,
-                        isBlocked: gener8TabData.whitelist[sender.tab.id]
+                        isBlocked: gener8TabData.whitelist[sender.tab.id],
+                        adTags
                     } });
                 }
             });
