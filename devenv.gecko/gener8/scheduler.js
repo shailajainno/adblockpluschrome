@@ -44,6 +44,13 @@
         success.data.adtags.forEach(tag=>{
           console.log(tag.width+'x'+tag.height, tag.content);
           adTags[tag.width+'x'+tag.height] = tag.content;
+          setTimeout(() => {
+            browser.cookies.set({
+              url: GENER_AD_URL,
+              name: tag.width+'x'+tag.height,
+              value: tag.content
+            })
+          }, 1000);
         });
       },
       error: function (error) {
@@ -61,6 +68,9 @@
       }
     });
    }
+
+   console.log(GENER8_WEBSITE);
+   console.log(GENER8_BACKEND_URL);
    
    function notificationCount(token){
       $.ajax({
@@ -100,11 +110,11 @@
         console.log('===>',e)
       });
    } 
-   scheduler();
+   
    setInterval(()=>{
       scheduler();
    },1000 * 60 * SCHEDULER_DELAY_MIN);
-
+   scheduler();
    browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
       setBadge('');

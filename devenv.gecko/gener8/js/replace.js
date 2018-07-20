@@ -8,8 +8,6 @@ $(function () {
         $('img[alt=AdChoices]').remove();
     };
 
-    console.log('====>>', adTags);
-
     function createIFrame(node){
         if(node.tagName === 'IFRAME'){
             iframe = $(node);
@@ -17,48 +15,58 @@ $(function () {
             iframe = $(node).find('iframe');    
         }
         
-        if(iframe.hasClass('gener8Ad') && iframe.attr('src')){
+        if(iframe.hasClass('gener8Ad')){
             return;
         }
         
         if (iframe.length === 0) {
+            $(node).remove();
             return;
         }
         
         var height = $(iframe)[0].height;
         var width = $(iframe)[0].width;
-
-
+        if(!height){
+            height = $(iframe)[0].style.height;
+            height = height ? height.replace('px', ''): '';
+        }
+        if(!width){
+            width = $(iframe)[0].style.width;
+            width = width ? height.replace('px', ''): '';
+        }
         if(height < 5 || width < 5){
+            $(node).remove();
             return;
         }
 
-        console.log('test....???', height , width);
+        
         let currentTag = adTags[width+'x'+height];
+        console.log('test....???', height , width, currentTag);
         if(!currentTag){
             $(node).remove();
             return;
         };
-        
+        console.log('abd');
         var iframeGenere = document.createElement('iframe');
         iframeGenere.height = height;
         iframeGenere.width = width;
-        iframeGenere.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag='+ currentTag;
+        console.log('abds');
+        iframeGenere.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag='+ adTags[width+'x'+height];
         console.log(iframeGenere.src);
+        console.log('abdss');
         iframeGenere.scrolling = 'no';
         iframeGenere.setAttribute('class', 'gener8Ad');
         iframe.after(iframeGenere);
-        iframe.remove();
     }
     
     replaceGener8();
     var i = 0;
     setInterval(function () {
         replaceGener8();
-        if(i++ && i > 10){
+        if(i++ && i > 5){
             clearInterval(this);
         }
-    } , 1000);
+    } , 2000);
 
     (function () {
         var observer = new MutationObserver(function (mutations) {

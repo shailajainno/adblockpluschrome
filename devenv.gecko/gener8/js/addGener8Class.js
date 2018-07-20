@@ -20,6 +20,7 @@ var replaceWithGener8 = function (data) {
 function checkWebBased() {
     $(newStylesheet).addClass('gener8');
     $('[id^=google_ads_iframe]').addClass('gener8');
+    $('div[id^=my-ads]').addClass('gener8');
     switch (window.location.hostname) {
         case 'www.engadget.com':
             $('iframe[id^=atwAdFrame]').addClass('gener8');

@@ -6555,7 +6555,7 @@
           if (filter instanceof BlockingFilter){
             if(details.type === "sub_frame"){
               return {
-                redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag=CommingSoon'
+                redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html'
               }
             }else{
               return { cancel: true };
