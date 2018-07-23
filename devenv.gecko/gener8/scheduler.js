@@ -27,7 +27,7 @@
       crossDomain: true,
       contentType: "application/json; charset=utf-8",
       beforeSend: function (xhr) {
-          xhr.setRequestHeader("Authorization", token.value);
+          xhr.setRequestHeader("Authorization", token);
       },
       success: function (success) {
         console.log('scheduler api', success.data);
@@ -35,7 +35,7 @@
           isGener8On: success.data.isGener8On,
           pageWhitelist: success.data.pageWhitelist,
           userWhitelist: success.data.userWhitelist,
-          token:token.value,
+          token,
           user : success.data.user,
           adminWhitelist : success.data.adminWhitelist,
           userStatusCode: null,
@@ -59,10 +59,10 @@
           errorMessage: error.responseJSON.message
         });
         if(error.status === 401){
-          browser.cookies.remove({
-            url: GENER8_FRONTEND_URL,
-            name: 'gnr-ext-token'
-          })
+          // browser.cookies.remove({
+          //   url: GENER8_FRONTEND_URL,
+          //   name: 'jwtToken'
+          // })
         }
         return;
       }
@@ -80,7 +80,7 @@
         crossDomain: true,
         contentType: "application/json; charset=utf-8",
         beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", token.value);
+            xhr.setRequestHeader("Authorization", token);
         },
         success: function (success) {
           const count = success.data.total > 0 ? success.data.total: '';
@@ -98,9 +98,11 @@
     console.log("Sechedular start at ", new Date());
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
-        name: 'gnr-ext-token'
+        name: 'jwtToken'
       }).then((token)=>{
         if(token){
+          token = JSON.parse(token.value).body;
+          token = atob(token);
           schedulerAPI(token);
           notificationCount(token);
         }else{

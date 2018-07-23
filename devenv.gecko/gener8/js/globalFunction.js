@@ -3,7 +3,7 @@
  * @returns {string} - token
  */
 function getUserAccessToken(callback) {
-    cookieGet('gnr-ext-token', function (token) {
+    cookieGet('jwtToken', function (token) {
         if (token) {
             callback(token);
         } else {

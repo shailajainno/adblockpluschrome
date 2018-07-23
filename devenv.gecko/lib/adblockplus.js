@@ -6437,7 +6437,7 @@
             return;
           browser.cookies.get({
             url: GENER8_FRONTEND_URL,
-            name: 'gnr-ext-token'
+            name: 'jwtToken'
           }).then((t)=>{
             if(t){
               browser.storage.local.get([

@@ -5,7 +5,16 @@ $(function () {
     generExtBody.empty();
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
-        if (token !== null) {
+        console.log('token in popup', token);
+        if (token) {
+            try {
+                token = JSON.parse(token).body;
+                console.log('token in popup2', token);
+                token = atob(token);
+                console.log('token in popup3', token);
+            } catch (error) {
+                console.log(error)
+            }
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
             });
@@ -137,7 +146,7 @@ $(function () {
         if($(this).attr('data-status') !== 'read'){
             browser.cookies.get({
                 url: GENER8_FRONTEND_URL,
-                name: 'gnr-ext-token'
+                name: 'jwtToken'
               }).then((token)=>{
                 $.ajax({
                     url: GENER8_BACKEND_URL + NOTIFICATION_READ,
@@ -174,7 +183,7 @@ $(function () {
     generExtBody.on('change', '#check02', function () {
         browser.cookies.get({
             url: GENER8_FRONTEND_URL,
-            name: 'gnr-ext-token'
+            name: 'jwtToken'
           }).then((token)=>{
             if(token){
               notificationList(token);

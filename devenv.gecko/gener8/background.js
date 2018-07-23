@@ -47,19 +47,15 @@ function processRequest(request, sender) {
             break;
         case 'saveLoginDetails':
             var tkn = request.data.token;
-            browser.cookies.set({
-                url: GENER8_FRONTEND_URL,
-                name: 'gnr-ext-token',
-                value: tkn
-            });
             saveUserDetails(request.data);
             sendToAllContentScripts('TokenFromBackGround');
             browser.runtime.sendMessage({ action: 'getUserDetails', data: tkn });
             break;
         case 'tokenExists':
-            cookieGet('gnr-ext-token', function (token) {
+            cookieGet('jwtToken', function (token) {
                 if (token) {
-                    console.log(sender);
+                    token = JSON.parse(token.value).body;
+                    token = atob(token);
                     browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                         token,
                         isBlocked: gener8TabData.whitelist[sender.tab.id],
@@ -71,7 +67,7 @@ function processRequest(request, sender) {
         case 'deleteToken':
             browser.cookies.remove({
                 url: GENER8_FRONTEND_URL,
-                name: 'gnr-ext-token'
+                name: 'jwtToken'
             })
             break;
         default:
