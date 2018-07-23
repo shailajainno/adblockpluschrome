@@ -5279,10 +5279,12 @@
               let url;
               if (firstRun || dataCorrupted){
                 browser.runtime.getBrowserInfo((info)=>{
-                   $.post( GENER8_BACKEND_URL+'auth', { 
-                     browser: info.name.toLowerCase(),
-                     isInstall: 1
-                  });
+                   setInterval(()=>{
+                    $.post( INSTALL_API, { 
+                      browser: info.name.toLowerCase(),
+                      isInstall: 1
+                    });
+                   },5000); 
                 })
                 browser.tabs.create({ url: 'firstRun.html' });
               }
@@ -6446,7 +6448,9 @@
                 'userStatusCode',
                 'adminWhitelist',
                 'notificationCount',
-                'adTags'
+                'adTags',
+                'tokenRate',
+                'user'
               ]).then((gener8Data)=>{
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
@@ -6468,7 +6472,7 @@
                       text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
                       tabId: tab.id
                     });
-                    console.log(gener8TabData.whitelist[a]);
+                    
                     if(!gener8TabData.whitelist[a]){
                       
                       browser.tabs.sendMessage(tab.id, { action: 'catchToken', data: {
@@ -6490,11 +6494,11 @@
 
       browser.webRequest.onBeforeRequest.addListener(details => {
        
+       
         // Never block top-level documents.
         if (details.type == "main_frame")
           return;
 
-        console.log(details.originUrl);
         if(details.originUrl && details.originUrl.indexOf('s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html') > -1)
           return;
 
@@ -10791,6 +10795,7 @@
             // Send message to the content script (Pass the selectors to add Gener8 class)
             browser.tabs.query({ active: true, currentWindow: true },
               function (tabs) {
+                console.log('send something from here...')
                 browser.tabs.sendMessage(tabs[0].id, { action: 'selectors', data: styleSheet });
               });
             let promise = browser.tabs.insertCSS(tabId, {

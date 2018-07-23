@@ -32,31 +32,30 @@ $(function () {
         }
         if(!width){
             width = $(iframe)[0].style.width;
-            width = width ? height.replace('px', ''): '';
+            width = width ? width.replace('px', ''): '';
         }
-        if(height < 5 || width < 5){
-            $(node).remove();
-            return;
-        }
-
         
         let currentTag = adTags[width+'x'+height];
-        console.log('test....???', height , width, currentTag);
+        console.log('ad--->>>', width+'x'+height , currentTag);
         if(!currentTag){
             $(node).remove();
             return;
         };
-        console.log('abd');
+        
         var iframeGenere = document.createElement('iframe');
         iframeGenere.height = height;
         iframeGenere.width = width;
-        console.log('abds');
         iframeGenere.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?tag='+ adTags[width+'x'+height];
+        if(height < 5 || width < 5){
+            iframeGenere.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html';
+        }
+        
         console.log(iframeGenere.src);
         console.log('abdss');
         iframeGenere.scrolling = 'no';
         iframeGenere.setAttribute('class', 'gener8Ad');
-        iframe.after(iframeGenere);
+        iframe.after(iframeGenere);\
+        $(node).remove();
     }
     
     replaceGener8();
@@ -85,19 +84,17 @@ $(function () {
     browser.runtime.sendMessage({ action: 'SetBadge' });
 });
   
+function receiveMessage(event){
+    if(event.data.gener8){
+        console.log('maa kaa phone aaya...', event);
+        browser.runtime.sendMessage({ action: 'AD_IMPRESSION' });
+    }
+}
 
-
-    // function receiveMessage(event){
-    //     console.log('----test---', event);
-    //     event.postMessage("replying to you beta",'*')
-    // }
-
-    // window.postMessage({d:'testr'}, '*');   
-
-    // if (window.addEventListener) {
-    // 	// For standards-compliant web browsers
-    // 	window.addEventListener("message", receiveMessage, false);
-    // }
-    // else {
-    // 	window.attachEvent("onmessage", receiveMessage);
-    // }
+if (window.addEventListener) {
+    // For standards-compliant web browsers
+    window.addEventListener("message", receiveMessage, false);
+}
+else {
+    window.attachEvent("onmessage", receiveMessage);
+}

@@ -30,6 +30,9 @@
           xhr.setRequestHeader("Authorization", token);
       },
       success: function (success) {
+        userData = success.data.user;
+        userData.walletToken = parseFloat(userData.walletToken);
+        tokenRate = userData.tokenRate;
         console.log('scheduler api', success.data);
         browser.storage.local.set({
           isGener8On: success.data.isGener8On,
@@ -41,6 +44,7 @@
           userStatusCode: null,
           errorMessage: ''
         });
+
         success.data.adtags.forEach(tag=>{
           console.log(tag.width+'x'+tag.height, tag.content);
           adTags[tag.width+'x'+tag.height] = tag.content;
@@ -63,15 +67,13 @@
           //   url: GENER8_FRONTEND_URL,
           //   name: 'jwtToken'
           // })
+          
         }
         return;
       }
     });
    }
 
-   console.log(GENER8_WEBSITE);
-   console.log(GENER8_BACKEND_URL);
-   
    function notificationCount(token){
       $.ajax({
         url: GENER8_BACKEND_URL + NOTIFICATION_COUNT+'?limit=0',

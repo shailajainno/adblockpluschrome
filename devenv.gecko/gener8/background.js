@@ -21,7 +21,7 @@ function cookieGet(key, callback) {
  * @param {string} action
  */
 function sendToAllContentScripts(_action) {
-    browser.tabs.query({}, function (tabs) {
+    browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         for (var i = 0; i < tabs.length; ++i) {
             browser.tabs.sendMessage(tabs[i].id, { action: _action });
         }
@@ -54,7 +54,7 @@ function processRequest(request, sender) {
         case 'tokenExists':
             cookieGet('jwtToken', function (token) {
                 if (token) {
-                    token = JSON.parse(token.value).body;
+                    token = JSON.parse(token).body;
                     token = atob(token);
                     browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                         token,
@@ -70,10 +70,30 @@ function processRequest(request, sender) {
                 name: 'jwtToken'
             })
             break;
+        case 'AD_IMPRESSION':
+            console.log('imresssssss')
+            adImpression();
+            break;
+        case 'SET_USERDATA':
+            console.log('----------->>>',request);
+            userData = request.data;
+            break;
         default:
             break;
     }
 }
+
+function adImpression(){
+    userData.walletToken += tokenRate;
+    userData.walletToken = Math.round(userData.walletToken * 100) / 100
+}
+
+setInterval(() => {
+    console.log(new Date(), userData);
+    browser.storage.local.set({
+        user: userData
+    });
+}, 30000);
 
 function saveCookies(key, value){
     const hash = {

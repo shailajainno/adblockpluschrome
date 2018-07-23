@@ -7,20 +7,28 @@ var newStylesheet;
 var replaceWithGener8 = function (data) {
     if (data) {
         newStylesheet = data.replace(/{([^}]*)}/g, '');
+        $(newStylesheet).addClass('gener8');
     }
     checkWebBased();
-    let i = 0;
-    let inteval = setInterval(function (params) {
-        checkWebBased();
-        i++;
-        if(i>10) clearInterval(inteval);
-    },1000);
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            [].filter.call(mutation.addedNodes, function (node) {
+                return node.nodeName === 'IFRAME';
+            }).forEach(function (node) {
+                node.addEventListener('load', function () {
+                    checkWebBased();
+                });
+            });
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 };
 
 function checkWebBased() {
-    $(newStylesheet).addClass('gener8');
-    $('[id^=google_ads_iframe]').addClass('gener8');
-    $('div[id^=my-ads]').addClass('gener8');
+    try {
+        $('[id^=google_ads_iframe]').addClass('gener8');
+        $('div[id^=my-ads]').addClass('gener8');
+        $(newStylesheet).addClass('gener8');
     switch (window.location.hostname) {
         case 'www.engadget.com':
             $('iframe[id^=atwAdFrame]').addClass('gener8');
@@ -30,6 +38,9 @@ function checkWebBased() {
             break;
         default:
             break;
+    }
+    } catch (error) {
+     console.log('errr[[[[[[rr', error);   
     }
 }
 

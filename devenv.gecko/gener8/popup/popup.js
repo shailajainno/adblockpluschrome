@@ -5,16 +5,10 @@ $(function () {
     generExtBody.empty();
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
-        console.log('token in popup', token);
         if (token) {
-            try {
-                token = JSON.parse(token).body;
-                console.log('token in popup2', token);
-                token = atob(token);
-                console.log('token in popup3', token);
-            } catch (error) {
-                console.log(error)
-            }
+            token = JSON.parse(token).body;
+            token = atob(token);
+            console.log('token in popup3', token);
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
             });
@@ -90,7 +84,6 @@ $(function () {
     });
 
     function notificationList(token){
-        console.log("-----------------sss")
         $.ajax({
             url: GENER8_BACKEND_URL + NOTIFICATION_LIST,
             method: "POST",
@@ -108,7 +101,6 @@ $(function () {
             success: function (success) {
                 generExtBody.empty();
                 generExtBody.append(notificationPage);
-                console.log(success.data);
                 if(success.data && success.data.notification){
                     success.data.notification.forEach((notification)=>{
                         let text = notification.message;
@@ -422,7 +414,6 @@ function getUserDetails(token, domainName, pageName) {
     browser.storage.local.get(localStorageKeys).then((tokenData)=>{
         const currentToken = tokenData.token;
         if(currentToken !== token){
-            console.log("not match...");
             $.ajax({
                 url: GENER8_BACKEND_URL + SCHEDULER,
                 method: "GET",
@@ -444,6 +435,7 @@ function getUserDetails(token, domainName, pageName) {
                         userStatusCode: null,
                         errorMessage: ''
                     });
+                    browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user});
                     generExtBody.empty();
                     loadDashboard(userData, domainName, pageName);
                 },
