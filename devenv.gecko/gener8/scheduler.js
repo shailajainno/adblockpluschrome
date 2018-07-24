@@ -32,7 +32,9 @@
       success: function (success) {
         userData = success.data.user;
         userData.walletToken = parseFloat(userData.walletToken);
-        tokenRate = userData.tokenRate;
+        console.log(userData);
+        console.log(success.data.tokenRate, typeof success.data.tokenRate);
+        tokenRate = success.data.tokenRate;
         console.log('scheduler api', success.data);
         browser.storage.local.set({
           isGener8On: success.data.isGener8On,

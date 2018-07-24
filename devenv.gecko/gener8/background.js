@@ -56,11 +56,15 @@ function processRequest(request, sender) {
                 if (token) {
                     token = JSON.parse(token).body;
                     token = atob(token);
-                    browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
-                        token,
-                        isBlocked: gener8TabData.whitelist[sender.tab.id],
-                        adTags
-                    } });
+                    try {
+                        browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
+                            token,
+                            isBlocked: gener8TabData.whitelist[sender.tab.id],
+                            adTags
+                        } });
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
             });
             break;
@@ -71,11 +75,9 @@ function processRequest(request, sender) {
             })
             break;
         case 'AD_IMPRESSION':
-            console.log('imresssssss')
             adImpression();
             break;
         case 'SET_USERDATA':
-            console.log('----------->>>',request);
             userData = request.data;
             break;
         default:
@@ -84,6 +86,7 @@ function processRequest(request, sender) {
 }
 
 function adImpression(){
+    console.log('===>>',userData.walletToken, typeof userData.walletToken, tokenRate, typeof tokenRate);
     userData.walletToken += tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 100) / 100
 }
@@ -93,7 +96,7 @@ setInterval(() => {
     browser.storage.local.set({
         user: userData
     });
-}, 30000);
+}, 30 * 1000);
 
 function saveCookies(key, value){
     const hash = {
@@ -111,16 +114,6 @@ function saveCookies(key, value){
         name: key,
         value: JSON.stringify(cookieValue)
     });
-}
-
-function b64EncodeUnicode(str) {
-    // first we use encodeURIComponent to get percent-encoded UTF-8,
-    // then we convert the percent encodings into raw bytes which
-    // can be fed into btoa.
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
 }
 
 /**
@@ -141,6 +134,6 @@ function saveUserDetails(data){
     ]).then(t=>{
         console.log('all cookies stored', t)
     }, e=>{
-        console.log('all cookies failed', e)
+        console.error('Storing cookies failed', e)
     })
 }

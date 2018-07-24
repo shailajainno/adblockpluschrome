@@ -5,8 +5,10 @@ var callTimeout = 0;
 var newStylesheet;
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
+    console.debug('Adding Mark to replace.')
     if (data) {
         newStylesheet = data.replace(/{([^}]*)}/g, '');
+        console.debug(newStylesheet);
         $(newStylesheet).addClass('gener8');
     }
     checkWebBased();
@@ -21,7 +23,16 @@ var replaceWithGener8 = function (data) {
             });
         });
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    $( document ).ready(function() {
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+    var i = 0;
+    var addClassInterval = setInterval(function () {
+        checkWebBased();
+        if(i++ && i > 5){
+            clearInterval(addClassInterval);
+        }
+    } , 2000);
 };
 
 function checkWebBased() {
@@ -50,6 +61,7 @@ browser.runtime.onMessage.addListener(function (request) {
         if (currentTimeout) {
             window.clearTimeout(currentTimeout);
         }
+        console.log('Actually I\'m working', request.data);
         currentTimeout = window.setTimeout(replaceWithGener8(request.data), 3000);
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();

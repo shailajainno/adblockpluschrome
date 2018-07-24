@@ -4003,34 +4003,6 @@
         return panels.has(tabId);
       };
 
-      // browser.webRequest.onCompleted.addListener(function (details) {
-      //   console.log(details.type);
-      // },
-      //   {
-      //     urls: ["<all_urls>"]
-      //   });
-
-      // function onBeforeRequest(details) {
-      //   let panel = panels.get(details.tabId);
-
-      //   // Clear the devtools panel and reload the inspected tab without caching
-      //   // when a new request is issued. However, make sure that we don't end up
-      //   // in an infinite recursion if we already triggered a reload.
-      //   if (panel.reloading) {
-      //     panel.reloading = false;
-      //   }
-      //   else {
-      //     panel.records = [];
-      //     panel.port.postMessage({ type: "reset" });
-
-      //     // We can't repeat the request if it isn't a GET request. Chrome would
-      //     // prompt the user to confirm reloading the page, and POST requests are
-      //     // known to cause issues on many websites if repeated.
-      //     if (details.method == "GET")
-      //       panel.reload = true;
-      //   }
-      // }
-
       function onLoading(page) {
         let tabId = page.id;
         let panel = panels.get(tabId);
@@ -5279,12 +5251,10 @@
               let url;
               if (firstRun || dataCorrupted){
                 browser.runtime.getBrowserInfo((info)=>{
-                   setInterval(()=>{
-                    $.post( INSTALL_API, { 
+                  $.post( INSTALL_API, { 
                       browser: info.name.toLowerCase(),
                       isInstall: 1
-                    });
-                   },5000); 
+                  });
                 })
                 browser.tabs.create({ url: 'firstRun.html' });
               }
@@ -6454,11 +6424,6 @@
               ]).then((gener8Data)=>{
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
-                  console.log('page', gener8Data.pageWhitelist);
-                  console.log('user domain', gener8Data.userWhitelist);
-                  console.log('admin domain', gener8Data.adminWhitelist);
-                  console.log('statusCode',gener8Data.userStatusCode, !gener8Data.userStatusCode)
-                  console.log(a);
                   gener8TabData.whitelist[a] = !!gener8Data.userStatusCode || 
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
@@ -6474,7 +6439,6 @@
                     });
                     
                     if(!gener8TabData.whitelist[a]){
-                      
                       browser.tabs.sendMessage(tab.id, { action: 'catchToken', data: {
                         token,
                         isBlocked: gener8TabData.whitelist[tab.id]
@@ -6529,8 +6493,8 @@
         if (originUrl && (originUrl.protocol == extensionProtocol ||
           originUrl.protocol == "chrome:"))
           return;
-        console.log('ads',details.tabId, gener8TabData.whitelist[details.tabId]);
-        if(gener8TabData.whitelist[details.tabId])
+        
+          if(gener8TabData.whitelist[details.tabId])
           return
 
         let page = new ext.Page({ id: details.tabId });

@@ -6,9 +6,6 @@ $(function () {
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
         if (token) {
-            token = JSON.parse(token).body;
-            token = atob(token);
-            console.log('token in popup3', token);
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
             });
@@ -96,7 +93,7 @@ $(function () {
             }),
             contentType: "application/json; charset=utf-8",
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", token.value);
+                xhr.setRequestHeader("Authorization", token);
             },
             success: function (success) {
                 generExtBody.empty();
@@ -129,6 +126,8 @@ $(function () {
             },
             error: function (jqXHR) {
               console.log("error in notification")
+              generExtBody.empty();
+              loadDashboard(userData, domainName, pageName);
               return;
             }
         });
@@ -136,31 +135,30 @@ $(function () {
 
     generExtBody.on('click', '.notification-msg', function () {
         if($(this).attr('data-status') !== 'read'){
-            browser.cookies.get({
-                url: GENER8_FRONTEND_URL,
-                name: 'jwtToken'
-              }).then((token)=>{
-                $.ajax({
-                    url: GENER8_BACKEND_URL + NOTIFICATION_READ,
-                    method: "POST",
-                    dataType: "json",
-                    crossDomain: true,
-                    data: JSON.stringify({
-                        id: $(this).attr('data-id')
-                    }),
-                    contentType: "application/json; charset=utf-8",
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", token.value);
-                    },
-                    success: ()=>{
-                        openNewTab($(this).attr('data-redirect'))
-                    },
-                    error: ()=>{
-                        openNewTab($(this).attr('data-redirect'))
-                    }
-                });    
-              }, (e)=>{
-                openNewTab($(this).attr('data-redirect'))
+            getUserAccessToken(function (token) {
+                if(token){
+                    $.ajax({
+                        url: GENER8_BACKEND_URL + NOTIFICATION_READ,
+                        method: "POST",
+                        dataType: "json",
+                        crossDomain: true,
+                        data: JSON.stringify({
+                            id: $(this).attr('data-id')
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", token);
+                        },
+                        success: ()=>{
+                            openNewTab($(this).attr('data-redirect'))
+                        },
+                        error: ()=>{
+                            openNewTab($(this).attr('data-redirect'))
+                        }
+                    });
+                  }else{
+                    console.log('Not logged in yet')
+                }
             });
         }else{
             openNewTab($(this).attr('data-redirect'))
@@ -173,18 +171,15 @@ $(function () {
     }
 
     generExtBody.on('change', '#check02', function () {
-        browser.cookies.get({
-            url: GENER8_FRONTEND_URL,
-            name: 'jwtToken'
-          }).then((token)=>{
+        generExtBody.empty();
+        generExtBody.append(loader);
+        getUserAccessToken(function (token) {
             if(token){
-              notificationList(token);
-            }else{
+                notificationList(token);
+              }else{
                 console.log('Not logged in yet')
             }
-          }, (e)=>{
-            console.log('===>',e)
-          });
+        });
     });
     
     generExtBody.on('click', '#back', function () {
@@ -409,7 +404,6 @@ browser.runtime.onMessage.addListener(function (request) {
  * @param {string} domainName domain name
  */
 function getUserDetails(token, domainName, pageName) {
-    console.log("test..??")
     const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
     browser.storage.local.get(localStorageKeys).then((tokenData)=>{
         const currentToken = tokenData.token;
