@@ -7,7 +7,7 @@ $(function () {
     getUserAccessToken(function (token) {
         if (token) {
             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
+                getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url),);
             });
         } else {
             generExtBody.empty();
@@ -80,6 +80,17 @@ $(function () {
         window.close();
     });
 
+    generExtBody.on('click', '#tnc', function () {
+        browser.tabs.create({
+            url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
+        });
+        window.close();
+    });
+
+    generExtBody.on('click', '#tnc-accept', function () {
+        
+    });
+
     function notificationList(token){
         $.ajax({
             url: GENER8_BACKEND_URL + NOTIFICATION_LIST,
@@ -135,7 +146,7 @@ $(function () {
 
     generExtBody.on('click', '.notification-msg', function () {
         if($(this).attr('data-status') !== 'read'){
-            getUserAccessToken(function (token) {
+            getUserAccessToken( (token) => {
                 if(token){
                     $.ajax({
                         url: GENER8_BACKEND_URL + NOTIFICATION_READ,
@@ -166,6 +177,7 @@ $(function () {
     });
 
     function openNewTab(url){
+        console.log('=============>>', url);
         browser.tabs.create({url});
         window.close();
     }
@@ -403,9 +415,10 @@ browser.runtime.onMessage.addListener(function (request) {
  * @param {string} token Access token
  * @param {string} domainName domain name
  */
-function getUserDetails(token, domainName, pageName) {
+function getUserDetails(token, domainName, pageName, cb) {
     const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
     browser.storage.local.get(localStorageKeys).then((tokenData)=>{
+        console.log(tokenData);
         const currentToken = tokenData.token;
         if(currentToken !== token){
             $.ajax({
@@ -429,6 +442,7 @@ function getUserDetails(token, domainName, pageName) {
                         userStatusCode: null,
                         errorMessage: ''
                     });
+                    if(cb) cb(userData);
                     browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user});
                     generExtBody.empty();
                     loadDashboard(userData, domainName, pageName);
@@ -444,7 +458,7 @@ function getUserDetails(token, domainName, pageName) {
                         adminWhitelist : null,
                         errorMessage: error.responseJSON.message
                     });
-
+                    generExtBody.empty();
                     switch (error.status) {
                         case 423:
                             generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
@@ -456,6 +470,14 @@ function getUserDetails(token, domainName, pageName) {
                         case 401:
                             browser.runtime.sendMessage({ action: 'deleteToken' });
                             generExtBody.append(loginPage);
+                            break;
+                        case 451:
+                            const message = `We have updated the new T&C,
+                            please accept it to continue.
+                            You can read the new T&C <a href='#' id='tnc'>here</a>
+                            <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                            `;
+                            generExtBody.append(suspendPage('Please accept T&C', message));
                             break;
                         default:
                             generExtBody.append(loginPage);
@@ -472,6 +494,14 @@ function getUserDetails(token, domainName, pageName) {
                     break;
                 case 503: 
                     generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
+                    break;
+                case 451: 
+                    const message = `We have updated the new T&C,
+                    please accept it to continue.
+                    You can read the new T&C <a href='#' id='tnc'>here</a>
+                    <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                    `;
+                    generExtBody.append(suspendPage('Please accept T&C', message));
                     break;
                 default:
                     loadDashboard(tokenData, domainName, pageName);

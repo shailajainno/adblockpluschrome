@@ -65,11 +65,16 @@
           errorMessage: error.responseJSON.message
         });
         if(error.status === 401){
-          // browser.cookies.remove({
-          //   url: GENER8_FRONTEND_URL,
-          //   name: 'jwtToken'
-          // })
-          
+          browser.cookies.remove({
+            url: GENER8_FRONTEND_URL,
+            name: 'jwtToken'
+          });
+        }else if(error.status === 451){
+          browser.cookies.set({
+            url: GENER_AD_URL,
+            name: 'tncAccepted',
+            value: JSON.stringify({ "opts":{},"body": false})
+          })
         }
         return;
       }

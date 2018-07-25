@@ -1,6 +1,10 @@
+var adCounts = {
+    
+};
 $(function () {
 
     var replaceGener8 = () => {
+        console.log('current status:--->>', adCounts);
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
         console.log('ads...>>', ArrayNodes.length);
         ArrayNodes.forEach(function (node) {
@@ -43,7 +47,7 @@ $(function () {
         }
         
         let currentTag = adTags[width+'x'+height];
-        
+        adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
         if(!currentTag){
             if(width && height)
                 console.log(adTags.length, 'Not Supported this', width+'x'+height)
@@ -52,8 +56,8 @@ $(function () {
         };
         
         var iframeGener8 = document.createElement('iframe');
-        iframeGener8.height = height + 10;
-        iframeGener8.width = width + 5;
+        iframeGener8.height = height;
+        iframeGener8.width = width;
         iframeGener8.setAttribute('class', 'gener8Ad');
         iframeGener8.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?size='+width+'x'+height;
         // if(!currentTag){

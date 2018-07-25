@@ -125,7 +125,7 @@ function saveUserDetails(data){
         saveCookies('jwtToken',data.token),
         saveCookies('profileStrength',JSON.stringify(data.profileStatus)    ),
         saveCookies('referralLink',data.referralLink),
-        saveCookies('tnc',data.tnc.version ? data.tnc.version: ''),
+        saveCookies('tnc',data.tnc && data.tnc.version ? data.tnc.version: ''),
         saveCookies('tncAccepted',data.tncAccepted),
         saveCookies('walletToken',data.walletToken),
         saveCookies('Notification',''),

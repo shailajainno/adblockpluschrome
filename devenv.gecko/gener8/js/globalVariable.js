@@ -1,6 +1,6 @@
 const GENER8_BACKEND_URL = 'https://devapi.gener8ads.com/';
 const GENER8_FRONTEND_URL = 'https://dev.gener8ads.com/';
-const GENER8_WEBSITE = 'https://www.gener8ads.com/';
+const GENER8_WEBSITE = 'https://dev.gener8ads.com/mktweb/';
 const SCHEDULER = 'user/ext/scheduler-api';
 const FB_CALLBACK_URL = 'auth/social/facebook';
 const TW_CALLBACK_URL = 'auth/social/twitter';
