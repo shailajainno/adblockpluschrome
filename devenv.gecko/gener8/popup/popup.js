@@ -105,6 +105,11 @@ $(function () {
                             xhr.setRequestHeader("Authorization", token);
                         },
                         success: function (success) {
+                            browser.cookies.set({
+                                url: GENER8_FRONTEND_URL,
+                                name: 'tncAccepted',
+                                value: JSON.stringify({ "opts":{},"body": true})
+                            });
                             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                                 schedulerAPI(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
                             });
