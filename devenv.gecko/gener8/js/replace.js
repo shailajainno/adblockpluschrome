@@ -2,7 +2,7 @@ var adCounts = {
     
 };
 $(function () {
-
+    // let inProgress = false;
     var replaceGener8 = () => {
         console.log('current status:--->>', adCounts);
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
@@ -19,19 +19,23 @@ $(function () {
     };
 
     function createIFrame(node){
+        node = $(node);
+        if(node.find('.gener8').length > 0){
+            return;
+        }
         if(node.tagName === 'IFRAME'){
-            iframe = $(node);
+            iframe = node;
         }else{
-            iframe = $(node).find('iframe');    
+            iframe = node.find('iframe');
         }
 
         if(iframe.hasClass('gener8Ad')){
-            console.log('gener8--->>', iframe.hasClass('gener8Ad'));
+            console.log('Already done.');
             return;
         }
         
         if (iframe.length === 0) {
-            $(node).find('img').remove();
+            node.find('img').remove();
             return;
         }
 
@@ -51,7 +55,7 @@ $(function () {
         if(!currentTag){
             if(width && height)
                 console.log(adTags.length, 'Not Supported this', width+'x'+height)
-            $(node).remove();
+            node.remove();
             return;
         };
         
@@ -60,10 +64,8 @@ $(function () {
         iframeGener8.width = width;
         iframeGener8.setAttribute('class', 'gener8Ad');
         iframeGener8.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?size='+width+'x'+height;
-        // if(!currentTag){
-        //     iframeGener8.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html';
-        // }
         console.log(iframeGener8.src);
+        iframeGener8.style = 'border:2px;border-color:red;';
         iframeGener8.scrolling = 'no';
         iframe.after(iframeGener8);
         $(iframe).remove();

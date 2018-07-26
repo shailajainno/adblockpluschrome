@@ -79,6 +79,19 @@ function processRequest(request, sender) {
             break;
         case 'SET_USERDATA':
             userData = request.data;
+            tokenRate = request.data.tokenRate;
+            break;
+        case 'SET_TNC':
+            browser.cookies.set({
+                url: GENER8_FRONTEND_URL,
+                name: 'tncAccepted',
+                value: JSON.stringify({ "opts":{},"body": false})
+            });
+            browser.cookies.set({
+                url: GENER8_FRONTEND_URL,
+                name: 'tnc',
+                value: JSON.stringify({ "opts":{},"body": request.data})
+            });
             break;
         default:
             break;

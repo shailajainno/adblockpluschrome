@@ -53,6 +53,15 @@ if (document.getElementsByTagName('p')) {
                     action: 'saveLoginDetails',
                     data: error.responseJSON.data
                 });
+
+                  if(error.status === 401){
+                    browser.cookies.remove({
+                      url: GENER8_FRONTEND_URL,
+                      name: 'jwtToken'
+                    });
+                  }else if(error.status === 451){
+                    browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
+                  }
                 console.log(JSON.stringify(error.responseJSON.data));
                 browser.runtime.sendMessage({action: "SET_USERDATA", data: error.responseJSON.data});
                 window.close()

@@ -87,8 +87,39 @@ $(function () {
         window.close();
     });
 
-    generExtBody.on('click', '#tnc-accept', function () {
-        
+    generExtBody.on('click', '#accept-tnc', function () {
+        getUserAccessToken(function (token) {
+            cookieGet('tnc', function (tnc) {
+                // check tnc accepted by user paner
+                if (token !== null) {
+                    $.ajax({
+                        url: ACCEPT_TNC,
+                        method: "POST",
+                        dataType: "json",
+                        crossDomain: true,
+                        data: JSON.stringify({
+                            version: JSON.parse(tnc).body
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", token);
+                        },
+                        success: function (success) {
+                            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                                schedulerAPI(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
+                            });
+                        },
+                        error: function (jqXHR) {
+                          console.log("error in accept tnc");
+                          generExtBody.empty();
+                          loadDashboard(userData, domainName, pageName);
+                          return;
+                        }
+                    });
+                }
+            });
+            
+        });
     });
 
     function notificationList(token){
@@ -177,7 +208,6 @@ $(function () {
     });
 
     function openNewTab(url){
-        console.log('=============>>', url);
         browser.tabs.create({url});
         window.close();
     }
@@ -421,70 +451,7 @@ function getUserDetails(token, domainName, pageName, cb) {
         console.log(tokenData);
         const currentToken = tokenData.token;
         if(currentToken !== token){
-            $.ajax({
-                url: GENER8_BACKEND_URL + SCHEDULER,
-                method: "GET",
-                dataType: "json",
-                crossDomain: true,
-                contentType: "application/json; charset=utf-8",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", token);
-                },
-                success: function (success) {
-                    const userData = success.data;
-                    browser.storage.local.set({
-                        isGener8On: userData.isGener8On,
-                        pageWhitelist: userData.pageWhitelist,
-                        userWhitelist: userData.userWhitelist,
-                        token:token,
-                        user : userData.user,
-                        adminWhitelist : userData.adminWhitelist,
-                        userStatusCode: null,
-                        errorMessage: ''
-                    });
-                    if(cb) cb(userData);
-                    browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user});
-                    generExtBody.empty();
-                    loadDashboard(userData, domainName, pageName);
-                },
-                error: function (error) {
-                    browser.storage.local.set({
-                        userStatusCode: error.status,
-                        isGener8On: null,
-                        pageWhitelist: null,
-                        userWhitelist: null,
-                        token:token,
-                        user : null,
-                        adminWhitelist : null,
-                        errorMessage: error.responseJSON.message
-                    });
-                    generExtBody.empty();
-                    switch (error.status) {
-                        case 423:
-                            generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                            browser.runtime.sendMessage({ action: 'deleteToken' });
-                            break;
-                        case 503:
-                            generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
-                            break;
-                        case 401:
-                            browser.runtime.sendMessage({ action: 'deleteToken' });
-                            generExtBody.append(loginPage);
-                            break;
-                        case 451:
-                            const message = `We have updated the new T&C,
-                            please accept it to continue.
-                            You can read the new T&C <a href='#' id='tnc'>here</a>
-                            <button class="g8-tnc" id='accept-tnc'>Accept</button>
-                            `;
-                            generExtBody.append(suspendPage('Please accept T&C', message));
-                            break;
-                        default:
-                            generExtBody.append(loginPage);
-                            break;
-                    }
-                }
-              });
+            schedulerAPI(token, domainName, pageName, cb);
         }else{
             generExtBody.empty();
             switch (tokenData.userStatusCode) {
@@ -495,7 +462,83 @@ function getUserDetails(token, domainName, pageName, cb) {
                 case 503: 
                     generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
                     break;
-                case 451: 
+                case 451:
+                    cookieGet('tncAccepted', function (tnc) {
+                        // check tnc accepted by user paner
+                        if(tnc && JSON.parse(tnc).body){
+                            schedulerAPI(token, domainName, pageName, cb);
+                        }else{
+                            const message = `We have updated the new T&C,
+                            please accept it to continue.
+                            You can read the new T&C <a href='#' id='tnc'>here</a>
+                            <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                            `;
+                            generExtBody.append(suspendPage('Please accept T&C', message));
+                        }
+                    });
+                    break;
+                default:
+                    loadDashboard(tokenData, domainName, pageName);
+                    break;
+            }
+        }
+    })
+}
+
+function schedulerAPI(token, domainName, pageName, cb) {
+    $.ajax({
+        url: GENER8_BACKEND_URL + SCHEDULER,
+        method: "GET",
+        dataType: "json",
+        crossDomain: true,
+        contentType: "application/json; charset=utf-8",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", token);
+        },
+        success: function (success) {
+            const userData = success.data;
+            browser.storage.local.set({
+                isGener8On: userData.isGener8On,
+                pageWhitelist: userData.pageWhitelist,
+                userWhitelist: userData.userWhitelist,
+                token:token,
+                user : userData.user,
+                adminWhitelist : userData.adminWhitelist,
+                userStatusCode: null,
+                errorMessage: ''
+            });
+            if(cb) cb(userData);
+            userData.user.tokenRate = success.data.tokenRate;
+            browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user});
+            generExtBody.empty();
+            loadDashboard(userData, domainName, pageName);
+        },
+        error: function (error) {
+            browser.storage.local.set({
+                userStatusCode: error.status,
+                isGener8On: null,
+                pageWhitelist: null,
+                userWhitelist: null,
+                token:token,
+                user : null,
+                adminWhitelist : null,
+                errorMessage: error.responseJSON.message
+            });
+            generExtBody.empty();
+            switch (error.status) {
+                case 423:
+                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                    browser.runtime.sendMessage({ action: 'deleteToken' });
+                    break;
+                case 503:
+                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                    break;
+                case 401:
+                    browser.runtime.sendMessage({ action: 'deleteToken' });
+                    generExtBody.append(loginPage);
+                    break;
+                case 451:
+                    browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
                     const message = `We have updated the new T&C,
                     please accept it to continue.
                     You can read the new T&C <a href='#' id='tnc'>here</a>
@@ -504,11 +547,11 @@ function getUserDetails(token, domainName, pageName, cb) {
                     generExtBody.append(suspendPage('Please accept T&C', message));
                     break;
                 default:
-                    loadDashboard(tokenData, domainName, pageName);
+                    generExtBody.append(loginPage);
                     break;
             }
         }
-    })
+      });
 }
 
 function loadDashboard(userData, domainName, pageName){

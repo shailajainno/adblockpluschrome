@@ -70,11 +70,7 @@
             name: 'jwtToken'
           });
         }else if(error.status === 451){
-          browser.cookies.set({
-            url: GENER_AD_URL,
-            name: 'tncAccepted',
-            value: JSON.stringify({ "opts":{},"body": false})
-          })
+          browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
         }
         return;
       }
