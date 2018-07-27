@@ -37,21 +37,21 @@ var replaceWithGener8 = function (data) {
 
 function checkWebBased() {
     try {
-        $('[id^=google_ads_iframe]').addClass('gener8');
+        $('div[id^=google_ads_iframe]').addClass('gener8');
         $('div[id^=my-ads]').addClass('gener8');
         $(newStylesheet).addClass('gener8');
     switch (window.location.hostname) {
         case 'www.engadget.com':
-            $('iframe[id^=atwAdFrame]').addClass('gener8');
+            //$('iframe[id^=atwAdFrame]').addClass('gener8');
             break;
         case 'www.mirror.co.uk':
-            $('.onscroll-injected-ad').addClass('gener8');
+            $('div.onscroll-injected-ad').addClass('gener8');
             break;
         default:
             break;
     }
     } catch (error) {
-     console.log('errr[[[[[[rr', error);   
+     console.error( error);   
     }
 }
 

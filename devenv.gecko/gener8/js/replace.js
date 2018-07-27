@@ -20,9 +20,9 @@ $(function () {
 
     function createIFrame(node){
         node = $(node);
-        if(node.find('.gener8').length > 0){
-            return;
-        }
+        // if(node.find('.gener8').length > 0){
+        //     return;
+        // }
         if(node.tagName === 'IFRAME'){
             iframe = node;
         }else{
