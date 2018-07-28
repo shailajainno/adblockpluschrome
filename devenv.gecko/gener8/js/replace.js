@@ -1,6 +1,7 @@
 var adCounts = {
     
 };
+let replaceCount = 0;
 $(function () {
     // let inProgress = false;
     var replaceGener8 = () => {
@@ -20,6 +21,8 @@ $(function () {
 
     function createIFrame(node){
         node = $(node);
+        if(node.hasClass('gener8-added'))
+            return;
         // if(node.find('.gener8').length > 0){
         //     return;
         // }
@@ -55,20 +58,21 @@ $(function () {
         if(!currentTag){
             if(width && height)
                 console.log(adTags.length, 'Not Supported this', width+'x'+height)
-            node.remove();
             return;
         };
+        node.addClass('gener8-added');
+        node.html(currentTag);
         
-        var iframeGener8 = document.createElement('iframe');
-        iframeGener8.height = height;
-        iframeGener8.width = width;
-        iframeGener8.setAttribute('class', 'gener8Ad');
-        iframeGener8.src = 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html?size='+width+'x'+height;
-        console.log(iframeGener8.src);
-        iframeGener8.style = 'border:2px;border-color:red;';
-        iframeGener8.scrolling = 'no';
-        iframe.after(iframeGener8);
-        $(iframe).remove();
+        // var iframeGener8 = document.createElement('iframe');
+        // iframeGener8.height = width >  height;
+        // iframeGener8.width = width;
+        // iframeGener8.setAttribute('class', 'gener8Ad');
+        // iframeGener8.src = GENER8_AD_URL +'?size='+width+'x'+height;
+        // console.log(iframeGener8.src);
+        // iframeGener8.style = 'border:2px;border-color:red;';
+        // iframeGener8.scrolling = 'no';
+        // iframe.after(iframeGener8);
+        // $(iframe).remove();
     }
     
     replaceGener8();
@@ -95,13 +99,15 @@ $(function () {
         });
         observer.observe(document.body, { childList: true, subtree: true });
     })();
-    browser.runtime.sendMessage({ action: 'SetBadge' });
+    // browser.runtime.sendMessage({ action: 'SetBadge' });
 });
   
 function receiveMessage(event){
     if(event.data.gener8){
         console.log('Got an event...', event);
-        browser.runtime.sendMessage({ action: 'AD_IMPRESSION' });
+        replaceCount++;
+        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString() });
+        
     }
 }
 

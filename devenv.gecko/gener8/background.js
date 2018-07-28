@@ -75,6 +75,16 @@ function processRequest(request, sender) {
             })
             break;
         case 'AD_IMPRESSION':
+            browser.browserAction.setBadgeBackgroundColor(
+                {
+                color: "green",
+                tabId: sender.tab.id
+                }
+            )
+            browser.browserAction.setBadgeText({
+                text: request.data,
+                tabId: sender.tab.id
+            });
             adImpression();
             break;
         case 'SET_USERDATA':

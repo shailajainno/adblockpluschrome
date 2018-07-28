@@ -6463,8 +6463,18 @@
         if (details.type == "main_frame")
           return;
 
-        if(details.originUrl && details.originUrl.indexOf('s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html') > -1)
+        const isGener8Tag = details.url && details.url.indexOf(GENER8_AD_DOMAIN) > -1;
+        const isGener8Ads = details.originUrl && details.originUrl.indexOf(GENER8_AD_DOMAIN) > -1;
+        if(isGener8Ads || isGener8Tag){
+          console.log('test...',details.originUrl,'=========--->>',GENER8_AD_DOMAIN);
           return;
+        }
+
+        // if(details.originUrl && details.url.indexOf(GENER8_AD_DOMAIN) > -1){
+        //   console.log('test...',details.originUrl,'=========--->>',GENER8_AD_DOMAIN);
+        //   return;
+        // }
+          
 
         // Filter out requests from non web protocols. Ideally, we'd explicitly
         // specify the protocols we are interested in (i.e. http://, https://,
@@ -6521,13 +6531,7 @@
           sitekey, specificOnly);
 
           if (filter instanceof BlockingFilter){
-            if(details.type === "sub_frame"){
-              return {
-                redirectUrl: 'https://s3-eu-west-1.amazonaws.com/g8-ad-tags/test.html'
-              }
-            }else{
-              return { cancel: true };
-            }
+            return { cancel: true };
           }
       }, { 
         urls: ["<all_urls>"],
