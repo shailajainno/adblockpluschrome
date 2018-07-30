@@ -15,6 +15,21 @@ $(function () {
         }
     });
 
+
+    function openLoginPage () {
+        $('.gnr-ext-login-smp').hide();
+        $('.gnr-login-tab').show();
+        $('.login-tab-btn').find('span').addClass('active');
+        $('.signup-tab-btn').find('span').removeClass('active');
+    }
+    
+    function openSignupPage () {
+        $('.gnr-ext-login-smp').show();
+        $('.gnr-login-tab').hide();
+        $('.signup-tab-btn').find('span').addClass('active');
+        $('.login-tab-btn').find('span').removeClass('active'); 
+    }
+
     //Focus In on email
     generExtBody.on('focusin', '#emailid', function () {
         $('.gnr-error-server-msg').text('');
@@ -52,6 +67,19 @@ $(function () {
             checkEmailPass();
         }
     });
+
+    //Call Login API
+    generExtBody.on('click', '.login-tab-btn', openLoginPage);
+
+    function openSignupPage () {
+        $('.gnr-ext-login-smp').show();
+        $('.gnr-login-tab').hide();
+        $('.signup-tab-btn').find('span').addClass('active');
+        $('.login-tab-btn').find('span').removeClass('active'); 
+    }
+
+    //Call Login API
+    generExtBody.on('click', '.signup-tab-btn', openSignupPage);
 
     //Call Login API
     generExtBody.on('click', '.gnr-ext-login-btn', function () {
@@ -336,296 +364,301 @@ $(function () {
             }
         });
     });
-});
 
-
-/**
- * Open window for Social Logins
- * @author Innovify
- * @param {string} loginType
- */
-function openWindow(loginType) {
-    browser.runtime.sendMessage({
-        action: 'openPopUpAndLogin',
-        data: loginType
-    });
-}
-/**
- * Email validation
- * @author Innovify
- * @param {string} email
- * @returns {boolean}
- */
-function emailValidation(email) {
-    var emailValid = false;
-    if (!email) {
-        $('.gnr-emailid .gnr-error-msg').text(EMAIL_IS_REQUIRED);
-    } else {
-        emailValid = validateEmailRegex(email);
-        $('.gnr-emailid .gnr-error-msg').text(emailValid ? '' : EMAIL_NOT_VALID);
-    }
-    return emailValid;
-}
-
-/**
- * Password validation
- * @author Innovify
- * @param {string} password
- * @returns {boolean}
- */
-function passwordValidation(password) {
-    var passwordValid = false;
-    if (!password) {
-        $('.gnr-password .gnr-error-msg').text(PASSWORD_IS_REQUIRED);
-    } else {
-        $('.gnr-password .gnr-error-msg').text('');
-        passwordValid = true;
-    }
-    return passwordValid;
-}
-
-/**
- * Regex validation for Email
- * @author Innovify
- * @param {string} email
- * @returns {boolean}
- */
-function validateEmailRegex(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-}
-
-/**
- * Check Email and Password Validations and call API for login
- * @author Innovify
- */
-function checkEmailPass() {
-    var email = $('#emailid').val();
-    var password = $('#password').val();
-
-    var emailValid = emailValidation(email);
-    var passwordValid = passwordValidation(password);
-
-    if (emailValid && passwordValid) {
-        generExtBody.empty();
-        generExtBody.append(loader);
-        ajaxCall('POST', 'application/json', LOGIN_URL, {
-            'email': email,
-            'password': sha256_digest(password)
-        }, 'JSON', null, function (success, error) {
-            if (error && error.responseJSON && error.responseJSON.message) {
-                generExtBody.empty();
-                generExtBody.append(loginPage);
-                $('.gnr-error-server-msg').text(error.responseJSON.message);
-            } else if (success && success.data) {
-                browser.runtime.sendMessage({
-                    action: 'saveLoginDetails',
-                    data: success.data
-                });
-                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-                    getUserDetails(success.data.token, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
-                });
-                //schedulerAPI(success.data.token);
-            } else {
-                generExtBody.empty();
-                generExtBody.append(loginPage);
-                throw 'Unexpected value of response';
-            }
+    /**
+     * Open window for Social Logins
+     * @author Innovify
+     * @param {string} loginType
+     */
+    function openWindow(loginType) {
+        browser.runtime.sendMessage({
+            action: 'openPopUpAndLogin',
+            data: loginType
         });
     }
-}
-
-// Add listener to get user profile
-browser.runtime.onMessage.addListener(function (request) {
-    if (request.action === 'getUserDetails' && request.data) {
-        browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
-        });
+    /**
+     * Email validation
+     * @author Innovify
+     * @param {string} email
+     * @returns {boolean}
+     */
+    function emailValidation(email) {
+        var emailValid = false;
+        if (!email) {
+            $('.gnr-emailid .gnr-error-msg').text(EMAIL_IS_REQUIRED);
+        } else {
+            emailValid = validateEmailRegex(email);
+            $('.gnr-emailid .gnr-error-msg').text(emailValid ? '' : EMAIL_NOT_VALID);
+        }
+        return emailValid;
     }
-});
 
-/**
- * This function is being used to get user details
- * @author Innovify
- * @param {string} token Access token
- * @param {string} domainName domain name
- */
-function getUserDetails(token, domainName, pageName, cb) {
-    const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
-    browser.storage.local.get(localStorageKeys).then((tokenData)=>{
-        console.log(tokenData);
-        const currentToken = tokenData.token;
-        if(currentToken !== token){
-            schedulerAPI(token, domainName, pageName, cb);
-        }else{
+    /**
+     * Password validation
+     * @author Innovify
+     * @param {string} password
+     * @returns {boolean}
+     */
+    function passwordValidation(password) {
+        var passwordValid = false;
+        if (!password) {
+            $('.gnr-password .gnr-error-msg').text(PASSWORD_IS_REQUIRED);
+        } else {
+            $('.gnr-password .gnr-error-msg').text('');
+            passwordValid = true;
+        }
+        return passwordValid;
+    }
+
+    /**
+     * Regex validation for Email
+     * @author Innovify
+     * @param {string} email
+     * @returns {boolean}
+     */
+    function validateEmailRegex(email) {
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+    }
+
+    /**
+     * Check Email and Password Validations and call API for login
+     * @author Innovify
+     */
+    function checkEmailPass() {
+        var email = $('#emailid').val();
+        var password = $('#password').val();
+
+        var emailValid = emailValidation(email);
+        var passwordValid = passwordValidation(password);
+
+        if (emailValid && passwordValid) {
             generExtBody.empty();
-            switch (tokenData.userStatusCode) {
-                case 423:
-                    generExtBody.append(suspendPage('Account Suspended', tokenData.errorMessage ? tokenData.errorMessage: null));
-                    browser.runtime.sendMessage({ action: 'deleteToken' });
-                    break;
-                case 503: 
-                    generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
-                    break;
-                case 451:
-                    cookieGet('tncAccepted', function (tnc) {
-                        // check tnc accepted by user paner
-                        if(tnc && JSON.parse(tnc).body){
-                            schedulerAPI(token, domainName, pageName, cb);
-                        }else{
-                            const message = `We have updated the new T&C,
-                            please accept it to continue.
-                            You can read the new T&C <a href='#' id='tnc'>here</a>
-                            <button class="g8-tnc" id='accept-tnc'>Accept</button>
-                            `;
-                            generExtBody.append(suspendPage('Please accept T&C', message));
-                        }
+            generExtBody.append(loader);
+            ajaxCall('POST', 'application/json', LOGIN_URL, {
+                'email': email,
+                'password': sha256_digest(password)
+            }, 'JSON', null, function (success, error) {
+                if (error && error.responseJSON && error.responseJSON.message) {
+                    generExtBody.empty();
+                    generExtBody.append(loginPage);
+                    $('.gnr-error-server-msg').text(error.responseJSON.message);
+                    openLoginPage();
+                } else if (success && success.data) {
+                    browser.runtime.sendMessage({
+                        action: 'saveLoginDetails',
+                        data: success.data
                     });
-                    break;
-                default:
-                    loadDashboard(tokenData, domainName, pageName);
-                    break;
-            }
-        }
-    })
-}
-
-function schedulerAPI(token, domainName, pageName, cb) {
-    $.ajax({
-        url: GENER8_BACKEND_URL + SCHEDULER,
-        method: "GET",
-        dataType: "json",
-        crossDomain: true,
-        contentType: "application/json; charset=utf-8",
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", token);
-        },
-        success: function (success) {
-            const userData = success.data;
-            browser.storage.local.set({
-                isGener8On: userData.isGener8On,
-                pageWhitelist: userData.pageWhitelist,
-                userWhitelist: userData.userWhitelist,
-                token:token,
-                user : userData.user,
-                adminWhitelist : userData.adminWhitelist,
-                userStatusCode: null,
-                errorMessage: ''
-            });
-            if(cb) cb(userData);
-            userData.user.tokenRate = success.data.tokenRate;
-            browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user});
-            generExtBody.empty();
-            loadDashboard(userData, domainName, pageName);
-        },
-        error: function (error) {
-            browser.storage.local.set({
-                userStatusCode: error.status,
-                isGener8On: null,
-                pageWhitelist: null,
-                userWhitelist: null,
-                token:token,
-                user : null,
-                adminWhitelist : null,
-                errorMessage: error.responseJSON.message
-            });
-            generExtBody.empty();
-            switch (error.status) {
-                case 423:
-                    generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                    browser.runtime.sendMessage({ action: 'deleteToken' });
-                    break;
-                case 503:
-                    generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
-                    break;
-                case 401:
-                    browser.runtime.sendMessage({ action: 'deleteToken' });
+                    browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                        getUserDetails(success.data.token, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
+                    });
+                    //schedulerAPI(success.data.token);
+                } else {
+                    generExtBody.empty();
                     generExtBody.append(loginPage);
-                    break;
-                case 451:
-                    browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
-                    const message = `We have updated the new T&C,
-                    please accept it to continue.
-                    You can read the new T&C <a href='#' id='tnc'>here</a>
-                    <button class="g8-tnc" id='accept-tnc'>Accept</button>
-                    `;
-                    generExtBody.append(suspendPage('Please accept T&C', message));
-                    break;
-                default:
-                    generExtBody.append(loginPage);
-                    break;
-            }
+                    openLoginPage();
+                    throw 'Unexpected value of response';
+                }
+            });
         }
-      });
-}
-
-function loadDashboard(userData, domainName, pageName){
-    generExtBody.append(dashboardPage);
-    let isAdminWhitelisted = userData.adminWhitelist && userData.adminWhitelist.indexOf(domainName) > -1;
-    let isWhitelist = userData.userWhitelist && userData.userWhitelist.indexOf(domainName) > -1;
-    let isPageWhitelist = userData.pageWhitelist && userData.pageWhitelist.indexOf(pageName) > -1;
-    $('#styled-checkbox-2').prop('checked', isWhitelist);
-    $('#styled-checkbox-1').prop('checked', isPageWhitelist);
-    $('#styled-checkbox-1').prop( "disabled", isAdminWhitelisted || isWhitelist );
-    $('#styled-checkbox-2').prop( "disabled", isAdminWhitelisted);
-    $('#gener8Wallet').html(userData.user ? userData.user.walletToken : 0.00);
-    $('#gnr-ref-link').val(userData.user.referralLink);
-    $("#currentLevel").html(userData.user.statusLevel.name);
-    $('.cstatus').html(userData.user.statusLevel.startLevel);
-    $('.progress').width(userData.user.statusLevel.levelPercent+'%');
-    $('.nstatus').html(userData.user.statusLevel.endLevel);
-    $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
-    
-    if(userData.notificationCount){
-        if(!$('.gnr-noti').find('#badge').length){
-            $('.gnr-noti').append(`<span id="badge"></span>`)
-        }
-    }else{
-        $('.gnr-noti').find('#badge').remove();
     }
-}
 
-/**
- * @author Innovify
- * @description Add/Remove domain from whitelisting
- * @param {string} token
- * @param {string} domainName
- * @param {string} enable
- * @param {string} callback
- */
-function whitelistDomain(key, domainName, token, enable, callback) {
-    var body = {
-        enable: enable,
-        type: key,
-        domainName: domainName
-    };
-    ajaxCall('POST', 'application/json', ADD_WHITELIST , body, 'JSON', token, function () {
-        callback();
+    // Add listener to get user profile
+    browser.runtime.onMessage.addListener(function (request) {
+        if (request.action === 'getUserDetails' && request.data) {
+            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
+            });
+        }
     });
-}
 
-/**
-* This function is being used to parse domain name from URL
-* @param {string} url - full url link
-*/
-function extractHostname(url) {
+    /**
+     * This function is being used to get user details
+     * @author Innovify
+     * @param {string} token Access token
+     * @param {string} domainName domain name
+     */
+    function getUserDetails(token, domainName, pageName, cb) {
+        const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
+        browser.storage.local.get(localStorageKeys).then((tokenData)=>{
+            const currentToken = tokenData.token;
+            if(currentToken !== token){
+                schedulerAPI(token, domainName, pageName, cb);
+            }else{
+                generExtBody.empty();
+                switch (tokenData.userStatusCode) {
+                    case 423:
+                        generExtBody.append(suspendPage('Account Suspended', tokenData.errorMessage ? tokenData.errorMessage: null));
+                        browser.runtime.sendMessage({ action: 'deleteToken' });
+                        break;
+                    case 503: 
+                        generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
+                        break;
+                    case 451:
+                        cookieGet('tncAccepted', function (tnc) {
+                            // check tnc accepted by user paner
+                            if(tnc && JSON.parse(tnc).body){
+                                schedulerAPI(token, domainName, pageName, cb);
+                            }else{
+                                const message = `We have updated the new T&C,
+                                please accept it to continue.
+                                You can read the new T&C <a href='#' id='tnc'>here</a>
+                                <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                                `;
+                                generExtBody.append(suspendPage('Please accept T&C', message));
+                            }
+                        });
+                        break;
+                    default:
+                        loadDashboard(tokenData, domainName, pageName);
+                        break;
+                }
+            }
+        })
+    }
 
-    //find & remove protocol (http, ftp, etc.) and get hostname
-    var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
+    function schedulerAPI(token, domainName, pageName, cb) {
+        $.ajax({
+            url: GENER8_BACKEND_URL + SCHEDULER,
+            method: "GET",
+            dataType: "json",
+            crossDomain: true,
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", token);
+            },
+            success: function (success) {
+                const userData = success.data;
+                userData.user.walletToken = parseFloat(userData.user.walletToken);
+                browser.storage.local.set({
+                    isGener8On: userData.isGener8On,
+                    pageWhitelist: userData.pageWhitelist,
+                    userWhitelist: userData.userWhitelist,
+                    token:token,
+                    user : userData.user,
+                    adminWhitelist : userData.adminWhitelist,
+                    userStatusCode: null,
+                    errorMessage: ''
+                });
+                let adTags = {};
+                success.data.adtags.forEach(tag=>{
+                    adTags[tag.width+'x'+tag.height] = tag.content;
+                });
+                userData.user.tokenRate = success.data.tokenRate;
+                browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user, adTags});
+                generExtBody.empty();
+                loadDashboard(userData, domainName, pageName);
+                if(cb) cb(userData);
+            },
+            error: function (error) {
+                browser.storage.local.set({
+                    userStatusCode: error.status,
+                    isGener8On: null,
+                    pageWhitelist: null,
+                    userWhitelist: null,
+                    token:token,
+                    user : null,
+                    adminWhitelist : null,
+                    errorMessage: error.responseJSON.message
+                });
+                generExtBody.empty();
+                switch (error.status) {
+                    case 423:
+                        generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                        browser.runtime.sendMessage({ action: 'deleteToken' });
+                        break;
+                    case 503:
+                        generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                        break;
+                    case 401:
+                        browser.runtime.sendMessage({ action: 'deleteToken' });
+                        generExtBody.append(loginPage);
+                        break;
+                    case 451:
+                        browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
+                        const message = `We have updated the new T&C,
+                        please accept it to continue.
+                        You can read the new T&C <a href='#' id='tnc'>here</a>
+                        <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                        `;
+                        generExtBody.append(suspendPage('Please accept T&C', message));
+                        break;
+                    default:
+                        generExtBody.append(loginPage);
+                        break;
+                }
+            }
+        });
+    }
 
-    //find & remove port number
-    hostname = hostname.split(':')[0];
+    function loadDashboard(userData, domainName, pageName){
+        generExtBody.append(dashboardPage);
+        let isAdminWhitelisted = userData.adminWhitelist && userData.adminWhitelist.indexOf(domainName) > -1;
+        let isWhitelist = userData.userWhitelist && userData.userWhitelist.indexOf(domainName) > -1;
+        let isPageWhitelist = userData.pageWhitelist && userData.pageWhitelist.indexOf(pageName) > -1;
+        $('#styled-checkbox-2').prop('checked', isWhitelist);
+        $('#styled-checkbox-1').prop('checked', isPageWhitelist);
+        $('#styled-checkbox-1').prop( "disabled", isAdminWhitelisted || isWhitelist );
+        $('#styled-checkbox-2').prop( "disabled", isAdminWhitelisted);
+        $('#gener8Wallet').html(userData.user ? userData.user.walletToken.toFixed(2) : '0.00');
+        $('#gnr-ref-link').val(userData.user.referralLink);
+        $("#currentLevel").html(userData.user.statusLevel.name);
+        $('.cstatus').html(userData.user.statusLevel.startLevel);
+        $('.progress').width(userData.user.statusLevel.levelPercent+'%');
+        $('.nstatus').html(userData.user.statusLevel.endLevel);
+        $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
+        
+        if(userData.notificationCount){
+            if(!$('.gnr-noti').find('#badge').length){
+                $('.gnr-noti').append(`<span id="badge"></span>`)
+            }
+        }else{
+            $('.gnr-noti').find('#badge').remove();
+        }
+    }
 
-    //find & remove "?"
-    hostname = hostname.split('?')[0];
+    /**
+     * @author Innovify
+     * @description Add/Remove domain from whitelisting
+     * @param {string} token
+     * @param {string} domainName
+     * @param {string} enable
+     * @param {string} callback
+     */
+    function whitelistDomain(key, domainName, token, enable, callback) {
+        var body = {
+            enable: enable,
+            type: key,
+            domainName: domainName
+        };
+        ajaxCall('POST', 'application/json', ADD_WHITELIST , body, 'JSON', token, function () {
+            callback();
+        });
+    }
 
-    return hostname;
-}
+    /**
+    * This function is being used to parse domain name from URL
+    * @param {string} url - full url link
+    */
+    function extractHostname(url) {
 
-/**
-* This function is being used to parse link
-* @param {string} url - full url link
-*/
-function extractLink(url) {
-    return url.split('?')[0];
-}
+        //find & remove protocol (http, ftp, etc.) and get hostname
+        var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
+
+        //find & remove port number
+        hostname = hostname.split(':')[0];
+
+        //find & remove "?"
+        hostname = hostname.split('?')[0];
+
+        return hostname;
+    }
+
+    /**
+    * This function is being used to parse link
+    * @param {string} url - full url link
+    */
+    function extractLink(url) {
+        return url.split('?')[0];
+    }
+});

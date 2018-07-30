@@ -75,21 +75,29 @@ function processRequest(request, sender) {
             })
             break;
         case 'AD_IMPRESSION':
-            browser.browserAction.setBadgeBackgroundColor(
-                {
-                color: "green",
-                tabId: sender.tab.id
-                }
-            )
-            browser.browserAction.setBadgeText({
-                text: request.data,
-                tabId: sender.tab.id
-            });
+            // browser.browserAction.setBadgeBackgroundColor(
+            //     {
+            //     color: "green",
+            //     tabId: sender.tab.id
+            //     }
+            // )
+            // browser.browserAction.setBadgeText({
+            //     text: request.data,
+            //     tabId: sender.tab.id
+            // });
+            console.log('random------>>>', request.id)
             adImpression();
             break;
+        // case 'OPEN_POPUP':
+        //     browser.browserAction.openPopup();
+        //     break;
         case 'SET_USERDATA':
             userData = request.data;
             tokenRate = request.data.tokenRate;
+            console.log('got new adtags', request.adTags)
+            if(request.adTags){
+                adTags = request.adTags;
+            }
             break;
         case 'SET_TNC':
             browser.cookies.set({
@@ -110,8 +118,11 @@ function processRequest(request, sender) {
 
 function adImpression(){
     console.log('===>>',userData.walletToken, typeof userData.walletToken, tokenRate, typeof tokenRate);
+    if(typeof userData.walletToken === 'string'){
+        userData.walletToken = parseFloat(userData.walletToken);
+    }
     userData.walletToken += tokenRate;
-    userData.walletToken = Math.round(userData.walletToken * 100) / 100
+    userData.walletToken = Math.round(userData.walletToken * 100) / 100;
 }
 
 setInterval(() => {

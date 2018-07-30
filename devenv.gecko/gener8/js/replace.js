@@ -62,9 +62,11 @@ $(function () {
         };
         node.addClass('gener8-added');
         node.html(currentTag);
+        replaceCount++;
+        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), id:  makeid()});
         
         // var iframeGener8 = document.createElement('iframe');
-        // iframeGener8.height = width >  height;
+        // iframeGener8.height = height;
         // iframeGener8.width = width;
         // iframeGener8.setAttribute('class', 'gener8Ad');
         // iframeGener8.src = GENER8_AD_URL +'?size='+width+'x'+height;
@@ -84,6 +86,16 @@ $(function () {
         }
     } , 2000);
 
+    function makeid() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      
+        for (var i = 0; i < 5; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+      
+        return text;
+      }
+
     (function () {
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
@@ -102,19 +114,19 @@ $(function () {
     // browser.runtime.sendMessage({ action: 'SetBadge' });
 });
   
-function receiveMessage(event){
-    if(event.data.gener8){
-        console.log('Got an event...', event);
-        replaceCount++;
-        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString() });
+// function receiveMessage(event){
+//     if(event.data.gener8){
+//         console.log('Got an event...', event);
+//         replaceCount++;
+//         browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString() });
         
-    }
-}
+//     }
+// }
 
-if (window.addEventListener) {
-    // For standards-compliant web browsers
-    window.addEventListener("message", receiveMessage, false);
-}
-else {
-    window.attachEvent("onmessage", receiveMessage);
-}
+// if (window.addEventListener) {
+//     // For standards-compliant web browsers
+//     window.addEventListener("message", receiveMessage, false);
+// }
+// else {
+//     window.attachEvent("onmessage", receiveMessage);
+// }

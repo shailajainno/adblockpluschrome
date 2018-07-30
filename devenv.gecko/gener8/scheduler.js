@@ -48,15 +48,15 @@
         });
 
         success.data.adtags.forEach(tag=>{
-          console.log(tag.width+'x'+tag.height, tag.content);
           adTags[tag.width+'x'+tag.height] = tag.content;
-          setTimeout(() => {
-            browser.cookies.set({
-              url: GENER_AD_URL,
-              name: tag.width+'x'+tag.height,
-              value: tag.content
-            })
-          }, 1000);
+          // setTimeout(() => {
+          //   console.log(tag.width+'x'+tag.height, tag.content);
+          //   browser.cookies.set({
+          //     url: GENER8_AD_URL,
+          //     name: tag.width+'x'+tag.height,
+          //     value: tag.content
+          //   }).then(console.log, console.error);
+          // }, 500);
         });
       },
       error: function (error) {

@@ -3,46 +3,52 @@ var loginPage = `
 <div class="gnr-ext-log">
    <a id="gnr-website"><img src="../img/logo.svg"></a>
 </div>
-<div class="gnr-ext-login">
-   <div class="gnr-error-server-msg">
-   </div>
-   <div class="gnr-ext-log-ep">
-      <div class="gnr-emailid">
-         <div class="gnr-error-msg">
-         </div>
-         <input id="emailid" type="text" alt="Email" placeholder="Email *">
-      </div>
-   </div>
-   <div class="gnr-ext-log-ep">
-      <div class="gnr-password">
-         <div class="gnr-error-msg">
-         </div>
-         <input id="password" type="password" alt="Password" placeholder="Password *">
-      </div>
-   </div>
-   <div class="gnr-ext-frgt-ps">
-      <a id="gnr-forgot-password">Forgotten Password?</a>
-   </div>
-   <div class="gnr-ext-login-btn" >
-      <input type="submit" value="Login with email" style=" cursor:pointer;">
-   </div>
+<div class="gnr-flex">
+<div class="col-6 login-tab-btn"><span >LOGIN</span></div>
+<div class="col-6 signup-tab-btn"><span class="active">SIGN UP</span></div>
 </div>
-<div class="gnr-ext-login-wth">
-   <span>Or Login with</span>
-   <div class="gnr-ext-login-fb-twt">
-      <ul>
-         <li>
-            <a id="gnr-fbLoginBtn" style="cursor:pointer;">
-            <img src="../img/fb.png" >
-            </a>
-         </li>
-         <li>
-            <a id="gnr-twLoginBtn" style="cursor:pointer;">
-                <img src="../img/twt.png" >
-            </a>
-         </li>
-      </ul>
+<div class="gnr-login-tab" style='display:none;'>
+    <div class="gnr-ext-login">
+        <div class="gnr-error-server-msg">
+        </div>
+        <div class="gnr-ext-log-ep">
+            <div class="gnr-emailid">
+                <div class="gnr-error-msg">
+                </div>
+                <input id="emailid" type="text" alt="Email" placeholder="Email *">
+            </div>
+        </div>
+        <div class="gnr-ext-log-ep">
+            <div class="gnr-password">
+                <div class="gnr-error-msg">
+                </div>
+            <input id="password" type="password" alt="Password" placeholder="Password *">
+        </div>
    </div>
+        <div class="gnr-ext-frgt-ps">
+            <a id="gnr-forgot-password">Forgotten Password?</a>
+        </div>
+        <div class="gnr-ext-login-btn" >
+            <input type="submit" value="Login with email" style=" cursor:pointer;">
+        </div>
+    </div>
+    <div class="gnr-ext-login-wth">
+    <span>Or Login with</span>
+    <div class="gnr-ext-login-fb-twt">
+        <ul>
+            <li>
+                <a id="gnr-fbLoginBtn" style="cursor:pointer;">
+                <img src="../img/fb.png" >
+                </a>
+            </li>
+            <li>
+                <a id="gnr-twLoginBtn" style="cursor:pointer;">
+                    <img src="../img/twt.png" >
+                </a>
+            </li>
+        </ul>
+    </div>
+    </div>
 </div>
 <div class="gnr-ext-login-smp">
    <a id="gnr-sign-up">Sign-Up</a>
@@ -111,7 +117,7 @@ var dashboardPage = `
       </div>
       <div class="gn-ref-frnd">
          <p>Refer Friend</p>
-         <p class="coplnk"><input type="text" id="gnr-ref-link"><button id="gnr-copy-ref-link">Copy Link</button></p>
+         <p class="coplnk"><input type="text" class="gen-reg-link" readonly id="gnr-ref-link"><button id="gnr-copy-ref-link">Copy Link</button></p>
       </div>
    </div>
 </div>

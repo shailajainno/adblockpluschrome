@@ -6404,7 +6404,7 @@
       }
     
       // Add this to reduce onBeforeRequest loading time;
-      browser.tabs.onUpdated.addListener(( a,b ,tab)=>{
+      browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
           if(b.status !== 'loading')
             return;
           browser.cookies.get({
@@ -6424,7 +6424,7 @@
               ]).then((gener8Data)=>{
                   const currentDomain = tab.url.split("/")[2];
                   const gener8CurrentPage = tab.url.split('?')[0];
-                  gener8TabData.whitelist[a] = !!gener8Data.userStatusCode || 
+                  gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
