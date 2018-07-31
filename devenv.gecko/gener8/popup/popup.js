@@ -94,25 +94,30 @@ $(function () {
     });
 
     generExtBody.on('click', '#seeMore', function () {
-        browser.tabs.create({
-            url: GENER8_FRONTEND_URL + '#/notifications'
-        });
-        window.close();
+        openNewTab(GENER8_FRONTEND_URL + '#/notifications');
     });
 
+    generExtBody.on('click', '.hamburger', function () {
+        const url = $(this).attr('id');
+        switch (url) {
+            case 'faq':
+                openNewTab(GENER8_WEBSITE + '#faq');
+                window.close();
+                break;
+            case 'contactus':
+                openNewTab(GENER8_WEBSITE + '#contacts');
+                break;
+            default:
+                break;
+        }
+    });
 
     generExtBody.on('click', '.redirection', function () {
-        browser.tabs.create({
-            url: GENER8_FRONTEND_URL + '#/notifications/'+$(this).attr('id')
-        });
-        window.close();
+        openNewTab(GENER8_FRONTEND_URL + '#/notifications/'+$(this).attr('id'));
     });
 
     generExtBody.on('click', '#tnc', function () {
-        browser.tabs.create({
-            url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
-        });
-        window.close();
+        openNewTab(GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true');
     });
 
     generExtBody.on('click', '#accept-tnc', function () {
@@ -607,8 +612,9 @@ $(function () {
         $('.progress').width(userData.user.statusLevel.levelPercent+'%');
         $('.nstatus').html(userData.user.statusLevel.endLevel);
         $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
-        
+        console.log(userData);
         if(userData.notificationCount){
+            
             if(!$('.gnr-noti').find('#badge').length){
                 $('.gnr-noti').append(`<span id="badge"></span>`)
             }

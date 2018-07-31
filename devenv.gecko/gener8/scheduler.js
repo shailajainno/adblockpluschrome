@@ -49,14 +49,14 @@
 
         success.data.adtags.forEach(tag=>{
           adTags[tag.width+'x'+tag.height] = tag.content;
-          // setTimeout(() => {
-          //   console.log(tag.width+'x'+tag.height, tag.content);
-          //   browser.cookies.set({
-          //     url: GENER8_AD_URL,
-          //     name: tag.width+'x'+tag.height,
-          //     value: tag.content
-          //   }).then(console.log, console.error);
-          // }, 500);
+          setTimeout(() => {
+            console.log(tag.width+'x'+tag.height, tag.content);
+            browser.cookies.set({
+              url: 'https://stg.gener8ads.com',
+              name: tag.width+'x'+tag.height,
+              value: tag.content
+            }).then(console.log, console.error);
+          }, 500);
         });
       },
       error: function (error) {
@@ -79,7 +79,7 @@
 
    function notificationCount(token){
       $.ajax({
-        url: GENER8_BACKEND_URL + NOTIFICATION_COUNT+'?limit=0',
+        url: GENER8_BACKEND_URL + NOTIFICATION+'?limit=0',
         method: "GET",
         dataType: "json",
         crossDomain: true,
@@ -90,7 +90,7 @@
         success: function (success) {
           const count = success.data.total > 0 ? success.data.total: '';
           setBadge(count);
-          browser.storage.local.set({count});
+          browser.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
           console.log("error in notification")

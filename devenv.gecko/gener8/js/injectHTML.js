@@ -66,9 +66,9 @@ var dashboardPage = `
             <label for="check01"><img src="../img/menu.png" alt="menu" /></label>
             <ul class="submenu">
                <div class="gnr-arrow-up"></div>
-               <li><a href="#">FAQ</a></li>
-               <li><a href="#">CONTACT US</a></li>
-               <li><a href="#">RATE US</a></li>
+               <li><a href="#" class="hamburger" id="faq">FAQ</a></li>
+               <li><a href="#" class="hamburger" id="contactus">CONTACT US</a></li>
+               <li><a href="#" class="hamburger" id="rateus">RATE US</a></li>
             </ul>
          </li>
       </ul>

@@ -6466,7 +6466,6 @@
         const isGener8Tag = details.url && details.url.indexOf(GENER8_AD_DOMAIN) > -1;
         const isGener8Ads = details.originUrl && details.originUrl.indexOf(GENER8_AD_DOMAIN) > -1;
         if(isGener8Ads || isGener8Tag){
-          console.log('test...',details.originUrl,'=========--->>',GENER8_AD_DOMAIN);
           return;
         }
 
@@ -6514,7 +6513,7 @@
           // has triggered this request. For most requests (e.g. images) we
           // can just use the request's frame ID, but for subdocument requests
           // (e.g. iframes) we must instead use the request's parent frame ID.
-          details.type == "sub_frame" ? details.parentFrameId : details.frameId
+          details.type == "sub_frame" ? details.parentFrameId : details.frameId 
         );
 
         // On Chromium >= 63, if both the frame is unknown and we haven't get

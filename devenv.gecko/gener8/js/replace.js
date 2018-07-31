@@ -36,11 +36,6 @@ $(function () {
             console.log('Already done.');
             return;
         }
-        
-        if (iframe.length === 0) {
-            node.find('img').remove();
-            return;
-        }
 
         var height = iframe.height();
         var width = iframe.width();
@@ -62,6 +57,7 @@ $(function () {
         };
         node.addClass('gener8-added');
         node.html(currentTag);
+        node.find('iframe').addClass('gener8Ad');
         replaceCount++;
         browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), id:  makeid()});
         
@@ -74,7 +70,7 @@ $(function () {
         // iframeGener8.style = 'border:2px;border-color:red;';
         // iframeGener8.scrolling = 'no';
         // iframe.after(iframeGener8);
-        // $(iframe).remove();
+        // $(node).remove();
     }
     
     replaceGener8();
