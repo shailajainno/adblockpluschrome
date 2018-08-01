@@ -5,9 +5,8 @@ let replaceCount = 0;
 $(function () {
     // let inProgress = false;
     var replaceGener8 = () => {
-        console.log('current status:--->>', adCounts);
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
-        console.log('ads...>>', ArrayNodes.length);
+        //console.log('ads...>>', ArrayNodes.length);
         ArrayNodes.forEach(function (node) {
             try {
                 if(adTagLoaded) createIFrame(node);
@@ -126,3 +125,18 @@ $(function () {
 // else {
 //     window.attachEvent("onmessage", receiveMessage);
 // }
+
+// browser.runtime.onMessage.addListener(function(request, sender, sendResponse){
+//     console.log('1--->>',request.id);
+//     // if(data.action === 'checkIframe'){
+//         // return new Promise(resolve=>{
+//         //     console.log('content script data', JSON.stringify(data));
+//         //     console.log('--->>', $('.gener8-added > iframe[src='+data.url+']'));
+//         //     return resolve();
+//         // })
+
+//         return Promise.resolve({type: "test", a: 'test'});
+        
+//     // }
+// });
+

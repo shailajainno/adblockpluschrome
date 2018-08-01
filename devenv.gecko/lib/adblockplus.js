@@ -6503,7 +6503,7 @@
           originUrl.protocol == "chrome:"))
           return;
         
-          if(gener8TabData.whitelist[details.tabId])
+        if(gener8TabData.whitelist[details.tabId])
           return
 
         let page = new ext.Page({ id: details.tabId });
@@ -6530,7 +6530,10 @@
           sitekey, specificOnly);
 
           if (filter instanceof BlockingFilter){
-            return { cancel: true };
+            // return browser.tabs.sendMessage(details.tabId, {
+            //   action: "GetFrame", url: details.url
+            // }, {frameId : details.frameId})
+            return {cancel: true};
           }
       }, { 
         urls: ["<all_urls>"],

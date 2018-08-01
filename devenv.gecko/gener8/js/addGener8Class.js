@@ -65,7 +65,12 @@ browser.runtime.onMessage.addListener(function (request) {
         currentTimeout = window.setTimeout(replaceWithGener8(request.data), 3000);
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();
+    } else if (request.action === 'GetFrame') {
+        console.log(request.url,'---------', $('.gener8-added > iframe[src="'+request.url+'"]'));
+        return Promise.resolve({cancel: $('.gener8-added > iframe[src="'+request.url+'"]').length > 0});
     } else {
         throw 'Unexpected value for request action';
     }
 });
+
+

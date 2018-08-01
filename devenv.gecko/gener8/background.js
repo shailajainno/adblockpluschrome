@@ -47,9 +47,9 @@ function processRequest(request, sender) {
             break;
         case 'saveLoginDetails':
             var tkn = request.data.token;
-            saveUserDetails(request.data);
+            console.log('---------->>',request.data)
             sendToAllContentScripts('TokenFromBackGround');
-            browser.runtime.sendMessage({ action: 'getUserDetails', data: tkn });
+            browser.tabs.sendMessage({ action: 'getUserDetails', data: tkn });
             break;
         case 'tokenExists':
             cookieGet('jwtToken', function (token) {
@@ -110,6 +110,9 @@ function processRequest(request, sender) {
                 name: 'tnc',
                 value: JSON.stringify({ "opts":{},"body": request.data})
             });
+            if(request.token){
+                saveCookies('jwtToken', request.token);
+            }
             break;
         default:
             break;
@@ -155,6 +158,7 @@ function saveCookies(key, value){
  * @param {Object} data User Object
  */
 function saveUserDetails(data){
+    console.log('data/////////////////////', data);
     Promise.all([
         saveCookies('jwtToken',data.token),
         saveCookies('profileStrength',JSON.stringify(data.profileStatus)    ),
@@ -166,6 +170,15 @@ function saveUserDetails(data){
         saveCookies('NotificationType',''),
         saveCookies('verifymailmessage',''),
     ]).then(t=>{
+        if(data.tncAccepted){
+            browser.tabs.create({
+                url: GENER8_FRONTEND_URL
+            });
+        }else{
+            browser.tabs.create({
+                url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
+            });
+        }
         console.log('all cookies stored', t)
     }, e=>{
         console.error('Storing cookies failed', e)

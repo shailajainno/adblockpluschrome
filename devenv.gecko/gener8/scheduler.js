@@ -19,7 +19,8 @@
    }
 
 
-   function schedulerAPI(token){
+
+   function schedulerAPI(token, isLogin, authData){
     $.ajax({
       url: GENER8_BACKEND_URL + SCHEDULER,
       method: "GET",
@@ -32,8 +33,6 @@
       success: function (success) {
         userData = success.data.user;
         userData.walletToken = parseFloat(userData.walletToken);
-        console.log(userData);
-        console.log(success.data.tokenRate, typeof success.data.tokenRate);
         tokenRate = success.data.tokenRate;
         console.log('scheduler api', success.data);
         browser.storage.local.set({
@@ -46,17 +45,24 @@
           userStatusCode: null,
           errorMessage: ''
         });
+        console.log('is:Lginasd------->>',isLogin);
+        if(isLogin){
+          console.log('------->>',success.data.user)
+          success.data.user.tncAccepted = authData.tncAccepted;
+          success.data.user.token = token;
+          saveUserDetails(success.data.user);
+        }
 
         success.data.adtags.forEach(tag=>{
           adTags[tag.width+'x'+tag.height] = tag.content;
-          setTimeout(() => {
-            console.log(tag.width+'x'+tag.height, tag.content);
-            browser.cookies.set({
-              url: 'https://stg.gener8ads.com',
-              name: tag.width+'x'+tag.height,
-              value: tag.content
-            }).then(console.log, console.error);
-          }, 500);
+          // setTimeout(() => {
+          //   console.log(tag.width+'x'+tag.height, tag.content);
+          //   browser.cookies.set({
+          //     url: 'https://stg.gener8ads.com',
+          //     name: tag.width+'x'+tag.height,
+          //     value: tag.content
+          //   }).then(console.log, console.error);
+          // }, 500);
         });
       },
       error: function (error) {
@@ -64,13 +70,21 @@
           userStatusCode: error.status,
           errorMessage: error.responseJSON.message
         });
+        
         if(error.status === 401){
           browser.cookies.remove({
             url: GENER8_FRONTEND_URL,
             name: 'jwtToken'
           });
         }else if(error.status === 451){
-          browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
+          if(isLogin){
+            browser.storage.local.set({
+              userStatusCode: error.status,
+              errorMessage: error.responseJSON.message,
+              token
+            });
+          }
+          browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version, token});
         }
         return;
       }
@@ -128,6 +142,14 @@
       browser.storage.local.set({
         'notificationCount': undefined
       });
+    }
+  });
+
+  browser.runtime.onMessage.addListener(function (request) {
+    console.log('tesrasdasd', request);
+    if (request.action === 'LOGIN') {
+      console.log('tesrasdasdasdasdsd', request);
+      schedulerAPI(request.token, true, request.data);
     }
   });
 })();
