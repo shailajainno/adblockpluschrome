@@ -30,8 +30,9 @@ function checkAuth(){
     try {
         body = JSON.parse(body);
         console.log('-->>',JSON.stringify(body));
-        console.log(body.data.emailRequired);
-        if(body.data.emailRequired){
+        if(body.status === 0){
+            loadErrorMessage(body.message);
+        }else if(body.data.emailRequired){
             openForm(JSON.stringify(body.data));
         }else{
             console.log('token banto..', body.data)
@@ -50,16 +51,32 @@ function checkAuth(){
     }
 }
 
+function loadErrorMessage(message){
+    document.body.innerHTML = `
+        <style>
+        .gnr-ext-log{
+            height: 45px;
+            background:red;
+            text-align: center;
+        }
+        </style>
+
+        <div class="gnr-ext-log">
+        
+        <p style="padding: 10px;color: white;font-size: 18px;">
+        ${message}
+  </p></div>
+    `;
+}
+
 checkAuth();
 
 window.addEventListener("message", receiveMessage, false);
 
 function receiveMessage(event){
-    console.log(event);
     if(event.data === 'refresh'){
         checkAuth();
     }
-    
 }
 
 function openForm(body){

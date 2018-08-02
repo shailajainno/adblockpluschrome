@@ -31,6 +31,7 @@
           xhr.setRequestHeader("Authorization", token);
       },
       success: function (success) {
+        saveCookies('installed', true);
         userData = success.data.user;
         userData.walletToken = parseFloat(userData.walletToken);
         tokenRate = success.data.tokenRate;
@@ -45,7 +46,7 @@
           userStatusCode: null,
           errorMessage: ''
         });
-        console.log('is:Lginasd------->>',isLogin);
+        console.log('is:Lginasd------->>');
         if(isLogin){
           console.log('------->>',success.data.user)
           success.data.user.tncAccepted = authData.tncAccepted;
@@ -84,7 +85,12 @@
               token
             });
           }
-          browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version, token});
+          browser.storage.local.get([
+            'userStatusCode',
+            'errorMessage',
+            "token"]).then(t=>console.log('asdasda->',t));
+          console.log('test///////');
+          setTNCData({ data: error.responseJSON.data.tnc.version, token}, true);
         }
         return;
       }
@@ -126,6 +132,7 @@
           notificationCount(token);
         }else{
             console.log('Not logged in yet')
+            saveCookies('installed', true);
         }
       }, (e)=>{
         console.log('===>',e)
@@ -146,7 +153,6 @@
   });
 
   browser.runtime.onMessage.addListener(function (request) {
-    console.log('tesrasdasd', request);
     if (request.action === 'LOGIN') {
       console.log('tesrasdasdasdasdsd', request);
       schedulerAPI(request.token, true, request.data);

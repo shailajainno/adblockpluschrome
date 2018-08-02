@@ -49,7 +49,7 @@ function processRequest(request, sender) {
             var tkn = request.data.token;
             console.log('---------->>',request.data)
             sendToAllContentScripts('TokenFromBackGround');
-            browser.tabs.sendMessage({ action: 'getUserDetails', data: tkn });
+            saveUserDetails(request.data);
             break;
         case 'tokenExists':
             cookieGet('jwtToken', function (token) {
@@ -100,22 +100,34 @@ function processRequest(request, sender) {
             }
             break;
         case 'SET_TNC':
-            browser.cookies.set({
-                url: GENER8_FRONTEND_URL,
-                name: 'tncAccepted',
-                value: JSON.stringify({ "opts":{},"body": false})
-            });
-            browser.cookies.set({
-                url: GENER8_FRONTEND_URL,
-                name: 'tnc',
-                value: JSON.stringify({ "opts":{},"body": request.data})
-            });
-            if(request.token){
-                saveCookies('jwtToken', request.token);
-            }
+            setTNCData(request, false);
             break;
         default:
             break;
+    }
+}
+
+function setTNCData(request, isLogin) {
+    browser.cookies.set({
+        url: GENER8_FRONTEND_URL,
+        name: 'tncAccepted',
+        value: JSON.stringify({ "opts":{},"body": false})
+    });
+    browser.cookies.set({
+        url: GENER8_FRONTEND_URL,
+        name: 'tnc',
+        value: JSON.stringify({ "opts":{},"body": request.data})
+    });
+    if(request.token){
+        console.log('cookies set....', request);
+        saveCookies('jwtToken', request.token);
+    }
+    console.log('-------->>creatng tabs...', GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true', isLogin);
+    if(isLogin){
+        console.log('-------->>creatng tabs...', GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true');
+        browser.tabs.create({
+            url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
+        });
     }
 }
 

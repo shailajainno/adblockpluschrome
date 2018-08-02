@@ -7188,7 +7188,7 @@
          * if any was detected, as well when notification data change.
          */
         exports.setUninstallURL = () => {
-          browser.runtime.setUninstallURL(GENER8_FRONTEND_URL + '#/uninstall');
+          browser.runtime.setUninstallURL(GENER8_FRONTEND_URL + '#/uninstall-page');
         };
 
       // Prefs.on("notificationdata", setUninstallURL);

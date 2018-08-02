@@ -22,9 +22,11 @@ $(function () {
         node = $(node);
         if(node.hasClass('gener8-added'))
             return;
-        // if(node.find('.gener8').length > 0){
-        //     return;
-        // }
+        if(node.find('.gener8').length > 0){
+            node.removeClass('.gener8');
+            return;
+        }
+        
         if(node.tagName === 'IFRAME'){
             iframe = node;
         }else{
