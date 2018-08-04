@@ -6530,10 +6530,10 @@
           sitekey, specificOnly);
 
           if (filter instanceof BlockingFilter){
-            // return browser.tabs.sendMessage(details.tabId, {
-            //   action: "GetFrame", url: details.url
-            // }, {frameId : details.frameId})
-            return {cancel: true};
+            return browser.tabs.sendMessage(details.tabId, {
+              action: "GetFrame", url: details.url
+            });
+            // return {cancel: true};
           }
       }, { 
         urls: ["<all_urls>"],

@@ -1,7 +1,7 @@
-const GENER8_BACKEND_URL = 'https://devapi.gener8ads.com/';
-const GENER8_FRONTEND_URL = 'https://dev.gener8ads.com/';
+const GENER8_BACKEND_URL = 'https://stgapi.gener8ads.com/';
+const GENER8_FRONTEND_URL = 'https://stg.gener8ads.com/';
 const GENER8_WEBSITE = 'https://www.gener8ads.com/';
-const GENER8_AD_URL = 'https://dev.gener8ads.com/mktweb/adServe.html';
+const GENER8_AD_URL = 'https://stg.gener8ads.com/mktweb/adServe.html';
 const GENER8_AD_DOMAIN = 'aj1549.online';
 const INSTALL_API = GENER8_BACKEND_URL + 'web/install';
 const VALIDATE_WHITE_LIST = 'user/validatedomain';
