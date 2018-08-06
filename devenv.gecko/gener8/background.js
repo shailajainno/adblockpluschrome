@@ -85,8 +85,8 @@ function processRequest(request, sender) {
             //     text: request.data,
             //     tabId: sender.tab.id
             // });
-            console.log('random------>>>', request.id)
-            adImpression();
+            // console.log('random------>>>', request.id)
+            adImpression(request.newAdCount);
             break;
         // case 'OPEN_POPUP':
         //     browser.browserAction.openPopup();
@@ -122,7 +122,7 @@ function setTNCData(request, isLogin) {
         console.log('cookies set....', request);
         saveCookies('jwtToken', request.token);
     }
-    console.log('-------->>creatng tabs...', GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true', isLogin);
+    
     if(isLogin){
         console.log('-------->>creatng tabs...', GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true');
         browser.tabs.create({
@@ -131,12 +131,12 @@ function setTNCData(request, isLogin) {
     }
 }
 
-function adImpression(){
+function adImpression(newAdCount){
     console.log('===>>',userData.walletToken, typeof userData.walletToken, tokenRate, typeof tokenRate);
     if(typeof userData.walletToken === 'string'){
         userData.walletToken = parseFloat(userData.walletToken);
     }
-    userData.walletToken += tokenRate;
+    userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 100) / 100;
 }
 

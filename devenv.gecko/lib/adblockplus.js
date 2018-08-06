@@ -10766,7 +10766,7 @@
             browser.tabs.query({ active: true, currentWindow: true },
               function (tabs) {
                 console.log('send something from here...')
-                browser.tabs.sendMessage(tabs[0].id, { action: 'selectors', data: styleSheet });
+                browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet });
               });
             let promise = browser.tabs.insertCSS(tabId, {
               code: styleSheet,

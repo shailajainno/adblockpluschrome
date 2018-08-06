@@ -6,7 +6,6 @@ $(function () {
     // let inProgress = false;
     var replaceGener8 = () => {
         var ArrayNodes = Array.prototype.slice.call($('.gener8'));
-        //console.log('ads...>>', ArrayNodes.length);
         ArrayNodes.forEach(function (node) {
             try {
                 if(adTagLoaded) createIFrame(node);
@@ -22,20 +21,15 @@ $(function () {
         node = $(node);
         if(node.hasClass('gener8-added'))
             return;
-        // if(node.find('.gener8').length > 0){
-        //     node.removeClass('.gener8');
-        //     return;
-        // }
+
+        if(node.find('inv[gener8-tag]').length > 0)
+            return;
         
+            
         if(node.tagName === 'IFRAME'){
             iframe = node;
         }else{
             iframe = node.find('iframe');
-        }
-
-        if(iframe.hasClass('gener8Ad')){
-            console.log('Already done.');
-            return;
         }
 
         var height = iframe.height();
@@ -59,9 +53,6 @@ $(function () {
         node.addClass('gener8-added');
         node.html(currentTag);
         node.find('iframe').addClass('gener8Ad');
-        replaceCount++;
-        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), id:  makeid()});
-        
         // var iframeGener8 = document.createElement('iframe');
         // iframeGener8.height = height;
         // iframeGener8.width = width;
@@ -74,14 +65,19 @@ $(function () {
         // $(node).remove();
     }
     
+    
+    
     replaceGener8();
     var i = 0;
     var interval = setInterval(function () {
-        replaceGener8();
-        if(i++ && i > 5){
-            clearInterval(interval);
+        const newAdCount = $('.gener8 ins iframe').length - replaceCount;
+        replaceCount = $('.gener8 ins iframe').length;
+        if(newAdCount > 0){
+            browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), id:  makeid(), newAdCount});
         }
-    } , 2000);
+        replaceGener8();
+    } , 3000);
+
 
     function makeid() {
         var text = "";
@@ -108,37 +104,4 @@ $(function () {
         });
         observer.observe(document.body, { childList: true, subtree: true });
     })();
-    // browser.runtime.sendMessage({ action: 'SetBadge' });
 });
-  
-// function receiveMessage(event){
-//     if(event.data.gener8){
-//         console.log('Got an event...', event);
-//         replaceCount++;
-//         browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString() });
-        
-//     }
-// }
-
-// if (window.addEventListener) {
-//     // For standards-compliant web browsers
-//     window.addEventListener("message", receiveMessage, false);
-// }
-// else {
-//     window.attachEvent("onmessage", receiveMessage);
-// }
-
-// browser.runtime.onMessage.addListener(function(request, sender, sendResponse){
-//     console.log('1--->>',request.id);
-//     // if(data.action === 'checkIframe'){
-//         // return new Promise(resolve=>{
-//         //     console.log('content script data', JSON.stringify(data));
-//         //     console.log('--->>', $('.gener8-added > iframe[src='+data.url+']'));
-//         //     return resolve();
-//         // })
-
-//         return Promise.resolve({type: "test", a: 'test'});
-        
-//     // }
-// });
-

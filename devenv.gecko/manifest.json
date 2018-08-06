@@ -20,6 +20,7 @@
   },
   "background": {
     "scripts": [
+      "config.js",
       "gener8/bg_constants.js",
       "gener8/lib/js/jquery.min.js",
       "gener8/scheduler.js",
@@ -37,6 +38,7 @@
     {
       "all_frames": false,
       "js": [
+        "config.js",
         "gener8/lib/js/jquery.min.js",
         "gener8/js/globalVariable.js",
         "gener8/js/globalFunction.js",

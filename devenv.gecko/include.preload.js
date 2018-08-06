@@ -648,7 +648,7 @@
             let selector = preparedSelectors.slice(
               i, i + this.selectorGroupSize
             ).join(", ");
-            style.sheet.insertRule(selector + "{display: none !important;}",
+            style.sheet.insertRule(selector , //+ "{display: none !important;}" 
               style.sheet.cssRules.length);
           }
         },
