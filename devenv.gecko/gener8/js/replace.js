@@ -72,22 +72,12 @@ $(function () {
     var interval = setInterval(function () {
         const newAdCount = $('.gener8 ins iframe').length - replaceCount;
         replaceCount = $('.gener8 ins iframe').length;
+        console.log('new count', newAdCount, 'final count', replaceCount);
         if(newAdCount > 0){
-            browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), id:  makeid(), newAdCount});
+            browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
         }
         replaceGener8();
     } , 3000);
-
-
-    function makeid() {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      
-        for (var i = 0; i < 5; i++)
-          text += possible.charAt(Math.floor(Math.random() * possible.length));
-      
-        return text;
-      }
 
     (function () {
         var observer = new MutationObserver(function (mutations) {

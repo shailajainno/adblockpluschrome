@@ -85,7 +85,6 @@ function processRequest(request, sender) {
             //     text: request.data,
             //     tabId: sender.tab.id
             // });
-            // console.log('random------>>>', request.id)
             adImpression(request.newAdCount);
             break;
         // case 'OPEN_POPUP':
