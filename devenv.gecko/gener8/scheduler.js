@@ -95,7 +95,7 @@
             xhr.setRequestHeader("Authorization", token);
         },
         success: function (success) {
-          const count = 5//success.data.total > 0 ? success.data.total: '';
+          const count = success.data.total > 0 ? success.data.total: '';
           setBadge(count);
           browser.storage.local.set({notificationCount: count});
         },
@@ -138,6 +138,18 @@
       });
     }else if (request.action === 'LOGIN') {
       schedulerAPI(request.token, true, request.data);
+    }
+  });
+
+  let domainName = GENER8_FRONTEND_URL.replace('https://','').replace('http://','');
+  domainName = domainName.substring(0, domainName.length - 1);
+  browser.cookies.onChanged.addListener(function(changeInfo) {
+    if(changeInfo.cookie.domain === domainName && changeInfo.cookie.name === 'jwtToken' ){
+      if(changeInfo.removed){
+        setBadge('');
+      }else{
+        scheduler();
+      }
     }
   });
 })();
