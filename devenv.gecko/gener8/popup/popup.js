@@ -614,9 +614,9 @@ $(function () {
         $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
         console.log(userData);
         if(userData.notificationCount){
-            
+            var badgeWidth = userData.notificationCount < 10 ? "": 'padding: 2px;'
             if(!$('.gnr-noti').find('#badge').length){
-                $('.gnr-noti').append(`<span id="badge"></span>`)
+                $('.gnr-noti').append(`<span id="badge" style="${badgeWidth}">${userData.notificationCount}</span>`)
             }
         }else{
             $('.gnr-noti').find('#badge').remove();

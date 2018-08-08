@@ -46,9 +46,7 @@
           userStatusCode: null,
           errorMessage: ''
         });
-        console.log('is:Lginasd------->>');
         if(isLogin){
-          console.log('------->>',success.data.user)
           success.data.user.tncAccepted = authData.tncAccepted;
           success.data.user.token = token;
           saveUserDetails(success.data.user);
@@ -56,14 +54,6 @@
 
         success.data.adtags.forEach(tag=>{
           adTags[tag.width+'x'+tag.height] = tag.content;
-          // setTimeout(() => {
-          //   console.log(tag.width+'x'+tag.height, tag.content);
-          //   browser.cookies.set({
-          //     url: 'https://stg.gener8ads.com',
-          //     name: tag.width+'x'+tag.height,
-          //     value: tag.content
-          //   }).then(console.log, console.error);
-          // }, 500);
         });
       },
       error: function (error) {
@@ -89,7 +79,6 @@
             'userStatusCode',
             'errorMessage',
             "token"]).then(t=>console.log('asdasda->',t));
-          console.log('test///////');
           setTNCData({ data: error.responseJSON.data.tnc.version, token}, true);
         }
         return;
@@ -145,16 +134,11 @@
    scheduler();
    browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
-      setBadge('');
+      //setBadge('');
       browser.storage.local.set({
         'notificationCount': undefined
       });
-    }
-  });
-
-  browser.runtime.onMessage.addListener(function (request) {
-    if (request.action === 'LOGIN') {
-      console.log('tesrasdasdasdasdsd', request);
+    }else if (request.action === 'LOGIN') {
       schedulerAPI(request.token, true, request.data);
     }
   });
