@@ -1,26 +1,7 @@
 
 (()=>{
 
-   function setBadge(count){
-    browser.tabs.query({ }, function (tabs) {
-      tabs.forEach((data)=>{
-        browser.browserAction.setBadgeBackgroundColor(
-          {
-            color: "black",
-            tabId: data.id
-          }
-        )
-        browser.browserAction.setBadgeText({
-          text: count.toString(),
-          tabId: data.id
-        });
-      });
-    });
-   }
-
-
-
-   function schedulerAPI(token, isLogin, authData){
+  function schedulerAPI(token, isLogin, authData){
     $.ajax({
       url: GENER8_BACKEND_URL + SCHEDULER,
       method: "GET",
@@ -98,7 +79,6 @@
         },
         success: function (success) {
           const count = success.data.total > 0 ? success.data.total: '';
-          setBadge(count);
           browser.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
@@ -134,7 +114,6 @@
    scheduler();
    browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
-      //setBadge('');
       browser.storage.local.set({
         'notificationCount': undefined
       });
