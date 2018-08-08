@@ -1,6 +1,23 @@
 
 (()=>{
 
+  function setBadge(count){
+    browser.tabs.query({ }, function (tabs) {
+      tabs.forEach((data)=>{
+        browser.browserAction.setBadgeBackgroundColor(
+          {
+            color: "#d32d27",
+            tabId: data.id
+          }
+        )
+        browser.browserAction.setBadgeText({
+          text: count.toString(),
+          tabId: data.id
+        });
+      });
+    });
+   }
+
   function schedulerAPI(token, isLogin, authData){
     $.ajax({
       url: GENER8_BACKEND_URL + SCHEDULER,
@@ -78,7 +95,8 @@
             xhr.setRequestHeader("Authorization", token);
         },
         success: function (success) {
-          const count = success.data.total > 0 ? success.data.total: '';
+          const count = 5//success.data.total > 0 ? success.data.total: '';
+          setBadge(count);
           browser.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
@@ -114,6 +132,7 @@
    scheduler();
    browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
+      setBadge('');
       browser.storage.local.set({
         'notificationCount': undefined
       });

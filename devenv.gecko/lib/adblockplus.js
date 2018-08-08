@@ -6430,7 +6430,7 @@
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
                     console.log("now i can whitelist anything... :)")
                     browser.browserAction.setBadgeBackgroundColor({
-                      color: "black",
+                      color: "#d32d27",
                       tabId: tab.id
                     });
                     browser.browserAction.setBadgeText({
