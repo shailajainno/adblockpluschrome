@@ -123,7 +123,7 @@ function setTNCData(request, isLogin) {
     }
     
     if(isLogin){
-        console.log('-------->>creatng tabs...', GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true');
+        console.log('isLogin....???')
         browser.tabs.create({
             url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
         });

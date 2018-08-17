@@ -77,7 +77,7 @@
             'userStatusCode',
             'errorMessage',
             "token"]).then(t=>console.log('asdasda->',t));
-          setTNCData({ data: error.responseJSON.data.tnc.version, token}, true);
+          setTNCData({ data: error.responseJSON.data.tnc.version, token}, isLogin);
         }
         return;
       }
