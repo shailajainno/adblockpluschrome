@@ -6531,9 +6531,8 @@
 
           if (filter instanceof BlockingFilter){
             return browser.tabs.sendMessage(details.tabId, {
-              action: "GetFrame", url: details.url
+              action: "GetFrame", details
             });
-            // return {cancel: true};
           }
       }, { 
         urls: ["<all_urls>"],
