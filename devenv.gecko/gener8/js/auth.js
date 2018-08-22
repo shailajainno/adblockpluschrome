@@ -172,19 +172,51 @@ button:disabled, button[disabled] {
 
 $('head').html(`
     <script>
-        function testEmailAddress(emailToTest) {
-            // check for @
-            var atSymbol = emailToTest.indexOf("@");
-            console.log('@',atSymbol);
-            if(atSymbol < 1) return false;
+        function testEmailAddress(email) {
+            // If no email or wrong value gets passed in (or nothing is passed in), immediately return false.
+            if(typeof email === 'undefined') return null;
+            if(typeof email !== 'string' || email.indexOf('@') === -1) return false;
         
-            var dot = emailToTest.indexOf(".");
-            console.log('.',dot);
-            if(dot <= atSymbol + 2) return false;
+            // Get email parts
+            var emailParts = email.split('@'),
+                emailName = emailParts[0],
+                emailDomain = emailParts[1],
+                emailDomainParts = emailDomain.split('.'),
+                validChars = 'abcdefghijklmnopqrstuvwxyz.0123456789_-';
         
-            // check that the dot is not at the end
-            console.log('.2', dot, emailToTest.length);
-            if (dot > emailToTest.length - 3) return false;
+            // There must be exactly 2 parts
+            if(emailParts.length !== 2) {
+                return false;
+            }
+        
+            // Must be at least one char before @ and 3 chars after
+            if(emailName.length < 1 || emailDomain.length < 3) {
+                return false;
+            }
+        
+            // Domain must include but not start with .
+            if(emailDomain.indexOf('.') <= 0) {
+                return false;
+            }
+        
+            // emailName must only include valid chars
+            for (var i = emailName.length - 1; i >= 0; i--) {
+                if(validChars.indexOf(emailName[i]) < 0) {
+                    return false;
+                }
+            };
+        
+            // emailDomain must only include valid chars
+            for (var i = emailDomain.length - 1; i >= 0; i--) {
+                if(validChars.indexOf(emailDomain[i]) < 0) {
+                    return false;
+                }
+            };
+        
+            // Domain's last . should be 2 chars or more from the end
+            if(emailDomainParts[emailDomainParts.length - 1].length < 2) {
+                return false;   
+            }
         
             return true;
         }
