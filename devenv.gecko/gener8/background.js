@@ -87,9 +87,6 @@ function processRequest(request, sender) {
             // });
             adImpression(request.newAdCount);
             break;
-        // case 'OPEN_POPUP':
-        //     browser.browserAction.openPopup();
-        //     break;
         case 'SET_USERDATA':
             userData = request.data;
             tokenRate = request.data.tokenRate;
