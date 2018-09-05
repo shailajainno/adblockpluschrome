@@ -12,11 +12,18 @@ const WALLET = '#/wallet';
 const EMAIL_IS_REQUIRED = 'Email Id is required';
 const EMAIL_NOT_VALID = 'Email Id isn\'t valid';
 const PASSWORD_IS_REQUIRED = 'Password is required';
-
 const NOTIFICATION_COUNT = 'notification/updates';
 const ACCEPT_TNC= GENER8_BACKEND_URL +'user/accept-tnc';
 const NOTIFICATION_LIST = 'notification/getnotification';
 const NOTIFICATION_VIEW_LIMIT = 7;
 const NOTIFICATION_READ = 'notification/readnotification';
+
 let adTags = {};
 let adTagLoaded = false;
+let minCount = 0;
+let hourCount = 0;
+let dayCount = 0;
+let defaultMinCount = 0;
+let defaultHourCount = 0;
+let defaultDayCount = 0;
+let lastSyncAt = new Date();
