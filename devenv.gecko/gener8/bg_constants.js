@@ -12,3 +12,10 @@ var gener8TabData = {
 };
 var userData;
 var tokenRate = 0;
+let minCount = 0;
+let hourCount = 0;
+let dayCount = 0;
+let defaultMinCount = 0;
+let defaultHourCount = 0;
+let defaultDayCount = 0;
+let lastSyncAt = null;

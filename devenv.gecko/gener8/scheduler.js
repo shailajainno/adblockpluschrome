@@ -18,6 +18,42 @@
     });
    }
 
+   function setFraudPrevention(data) {
+      // Just for testing
+      defaultMinCount = 10;
+      defaultMinCount = 100;
+      defaultDayCount = 1000;
+      //end
+      if(data.defaultMinCount){
+        defaultMinCount = data.defaultMinCount;
+      }
+      if(data.defaultHourCount){
+        defaultHourCount = data.defaultMinCount;
+      }
+      if(data.defaultDayCount){
+        defaultDayCount = data.defaultDayCount;
+      }
+      if(!lastSyncAt){
+        lastSyncAt = new Date();
+        minCount = 0;
+        hourCount = 0;
+        dayCount = 0;
+      }
+   }
+
+  setInterval(()=>{
+    const currentDate = new Date();
+    if(currentDate.getSeconds() === 0){
+      minCount = 0;
+    }
+    if(currentDate.getMinutes() === 0){
+      hourCount = 0;
+    }
+    if(currentDate.getHours() === 0){
+      dayCount = 0;
+    }
+  },1000)
+
   function schedulerAPI(token, isLogin, authData){
     $.ajax({
       url: GENER8_BACKEND_URL + SCHEDULER,
@@ -55,6 +91,7 @@
         });
       },
       error: function (error) {
+        console.log(error);
         browser.storage.local.set({
           userStatusCode: error.status,
           errorMessage: error.responseJSON.message

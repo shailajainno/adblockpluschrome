@@ -140,10 +140,10 @@ function adImpression(newAdCount){
 }
 
 setInterval(() => {
-    console.log(new Date(), userData);
     browser.storage.local.set({
         user: userData
     });
+    saveCookies('walletToken',userData.walletToken);
 }, 30 * 1000);
 
 function saveCookies(key, value){
