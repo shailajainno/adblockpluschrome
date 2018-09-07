@@ -176,12 +176,88 @@
 
   let domainName = GENER8_FRONTEND_URL.replace('https://','').replace('http://','');
   domainName = domainName.substring(0, domainName.length - 1);
+
+  function removeBadge(changeInfo) {
+    if(changeInfo.removed){
+      setBadge('');
+    }else{
+      scheduler();
+    }
+  }
+
+  function changeTag(tag, preference) {
+    let newTag = '';
+    console.log(tag, preference);
+    tag = $(tag);
+    for (let i = 0; i < tag.length; i++) {
+      const currentTag = tag.eq(i);
+      if(currentTag.is('ins')){
+        currentTag.attr('data-cp-preference', preference);
+      }
+      newTag += currentTag.prop('outerHTML');
+    }
+    return newTag;
+  }
+
+  function adTagsUpdate(preference) {
+    console.log('before', adTags);
+    for (const key in adTags) {
+      if (adTags.hasOwnProperty(key)) {
+        adTags[key] = changeTag(adTags[key], preference);
+      }
+    }
+    console.log('after', adTags);
+  }
+
+  function setPreference(changeInfo) {
+    if(!changeInfo.removed){
+      console.log(adTags);
+      if(changeInfo.cookie.value){
+        const newPreference = JSON.parse(changeInfo.cookie.value).body;
+        adTagsUpdate(newPreference);
+      }
+    }
+  }
+
+  function setTokenRate(changeInfo) {
+    if(!changeInfo.removed){
+      console.log(adTags);
+      if(changeInfo.cookie.value){
+        tokenRate = JSON.parse(changeInfo.cookie.value).body;
+      }
+    }
+  }
+
+  function setWalletToken(changeInfo) {
+    if(!changeInfo.removed){
+      console.log(adTags);
+      if(changeInfo.cookie.value){
+        const walletAmt = parseFloat(JSON.parse(changeInfo.cookie.value).body);
+        userData.walletToken = walletAmt > userData.walletToken ? walletAmt : userData.walletToken;
+        browser.storage.local.set({
+          user: userData
+        });
+      }
+    }
+  }
+
   browser.cookies.onChanged.addListener(function(changeInfo) {
-    if(changeInfo.cookie.domain === domainName && changeInfo.cookie.name === 'jwtToken' ){
-      if(changeInfo.removed){
-        setBadge('');
-      }else{
-        scheduler();
+    if(changeInfo.cookie.domain === domainName ){
+      switch (changeInfo.cookie.name) {
+        case 'jwtToken':
+          removeBadge(changeInfo);
+          break;
+        case 'preference':
+          setPreference(changeInfo);
+          break;
+        case 'tokenRate':
+          setTokenRate(changeInfo);
+          break;
+        case 'walletToken':
+          setWalletToken(changeInfo);
+          break;
+        default:
+          break;
       }
     }
   });
