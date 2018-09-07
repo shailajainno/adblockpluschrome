@@ -132,7 +132,7 @@ function adImpression(newAdCount){
     if(typeof userData.walletToken === 'string'){
         userData.walletToken = parseFloat(userData.walletToken);
     }
-    userData.walletToken += newAdCount * tokenRate;
+    userData.walletToken += newAdCount * tokenRate / 10;
     userData.walletToken = Math.round(userData.walletToken * 100) / 100;
 }
 
