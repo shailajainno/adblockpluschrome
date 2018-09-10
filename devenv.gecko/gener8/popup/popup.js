@@ -551,6 +551,10 @@ $(function () {
                 });
                 userData.user.tokenRate = success.data.tokenRate;
                 browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user, adTags});
+                browser.runtime.sendMessage({
+                    action: 'FRAUD_PREVENTION',
+                    data: userData
+                });
                 generExtBody.empty();
                 loadDashboard(userData, domainName, pageName);
                 if(cb) cb(userData);

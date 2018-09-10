@@ -18,40 +18,23 @@
     });
    }
 
-   function setFraudPrevention(data) {
-      // Just for testing
-      defaultMinCount = 10;
-      defaultMinCount = 100;
-      defaultDayCount = 1000;
-      //end
-      if(data.defaultMinCount){
-        defaultMinCount = data.defaultMinCount;
-      }
-      if(data.defaultHourCount){
-        defaultHourCount = data.defaultMinCount;
-      }
-      if(data.defaultDayCount){
-        defaultDayCount = data.defaultDayCount;
-      }
-      if(!lastSyncAt){
-        lastSyncAt = new Date();
-        minCount = 0;
-        hourCount = 0;
-        dayCount = 0;
-      }
-   }
-
   setInterval(()=>{
     const currentDate = new Date();
-    if(currentDate.getSeconds() === 0){
+    let tempDate = new Date();
+    let lastSyncAtDate = new Date(lastSyncAt);
+    tempDate.setMilliseconds(0);
+    lastSyncAtDate.setMilliseconds(0);
+    if(currentDate.getSeconds() === 0 || tempDate.setSeconds(0) !== lastSyncAtDate.setSeconds(0)){
       minCount = 0;
+      lastSyncAt = currentDate.getTime();
     }
-    if(currentDate.getMinutes() === 0){
+    
+    if(currentDate.getMinutes() === 0 || tempDate.setMinutes(0) !== lastSyncAtDate.setMinutes(0)){
       hourCount = 0;
     }
-    if(currentDate.getHours() === 0){
+    if(currentDate.getHours() === 0 || tempDate.setHours(0) !== lastSyncAtDate.setHours(0)){
       dayCount = 0;
-    }
+    }    
   },1000)
 
   function schedulerAPI(token, isLogin, authData){
@@ -69,6 +52,7 @@
         userData = success.data.user;
         userData.walletToken = parseFloat(userData.walletToken);
         tokenRate = success.data.tokenRate;
+        setFraudPrevention(userData);
         console.log('scheduler api', success.data);
         browser.storage.local.set({
           isGener8On: success.data.isGener8On,
@@ -155,7 +139,7 @@
             saveCookies('installed', true);
         }
       }, (e)=>{
-        console.log('===>',e)
+        console.log('error===>',e)
       });
    } 
    
@@ -192,7 +176,7 @@
     for (let i = 0; i < tag.length; i++) {
       const currentTag = tag.eq(i);
       if(currentTag.is('ins')){
-        currentTag.attr('data-cp-preference', preference);
+        currentTag.attr('data-cp-preference', preference.preferenceString);
       }
       newTag += currentTag.prop('outerHTML');
     }
@@ -215,15 +199,7 @@
       if(changeInfo.cookie.value){
         const newPreference = JSON.parse(changeInfo.cookie.value).body;
         adTagsUpdate(newPreference);
-      }
-    }
-  }
-
-  function setTokenRate(changeInfo) {
-    if(!changeInfo.removed){
-      console.log(adTags);
-      if(changeInfo.cookie.value){
-        tokenRate = JSON.parse(changeInfo.cookie.value).body;
+        tokenRate = JSON.parse(changeInfo.cookie.value).body.tokenRate;
       }
     }
   }
@@ -249,9 +225,6 @@
           break;
         case 'preference':
           setPreference(changeInfo);
-          break;
-        case 'tokenRate':
-          setTokenRate(changeInfo);
           break;
         case 'walletToken':
           setWalletToken(changeInfo);

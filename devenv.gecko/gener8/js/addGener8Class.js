@@ -1,4 +1,4 @@
-browser.runtime.sendMessage({ action: 'tokenExists' });
+// browser.runtime.sendMessage({ action: 'tokenExists' });
 
 var currentTimeout;
 var callTimeout = 0;
@@ -68,9 +68,7 @@ browser.runtime.onMessage.addListener(function (request) {
     } else if (request.action === 'GetFrame') {
         let blockRequest = false;
         if(request.details.type === "image"){
-            if(request.details.originUrl !== window.location.href){
-                blockRequest = $('.gener8-added').find('iframe').contents().find('iframe[src="'+request.details.url+'"]').length === 0
-            }
+            
         }else{
             blockRequest = $('.gener8-added').find('iframe').contents().find('iframe[src="'+request.details.url+'"]').length === 0
         }

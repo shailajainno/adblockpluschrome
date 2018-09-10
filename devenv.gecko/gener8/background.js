@@ -47,7 +47,6 @@ function processRequest(request, sender) {
             break;
         case 'saveLoginDetails':
             var tkn = request.data.token;
-            console.log('---------->>',request.data)
             sendToAllContentScripts('TokenFromBackGround');
             saveUserDetails(request.data);
             break;
@@ -57,10 +56,17 @@ function processRequest(request, sender) {
                     token = JSON.parse(token).body;
                     token = atob(token);
                     try {
+                        console.log('---------------dddd--------------------');
+                        console.log('Min', minCount < defaultMinCount, minCount, defaultMinCount);
+                        console.log('Hour', hourCount < defaultHourCount, hourCount, defaultHourCount);
+                        console.log('Day', dayCount < defaultDayCount, dayCount, defaultDayCount);
+                        console.log(dayCount < defaultDayCount, dayCount, defaultDayCount);
+                        
                         browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                             token,
                             isBlocked: gener8TabData.whitelist[sender.tab.id],
-                            adTags
+                            adTags,
+                            replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
                         } });
                     } catch (error) {
                         console.error(error);
@@ -75,16 +81,6 @@ function processRequest(request, sender) {
             })
             break;
         case 'AD_IMPRESSION':
-            // browser.browserAction.setBadgeBackgroundColor(
-            //     {
-            //     color: "green",
-            //     tabId: sender.tab.id
-            //     }
-            // )
-            // browser.browserAction.setBadgeText({
-            //     text: request.data,
-            //     tabId: sender.tab.id
-            // });
             adImpression(request.newAdCount);
             break;
         case 'SET_USERDATA':
@@ -102,6 +98,20 @@ function processRequest(request, sender) {
             break;
     }
 }
+
+function setFraudPrevention(data) {
+    if(data.globalAdsCounts){
+        defaultMinCount = data.globalAdsCounts.minCount;
+        defaultHourCount = data.globalAdsCounts.hourCount;
+        defaultDayCount = data.globalAdsCounts.dayCount;
+    }
+    if(data.userAdsCount && data.userAdsCount.lastSyncAt){
+        lastSyncAt =  data.userAdsCount.lastSyncAt
+        dayCount = data.userAdsCount.dayCount;
+        minCount = data.userAdsCount.minCount;
+        hourCount = data.userAdsCount.hourCount;
+    }
+ }
 
 function setTNCData(request, isLogin) {
     browser.cookies.set({
@@ -132,15 +142,24 @@ function adImpression(newAdCount){
     if(typeof userData.walletToken === 'string'){
         userData.walletToken = parseFloat(userData.walletToken);
     }
-    userData.walletToken += newAdCount * tokenRate / 10;
-    userData.walletToken = Math.round(userData.walletToken * 100) / 100;
+    minCount =  minCount + newAdCount;
+    hourCount = hourCount + newAdCount;
+    dayCount = dayCount + newAdCount;
+    userData.walletToken += newAdCount * tokenRate;
+    userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
 }
 
 setInterval(() => {
-    browser.storage.local.set({
-        user: userData
-    });
-    saveCookies('walletToken',userData.walletToken);
+    if(userData){
+        saveCookies('walletToken',userData.walletToken.toFixed(2));
+        browser.storage.local.set({
+            user: userData
+        });
+    }
+    saveCookies('minCount', minCount);
+    saveCookies('hourCount', hourCount);
+    saveCookies('dayCount', dayCount);
+    saveCookies('lastSyncAt', lastSyncAt);
 }, 30 * 1000);
 
 function saveCookies(key, value){

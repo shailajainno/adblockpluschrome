@@ -19,6 +19,10 @@ $(function () {
 
     function createIFrame(node){
         node = $(node);
+        if(!replace){
+            $(node).remove();
+            return;
+        }
         if(node.hasClass('gener8-added'))
             return;
 
@@ -49,7 +53,7 @@ $(function () {
             if(width && height)
                 console.log(adTags.length, 'Not Supported this', width+'x'+height)
             return;
-        };
+        }
         node.addClass('gener8-added');
         node.html(currentTag);
         node.find('iframe').addClass('gener8Ad');

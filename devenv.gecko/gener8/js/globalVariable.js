@@ -20,3 +20,4 @@ const NOTIFICATION_READ = 'notification/readnotification';
 
 let adTags = {};
 let adTagLoaded = false;
+let replace = true;

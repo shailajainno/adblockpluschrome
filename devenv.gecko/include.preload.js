@@ -697,10 +697,12 @@
         //Gener8 Check Token and whitelisting and then proceed with Ad Blocking and Replacement
         apply() {
           browser.runtime.onMessage.addListener(function (request, sender) {
-            if (request.action === 'catchToken' && request.data) {
-              console.log('adTagis loaded...', request.data.adTags);
+            if (request.action === 'catchToken') {
+              console.log('adTagis loaded...', request.data);
               adTags = request.data.adTags;
               adTagLoaded = true;
+              console.log('replace,,,,', request.data.replace)
+              replace = request.data.replace;
                 if(!request.data.isBlocked){
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
                       if (this.tracer)

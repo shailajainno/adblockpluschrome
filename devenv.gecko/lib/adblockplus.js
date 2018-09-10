@@ -6433,16 +6433,32 @@
                       color: "#d32d27",
                       tabId: tab.id
                     });
+                    console.log("asdasdasdasdsadasdsad2");
                     browser.browserAction.setBadgeText({
                       text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
                       tabId: tab.id
                     });
                     
-                    if(!gener8TabData.whitelist[a]){
-                      browser.tabs.sendMessage(tab.id, { action: 'catchToken', data: {
-                        token,
-                        isBlocked: gener8TabData.whitelist[tab.id]
-                      } });
+                    if(!gener8TabData.whitelist[tabId]){
+                      console.log('----------------dddd-------------------');
+                        console.log(minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
+                        console.log('Min', minCount < defaultMinCount, minCount, defaultMinCount);
+                        console.log('Hour', hourCount < defaultHourCount, hourCount, defaultHourCount);
+                        console.log('Day', dayCount < defaultDayCount, dayCount, defaultDayCount);
+                        console.log(gener8Data.userStatusCode,
+                          gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1,
+                          gener8Data.userWhitelist.indexOf(currentDomain) > -1,
+                          gener8Data.adminWhitelist.indexOf(currentDomain) > -1);                          
+                          
+                          browser.tabs.sendMessage(tabId, { 
+                            action: 'catchToken',
+                            data: {
+                              t,
+                              isBlocked: gener8TabData.whitelist[tabId],
+                              adTags,
+                              replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                            } 
+                          });
                     }
                 }, _error=>{
                   return;  
@@ -6457,7 +6473,6 @@
       })
 
       browser.webRequest.onBeforeRequest.addListener(details => {
-       
        
         // Never block top-level documents.
         if (details.type == "main_frame")
