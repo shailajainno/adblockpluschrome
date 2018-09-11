@@ -74,8 +74,8 @@ $(function () {
     replaceGener8();
     var i = 0;
     var interval = setInterval(function () {
-        const newAdCount = $('.gener8 ins iframe').length - replaceCount;
-        replaceCount = $('.gener8 ins iframe').length;
+        const newAdCount = $('.gener8-added ins').length - replaceCount;
+        replaceCount = $('.gener8-added ins').length;
         console.log('new count', newAdCount, 'final count', replaceCount);
         if(newAdCount > 0){
             browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
