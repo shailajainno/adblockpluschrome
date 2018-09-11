@@ -232,6 +232,9 @@
         case 'walletToken':
           setWalletToken(changeInfo);
           break;
+        case 'tncAccepted':
+          scheduler();
+          break;
         default:
           break;
       }
