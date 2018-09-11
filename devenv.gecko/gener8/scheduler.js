@@ -24,17 +24,20 @@
     let lastSyncAtDate = new Date(lastSyncAt);
     tempDate.setMilliseconds(0);
     lastSyncAtDate.setMilliseconds(0);
-    if(currentDate.getSeconds() === 0 || tempDate.setSeconds(0) !== lastSyncAtDate.setSeconds(0)){
+    if(tempDate.setSeconds(0) !== lastSyncAtDate.setSeconds(0) || currentDate.getSeconds() === 0){
+      console.log('resetting min count....', currentDate.getSeconds(), tempDate, lastSyncAtDate);
       minCount = 0;
-      lastSyncAt = currentDate.getTime();
+      if(tempDate.setMinutes(0) !== lastSyncAtDate.setMinutes(0) || currentDate.getMinutes() === 0){
+        console.log('resetting hour count....', currentDate.getMinutes(), tempDate, lastSyncAtDate);
+        hourCount = 0;
+        if(tempDate.setHours(0) !== lastSyncAtDate.setHours(0) || currentDate.getHours() === 0){
+          console.log('resetting day count....', currentDate.getHours(), tempDate, lastSyncAtDate);
+          dayCount = 0;
+        }
+      }
+      console.log('min', minCount,'hour', hourCount,'day', dayCount, 'sync at', new Date())
+      lastSyncAt = new Date().getTime();
     }
-    
-    if(currentDate.getMinutes() === 0 || tempDate.setMinutes(0) !== lastSyncAtDate.setMinutes(0)){
-      hourCount = 0;
-    }
-    if(currentDate.getHours() === 0 || tempDate.setHours(0) !== lastSyncAtDate.setHours(0)){
-      dayCount = 0;
-    }    
   },1000)
 
   function schedulerAPI(token, isLogin, authData){
