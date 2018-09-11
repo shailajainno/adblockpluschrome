@@ -82,6 +82,15 @@ function processRequest(request, sender) {
             break;
         case 'AD_IMPRESSION':
             adImpression(request.newAdCount);
+            // browser.browserAction.setBadgeBackgroundColor({
+            //     color: "blue",
+            //     tabId: sender.tab.id
+            //   });
+            //   console.log("asdasdasdasdsadasdsad2");
+            //   browser.browserAction.setBadgeText({
+            //     text: request.totalCount.toString(),
+            //     tabId: sender.tab.id
+            //   });
             break;
         case 'SET_USERDATA':
             userData = request.data;

@@ -204,11 +204,8 @@ $(function () {
                     })
                 }
             },
-            error: function (jqXHR) {
-              console.log("error in notification")
-              generExtBody.empty();
-              loadDashboard(userData, domainName, pageName);
-              return;
+            error: function (error) {
+              requestError(error);
             }
         });
     }
@@ -570,34 +567,38 @@ $(function () {
                     adminWhitelist : null,
                     errorMessage: error.responseJSON.message
                 });
-                generExtBody.empty();
-                switch (error.status) {
-                    case 423:
-                        generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                        browser.runtime.sendMessage({ action: 'deleteToken' });
-                        break;
-                    case 503:
-                        generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
-                        break;
-                    case 401:
-                        browser.runtime.sendMessage({ action: 'deleteToken' });
-                        generExtBody.append(loginPage);
-                        break;
-                    case 451:
-                        browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
-                        const message = `We have updated the new T&C,
-                        please accept it to continue.
-                        You can read the new T&C <a href='#' id='tnc'>here</a>
-                        <button class="g8-tnc" id='accept-tnc'>Accept</button>
-                        `;
-                        generExtBody.append(suspendPage('Please accept T&C', message));
-                        break;
-                    default:
-                        generExtBody.append(loginPage);
-                        break;
-                }
+                requestError(error);
             }
         });
+    }
+
+    function requestError(error) {
+        generExtBody.empty();
+        switch (error.status) {
+            case 423:
+                generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
+                browser.runtime.sendMessage({ action: 'deleteToken' });
+                break;
+            case 503:
+                generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
+                break;
+            case 401:
+                browser.runtime.sendMessage({ action: 'deleteToken' });
+                generExtBody.append(loginPage);
+                break;
+            case 451:
+                browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
+                const message = `We have updated the new T&C,
+                please accept it to continue.
+                You can read the new T&C <a href='#' id='tnc'>here</a>
+                <button class="g8-tnc" id='accept-tnc'>Accept</button>
+                `;
+                generExtBody.append(suspendPage('Please accept T&C', message));
+                break;
+            default:
+                generExtBody.append(loginPage);
+                break;
+        }
     }
 
     function loadDashboard(userData, domainName, pageName){
