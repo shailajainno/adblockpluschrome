@@ -26,10 +26,9 @@ $(function () {
         if(node.hasClass('gener8-added'))
             return;
 
-        if(node.find('inv[gener8-tag]').length > 0)
-            return;
-            
-        if(node.tagName === 'IFRAME'){
+        const isIframe = node.prop('tagName') === 'IFRAME';
+        console.log('===>>', node, node.prop("localName"), node.prop("nodeName"), node.prop("tagName"));
+        if(isIframe){
             iframe = node;
         }else{
             iframe = node.find('iframe');
@@ -53,9 +52,25 @@ $(function () {
                  $(node).remove();
             return;
         }
+        if(isIframe){
+            node = node.parent();
+            node = node.parent().addClass('gener8');
+        }
+
         node.addClass('gener8-added');
         node.html(currentTag);
         node.find('iframe').addClass('gener8Ad');
+        
+        // var iframeGener8 = document.createElement('iframe');
+        // iframeGener8.height = height;
+        // iframeGener8.width = width;
+        // iframeGener8.setAttribute('class', 'gener8Ad');
+        // iframeGener8.src = GENER8_AD_URL +'?size='+width+'x'+height;
+        // console.log(iframeGener8.src);
+        // iframeGener8.style = 'border:2px;border-color:red;';
+        // iframeGener8.scrolling = 'no';
+        // iframe.after(iframeGener8);
+        // $(node).remove();
     }
     
     
