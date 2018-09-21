@@ -703,7 +703,7 @@
               adTagLoaded = true;
               console.log('replace,,,,', request.data.replace)
               replace = request.data.replace;
-                if(!request.data.isBlocked){
+              console.log('ín selector apply', request.data.tabId)
                     browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
                       if (this.tracer)
                         this.tracer.disconnect();
@@ -728,7 +728,7 @@
             
                       this.elemHideEmulation.apply(response.emulatedPatterns);
                     });
-                }
+                
             }
           });
         }

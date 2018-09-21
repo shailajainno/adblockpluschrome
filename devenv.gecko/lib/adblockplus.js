@@ -6449,16 +6449,39 @@
                           gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1,
                           gener8Data.userWhitelist.indexOf(currentDomain) > -1,
                           gener8Data.adminWhitelist.indexOf(currentDomain) > -1);                          
-                          
+                          console.log('in selector whitelist', tabId)
                           browser.tabs.sendMessage(tabId, { 
                             action: 'catchToken',
                             data: {
-                              t,
                               isBlocked: gener8TabData.whitelist[tabId],
                               adTags,
+                              tabId,
                               replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
                             } 
                           });
+                          setTimeout(() => {
+                            browser.tabs.sendMessage(tabId, { 
+                              action: 'catchToken',
+                              data: {
+                                isBlocked: gener8TabData.whitelist[tabId],
+                                adTags,
+                                tabId,
+                                replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                              } 
+                            });
+                          }, 200);
+                          setTimeout(() => {
+                            browser.tabs.sendMessage(tabId, { 
+                              action: 'catchToken',
+                              data: {
+                                isBlocked: gener8TabData.whitelist[tabId],
+                                adTags,
+                                tabId,
+                                replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                              } 
+                            });
+                          }, 300);
+
                     }
                 }, _error=>{
                   return;  
@@ -10775,47 +10798,8 @@
         }
   
         function addStyleSheet(tabId, frameId, styleSheet) {
-          try {
-            // Send message to the content script (Pass the selectors to add Gener8 class)
-            browser.tabs.query({ active: true, currentWindow: true },
-              function (tabs) {
-                console.log('send something from here...')
-                browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet });
-              });
-            let promise = browser.tabs.insertCSS(tabId, {
-              code: styleSheet,
-              cssOrigin: "user",
-              frameId,
-              matchAboutBlank: true,
-              runAt: "document_start"
-            });
-  
-            // See error handling notes in the catch block.
-            promise.catch(() => { });
-          }
-          catch (error) {
-            // If the error is about the "cssOrigin" option, this is an older version
-            // of Chromium (65 and below) or Firefox (52 and below) that does not
-            // support user style sheets.
-            if (/\bcssOrigin\b/.test(error.message))
-              userStyleSheetsSupported = false;
-  
-            // For other errors, we simply return false to indicate failure.
-            //
-            // One common error that occurs frequently is when a frame is not found
-            // (e.g. "Error: No frame with id 574 in tab 266"), which can happen when
-            // the code in the parent document has removed the frame before the
-            // background page has had a chance to respond to the content script's
-            // "elemhide.getSelectors" message. We simply ignore such errors, because
-            // otherwise they show up in the log too often and make debugging
-            // difficult.
-            //
-            // Also note that the missing frame error is thrown synchronously on
-            // Firefox, while on Chromium it is an asychronous promise rejection. In
-            // the latter case, we cannot indicate failure to the caller, but we still
-            // explicitly ignore the error.
-            return false;
-          }
+          console.log('in selector with length of ',styleSheet.length,' tabID: ', tabId, new Date());
+          browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
   
           return true;
         }
@@ -10850,7 +10834,7 @@
           if (appendOnly && oldStyleSheet) {
             styleSheet = oldStyleSheet + styleSheet;
           }
-  
+
           // Ideally we would compare the old and new style sheets and skip this code
           // if they're the same, but the old style sheet can be a leftover from a
           // previous instance of the frame. We must add the new style sheet
@@ -10891,6 +10875,7 @@
             for (let filter of ElemHideEmulation.getRulesForDomain(hostname))
               emulatedPatterns.push({ selector: filter.selector, text: filter.text });
           }
+          console.log('in selector get selectors', sender.page.id);
           if (!inline && !updateFrameStyles(sender.page.id, sender.frame.id,
             selectors, "standard")) {
             inline = true;
