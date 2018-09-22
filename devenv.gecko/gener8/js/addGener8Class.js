@@ -5,7 +5,6 @@ var callTimeout = 0;
 var newStylesheet;
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
-    console.debug('Adding Mark to replace.')
     if (data) {
         newStylesheet = data.replace(/{([^}]*)}/g, '');
         $(newStylesheet).addClass('gener8');
@@ -66,14 +65,37 @@ browser.runtime.onMessage.addListener(function (request) {
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();
     } else if (request.action === 'GetFrame') {
-        let blockRequest = false;
-        if(request.details.type === "image"){
-            
-        }else{
-            blockRequest = $('.gener8-added').find('iframe').contents().find('iframe[src="'+request.details.url+'"]').length === 0
+        try{
+            return new Promise((resolve)=>{
+                let blockRequest = false;
+                const adURL = request.details.url;
+                let adIframe = $('.gener8-added');
+                if(adIframe && adIframe.length){
+                    if(adIframe.find('iframe').length){
+                        adIframe = adIframe.contents().find('iframe[src="'+adURL+'"]')
+                    }
+                }else{
+                    resolve({cancel: true});
+                    return 
+                }
+                blockRequest = adIframe && adIframe.length === 0;
+                if(blockRequest && request.details.type === 'image'){
+                    if(adURL.match(/\.(jpeg|jpg|gif|png)$/) !== null){
+                        resolve({cancel: false})
+                        return;
+                    }
+                    let imageAdIframe = $('.gener8-added').find('img[src="'+adURL+'"]')
+                    if(!adIframe.length){
+                        imageAdIframe = $('.gener8-added').find('iframe').contents().find('img[src="'+adURL+'"]');
+                    }
+                    blockRequest = imageAdIframe.length === 0;
+                }
+                resolve({cancel: blockRequest});
+                return;
+            })
+        }catch(e){
+            console.log(adURL, 'error',e)
         }
-        
-        return Promise.resolve({cancel: blockRequest});
     } else {
         throw 'Unexpected value for request action';
     }

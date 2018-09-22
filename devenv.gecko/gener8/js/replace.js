@@ -27,13 +27,11 @@ $(function () {
             return;
 
         const isIframe = node.prop('tagName') === 'IFRAME';
-        console.log('===>>', node, node.prop("localName"), node.prop("nodeName"), node.prop("tagName"));
         if(isIframe){
             iframe = node;
         }else{
             iframe = node.find('iframe');
         }
-
         var height = iframe.height();
         var width = iframe.width();
         if(!height){
@@ -60,17 +58,6 @@ $(function () {
         node.addClass('gener8-added');
         node.html(currentTag);
         node.find('iframe').addClass('gener8Ad');
-        
-        // var iframeGener8 = document.createElement('iframe');
-        // iframeGener8.height = height;
-        // iframeGener8.width = width;
-        // iframeGener8.setAttribute('class', 'gener8Ad');
-        // iframeGener8.src = GENER8_AD_URL +'?size='+width+'x'+height;
-        // console.log(iframeGener8.src);
-        // iframeGener8.style = 'border:2px;border-color:red;';
-        // iframeGener8.scrolling = 'no';
-        // iframe.after(iframeGener8);
-        // $(node).remove();
     }
     
     
@@ -80,7 +67,6 @@ $(function () {
     var interval = setInterval(function () {
         const newAdCount = $('.gener8-added').length - replaceCount;
         replaceCount = $('.gener8-added').length;
-        console.log('new count', newAdCount, 'final count', replaceCount);
         if(newAdCount > 0){
             browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
         }
@@ -94,7 +80,6 @@ $(function () {
                     return node.nodeName === 'IFRAME';
                 }).forEach(function (node) {
                     node.addEventListener('load', function () {
-                        console.log('Mutation object');
                         replaceGener8();
                     });
                 });

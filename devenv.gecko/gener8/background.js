@@ -56,12 +56,6 @@ function processRequest(request, sender) {
                     token = JSON.parse(token).body;
                     token = atob(token);
                     try {
-                        console.log('---------------dddd--------------------');
-                        console.log('Min', minCount < defaultMinCount, minCount, defaultMinCount);
-                        console.log('Hour', hourCount < defaultHourCount, hourCount, defaultHourCount);
-                        console.log('Day', dayCount < defaultDayCount, dayCount, defaultDayCount);
-                        console.log(dayCount < defaultDayCount, dayCount, defaultDayCount);
-                        
                         browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                             token,
                             isBlocked: gener8TabData.whitelist[sender.tab.id],
@@ -82,20 +76,10 @@ function processRequest(request, sender) {
             break;
         case 'AD_IMPRESSION':
             adImpression(request.newAdCount);
-            // browser.browserAction.setBadgeBackgroundColor({
-            //     color: "blue",
-            //     tabId: sender.tab.id
-            //   });
-            //   console.log("asdasdasdasdsadasdsad2");
-            //   browser.browserAction.setBadgeText({
-            //     text: request.totalCount.toString(),
-            //     tabId: sender.tab.id
-            //   });
             break;
         case 'SET_USERDATA':
             userData = request.data;
             tokenRate = request.data.tokenRate;
-            console.log('got new adtags', request.adTags)
             if(request.adTags){
                 adTags = request.adTags;
             }
@@ -134,12 +118,10 @@ function setTNCData(request, isLogin) {
         value: JSON.stringify({ "opts":{},"body": request.data})
     });
     if(request.token){
-        console.log('cookies set....', request);
         saveCookies('jwtToken', request.token);
     }
     
     if(isLogin){
-        console.log('isLogin....???')
         browser.tabs.create({
             url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
         });
@@ -147,7 +129,6 @@ function setTNCData(request, isLogin) {
 }
 
 function adImpression(newAdCount){
-    console.log('===>>',userData.walletToken, typeof userData.walletToken, tokenRate, typeof tokenRate);
     if(typeof userData.walletToken === 'string'){
         userData.walletToken = parseFloat(userData.walletToken);
     }
@@ -194,7 +175,6 @@ function saveCookies(key, value){
  * @param {Object} data User Object
  */
 function saveUserDetails(data){
-    console.log('data/////////////////////', data);
     Promise.all([
         saveCookies('jwtToken',data.token),
         saveCookies('profileStrength',JSON.stringify(data.profileStatus)    ),
@@ -215,7 +195,6 @@ function saveUserDetails(data){
                 url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
             });
         }
-        console.log('all cookies stored', t)
     }, e=>{
         console.error('Storing cookies failed', e)
     })

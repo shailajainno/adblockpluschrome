@@ -648,7 +648,7 @@
             let selector = preparedSelectors.slice(
               i, i + this.selectorGroupSize
             ).join(", ");
-            style.sheet.insertRule(selector , //+ "{display: none !important;}" 
+            style.sheet.insertRule(selector, //+ "{display: none !important;}" 
               style.sheet.cssRules.length);
           }
         },
@@ -698,37 +698,33 @@
         apply() {
           browser.runtime.onMessage.addListener(function (request, sender) {
             if (request.action === 'catchToken') {
-              console.log('adTagis loaded...', request.data);
               adTags = request.data.adTags;
               adTagLoaded = true;
-              console.log('replace,,,,', request.data.replace)
               replace = request.data.replace;
-              console.log('ín selector apply', request.data.tabId)
-                    browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
-                      if (this.tracer)
-                        this.tracer.disconnect();
-                      this.tracer = null;
-            
-                      if (response.trace)
-                        this.tracer = new ElementHidingTracer();
-            
-                      this.inline = response.inline;
-                      this.inlineEmulated = !!response.inlineEmulated;
-            
-                      if (this.inline)
-                        this.addSelectorsInline(response.selectors, "standard");
-            
-                      if (this.tracer)
-                        this.tracer.addSelectors(response.selectors);
-            
-                      // Prefer CSS selectors for -abp-has and -abp-contains unless the
-                      // background page has asked us to use inline styles.
-                      this.elemHideEmulation.useInlineStyles = this.inline ||
-                        this.inlineEmulated;
-            
-                      this.elemHideEmulation.apply(response.emulatedPatterns);
-                    });
-                
+              browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
+                if (this.tracer)
+                  this.tracer.disconnect();
+                this.tracer = null;
+
+                if (response.trace)
+                  this.tracer = new ElementHidingTracer();
+
+                this.inline = response.inline;
+                this.inlineEmulated = !!response.inlineEmulated;
+
+                if (this.inline)
+                  this.addSelectorsInline(response.selectors, "standard");
+
+                if (this.tracer)
+                  this.tracer.addSelectors(response.selectors);
+
+                // Prefer CSS selectors for -abp-has and -abp-contains unless the
+                // background page has asked us to use inline styles.
+                this.elemHideEmulation.useInlineStyles = this.inline ||
+                  this.inlineEmulated;
+
+                this.elemHideEmulation.apply(response.emulatedPatterns);
+              });
             }
           });
         }

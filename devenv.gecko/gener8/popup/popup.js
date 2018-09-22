@@ -148,7 +148,7 @@ $(function () {
                             });
                         },
                         error: function (jqXHR) {
-                          console.log("error in accept tnc");
+                          console.error("error in accept tnc", jqXHR);
                           generExtBody.empty();
                           loadDashboard(userData, domainName, pageName);
                           return;
@@ -233,9 +233,7 @@ $(function () {
                             openNewTab($(this).attr('data-redirect'))
                         }
                     });
-                  }else{
-                    console.log('Not logged in yet')
-                }
+                  }
             });
         }else{
             openNewTab($(this).attr('data-redirect'))
@@ -253,8 +251,6 @@ $(function () {
         getUserAccessToken(function (token) {
             if(token){
                 notificationList(token);
-              }else{
-                console.log('Not logged in yet')
             }
         });
     });
@@ -617,7 +613,6 @@ $(function () {
         $('.progress').width(userData.user.statusLevel.levelPercent+'%');
         $('.nstatus').html(userData.user.statusLevel.endLevel);
         $('.gnr-status-name').append(`<img src="${userData.user.statusLevel.image}" alt="" />`);
-        console.log(userData);
         if(userData.notificationCount){
             var badgeWidth = userData.notificationCount < 10 ? "": 'padding: 2px;'
             if(!$('.gnr-noti').find('#badge').length){

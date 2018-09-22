@@ -8,6 +8,9 @@ let adTags = {};
 var gener8TabData = {
     whitelist: {
 
+    },
+    replace: {
+        
     }
 };
 var userData;

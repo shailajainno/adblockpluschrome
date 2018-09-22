@@ -5,11 +5,8 @@
 function getUserAccessToken(callback) {
     cookieGet('jwtToken', function (token) {
         if (token) {
-            console.log(token);
             token = JSON.parse(token);
-            console.log(token.body);
             token = atob(token.body);
-            console.log(token);
             callback(token);
         } else {
             callback(null);

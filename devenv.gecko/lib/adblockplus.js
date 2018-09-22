@@ -6428,35 +6428,25 @@
                     gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
                     gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
                     gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
-                    console.log("now i can whitelist anything... :)")
                     browser.browserAction.setBadgeBackgroundColor({
                       color: "#d32d27",
                       tabId: tab.id
                     });
-                    console.log("asdasdasdasdsadasdsad2");
                     browser.browserAction.setBadgeText({
                       text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
                       tabId: tab.id
                     });
+
+                    gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
                     
                     if(!gener8TabData.whitelist[tabId]){
-                      console.log('----------------dddd-------------------');
-                        console.log(minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
-                        console.log('Min', minCount < defaultMinCount, minCount, defaultMinCount);
-                        console.log('Hour', hourCount < defaultHourCount, hourCount, defaultHourCount);
-                        console.log('Day', dayCount < defaultDayCount, dayCount, defaultDayCount);
-                        console.log(gener8Data.userStatusCode,
-                          gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1,
-                          gener8Data.userWhitelist.indexOf(currentDomain) > -1,
-                          gener8Data.adminWhitelist.indexOf(currentDomain) > -1);                          
-                          console.log('in selector whitelist', tabId)
                           browser.tabs.sendMessage(tabId, { 
                             action: 'catchToken',
                             data: {
                               isBlocked: gener8TabData.whitelist[tabId],
                               adTags,
                               tabId,
-                              replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                              replace: gener8TabData.replace[tabId]
                             } 
                           });
                           setTimeout(() => {
@@ -6466,7 +6456,7 @@
                                 isBlocked: gener8TabData.whitelist[tabId],
                                 adTags,
                                 tabId,
-                                replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                                replace: gener8TabData.replace[tabId]
                               } 
                             });
                           }, 200);
@@ -6477,7 +6467,7 @@
                                 isBlocked: gener8TabData.whitelist[tabId],
                                 adTags,
                                 tabId,
-                                replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                                replace: gener8TabData.replace[tabId]
                               } 
                             });
                           }, 300);
@@ -6506,12 +6496,6 @@
         if(isGener8Ads || isGener8Tag){
           return;
         }
-
-        // if(details.originUrl && details.url.indexOf(GENER8_AD_DOMAIN) > -1){
-        //   console.log('test...',details.originUrl,'=========--->>',GENER8_AD_DOMAIN);
-        //   return;
-        // }
-          
 
         // Filter out requests from non web protocols. Ideally, we'd explicitly
         // specify the protocols we are interested in (i.e. http://, https://,
@@ -6566,11 +6550,16 @@
           originUrl);
         let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
           sitekey, specificOnly);
-
           if (filter instanceof BlockingFilter){
+            if(!gener8TabData.replace[details.tabId]){
+              return {cancel: true}
+            }
+            if(details.type === 'image'){
+              return;
+            }
             return browser.tabs.sendMessage(details.tabId, {
-              action: "GetFrame", details
-            });
+                action: "GetFrame", details
+            })
           }
       }, { 
         urls: ["<all_urls>"],
@@ -10798,9 +10787,7 @@
         }
   
         function addStyleSheet(tabId, frameId, styleSheet) {
-          console.log('in selector with length of ',styleSheet.length,' tabID: ', tabId, new Date());
           browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
-  
           return true;
         }
   
@@ -10875,7 +10862,7 @@
             for (let filter of ElemHideEmulation.getRulesForDomain(hostname))
               emulatedPatterns.push({ selector: filter.selector, text: filter.text });
           }
-          console.log('in selector get selectors', sender.page.id);
+          
           if (!inline && !updateFrameStyles(sender.page.id, sender.frame.id,
             selectors, "standard")) {
             inline = true;

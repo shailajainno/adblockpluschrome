@@ -29,13 +29,11 @@ function checkAuth(){
     var body = document.getElementsByTagName('body')[0].textContent;
     try {
         body = JSON.parse(body);
-        console.log('-->>',JSON.stringify(body));
         if(body.status === 0){
             loadErrorMessage(body.message);
         }else if(body.data.emailRequired){
             openForm(JSON.stringify(body.data));
         }else{
-            console.log('token banto..', body.data)
             socialLoader();
             browser.runtime.sendMessage({
                 action: "LOGIN",
@@ -47,7 +45,7 @@ function checkAuth(){
             window.close();
         }
     } catch (error) {
-        console.log(error);
+        console.error('checkAuth', error);
     }
 }
 
@@ -224,7 +222,6 @@ $('head').html(`
         function onEmailChange(){
             const email = document.getElementById('email').value;
             if(email){
-                console.log(email);
                 if(testEmailAddress(email)){
                     document.getElementById("required").style.display = "none";
                     document.getElementById("valid").style.display = "none";
@@ -242,16 +239,13 @@ $('head').html(`
         }
 
         function submitMe(){
-            console.log(document.getElementById('userData').value)
             let userData = JSON.parse(document.getElementById('userData').value);
             userData.email = document.getElementById('email').value;
             userData.socialHandle = userData.provider;
-            console.log(document.getElementById('email').value);
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 ) {
                     const response = JSON.parse(this.responseText);
-                    console.log(this.status, response);
                     if(this.status === 200){
                         document.body.innerHTML = this.responseText;
                         window.postMessage("refresh","*");

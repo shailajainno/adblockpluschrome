@@ -25,17 +25,13 @@
     tempDate.setMilliseconds(0);
     lastSyncAtDate.setMilliseconds(0);
     if(tempDate.setSeconds(0) !== lastSyncAtDate.setSeconds(0) || currentDate.getSeconds() === 0){
-      console.log('resetting min count....', currentDate.getSeconds(), tempDate, lastSyncAtDate);
       minCount = 0;
       if(tempDate.setMinutes(0) !== lastSyncAtDate.setMinutes(0) || currentDate.getMinutes() === 0){
-        console.log('resetting hour count....', currentDate.getMinutes(), tempDate, lastSyncAtDate);
         hourCount = 0;
         if(tempDate.setHours(0) !== lastSyncAtDate.setHours(0) || currentDate.getHours() === 0){
-          console.log('resetting day count....', currentDate.getHours(), tempDate, lastSyncAtDate);
           dayCount = 0;
         }
       }
-      console.log('min', minCount,'hour', hourCount,'day', dayCount, 'sync at', new Date())
       lastSyncAt = new Date().getTime();
     }
   },1000)
@@ -56,7 +52,6 @@
         userData.walletToken = parseFloat(userData.walletToken);
         tokenRate = success.data.tokenRate;
         setFraudPrevention(userData);
-        console.log('scheduler api', success.data);
         browser.storage.local.set({
           isGener8On: success.data.isGener8On,
           pageWhitelist: success.data.pageWhitelist,
@@ -78,7 +73,6 @@
         });
       },
       error: function (error) {
-        console.log(error);
         browser.storage.local.set({
           userStatusCode: error.status,
           errorMessage: error.responseJSON.message
@@ -127,7 +121,6 @@
    }
 
    var scheduler = () => {
-    console.log("Sechedular start at ", new Date());
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: 'jwtToken'
@@ -138,11 +131,10 @@
           schedulerAPI(token);
           notificationCount(token);
         }else{
-            console.log('Not logged in yet')
             saveCookies('installed', true);
         }
       }, (e)=>{
-        console.log('error===>',e)
+        console.log('scheduler API error', e)
       });
    } 
    
@@ -174,7 +166,6 @@
 
   function changeTag(tag, preference) {
     let newTag = '';
-    console.log(tag, preference);
     tag = $(tag);
     for (let i = 0; i < tag.length; i++) {
       const currentTag = tag.eq(i);
@@ -187,18 +178,15 @@
   }
 
   function adTagsUpdate(preference) {
-    console.log('before', adTags);
     for (const key in adTags) {
       if (adTags.hasOwnProperty(key)) {
         adTags[key] = changeTag(adTags[key], preference);
       }
     }
-    console.log('after', adTags);
   }
 
   function setPreference(changeInfo) {
     if(!changeInfo.removed){
-      console.log(adTags);
       if(changeInfo.cookie.value){
         const newPreference = JSON.parse(changeInfo.cookie.value).body;
         adTagsUpdate(newPreference);
@@ -209,7 +197,6 @@
 
   function setWalletToken(changeInfo) {
     if(!changeInfo.removed){
-      console.log(adTags);
       if(changeInfo.cookie.value){
         const walletAmt = parseFloat(JSON.parse(changeInfo.cookie.value).body);
         userData.walletToken = walletAmt > userData.walletToken ? walletAmt : userData.walletToken;
