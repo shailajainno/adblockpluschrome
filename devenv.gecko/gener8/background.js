@@ -107,15 +107,18 @@ function setFraudPrevention(data) {
  }
 
 function setTNCData(request, isLogin) {
+    let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
     browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: 'tncAccepted',
-        value: JSON.stringify({ "opts":{},"body": false})
+        value: JSON.stringify({ "opts":{},"body": false}),
+        expirationDate: Math.trunc(cookieExpDate)
     });
     browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: 'tnc',
-        value: JSON.stringify({ "opts":{},"body": request.data})
+        value: JSON.stringify({ "opts":{},"body": request.data}),
+        expirationDate: Math.trunc(cookieExpDate)
     });
     if(request.token){
         saveCookies('jwtToken', request.token);
@@ -163,10 +166,12 @@ function saveCookies(key, value){
         cookieValue.opts = hash;
         cookieValue.body = btoa(value)
     }
+    let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
     return browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: key,
-        value: JSON.stringify(cookieValue)
+        value: JSON.stringify(cookieValue),
+        expirationDate: Math.trunc(cookieExpDate)
     });
 }
 

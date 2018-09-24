@@ -107,6 +107,9 @@ $(function () {
             case 'contactus':
                 openNewTab(GENER8_WEBSITE + '#contacts');
                 break;
+            case 'rateus':
+                openNewTab(GENER8_EXT_URL);
+                break;
             default:
                 break;
         }
@@ -138,10 +141,12 @@ $(function () {
                             xhr.setRequestHeader("Authorization", token);
                         },
                         success: function (success) {
+                            let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
                             browser.cookies.set({
                                 url: GENER8_FRONTEND_URL,
                                 name: 'tncAccepted',
-                                value: JSON.stringify({ "opts":{},"body": true})
+                                value: JSON.stringify({ "opts":{},"body": true}),
+                                expirationDate: Math.trunc(cookieExpDate)
                             });
                             browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                                 schedulerAPI(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));

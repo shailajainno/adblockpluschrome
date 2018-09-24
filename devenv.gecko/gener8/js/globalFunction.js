@@ -26,10 +26,12 @@ function cookieSet(key, value, callback) {
     function onError(error) {
         callback(null, error);
     }
+    let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
     browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: key,
-        value: value
+        value,
+        expirationDate: Math.trunc(cookieExpDate)
     }).then(setItem, onError);
 }
 
