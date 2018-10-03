@@ -1,0 +1,93 @@
+{
+  "author": "Gener8 Team",
+  "manifest_version": 2,
+  "name": "Gener8",
+  "version": "1.0.1",
+  "description": "Gener8 gives you control of your advertising experience.\nBlocking unwanted ads, showing you ads you’re interested in and rewarding you when you see them.",
+  "background": {
+    "persistent": true, 
+    "scripts": [
+      "polyfill.js", 
+      "config.js",
+      "gener8/lib/js/jquery.min.js",
+      "gener8/scheduler.js",
+      "gener8/bg_constants.js",
+      "ext/common.js", 
+      "ext/background.js", 
+      "lib/compat.js", 
+      "lib/publicSuffixList.js", 
+      "lib/adblockplus.js", 
+      "devenvPoller__.js"
+    ]
+  }, 
+  "browser_action": {
+    "default_icon": {
+      "16": "gener8/img/icon16.png", 
+      "19": "gener8/img/icon19.png", 
+      "38": "gener8/img/icon38.png", 
+      "48": "gener8/img/icon48.png"
+    }, 
+    "default_popup": "gener8/popup/popup.html",
+    "default_title": "Gener8"
+  }, 
+  "content_scripts": [
+    {
+      "all_frames": true, 
+      "js": [
+        "polyfill.js", 
+        "config.js",
+        "gener8/lib/js/jquery.min.js",
+        "gener8/js/globalVariable.js",
+        "gener8/js/globalFunction.js",
+        "gener8/js/addGener8Class.js",
+        "ext/common.js", 
+        "ext/content.js", 
+        "include.preload.js"
+      ], 
+      "match_about_blank": true, 
+      "matches": [
+        "http://*/*", 
+        "https://*/*"
+      ], 
+      "run_at": "document_start"
+    }, 
+    {
+      "all_frames": true, 
+      "js": [
+        "gener8/lib/js/jquery.min.js",
+        "include.postload.js",
+        "gener8/js/replace.js"
+      ], 
+      "match_about_blank": true, 
+      "matches": [
+        "http://*/*", 
+        "https://*/*"
+      ], 
+      "run_at": "document_end"
+    }
+  ], 
+  "default_locale": "en_US", 
+  "devtools_page": "devtools.html", 
+  "icons": {
+    "128": "gener8/img/icon128.png",
+    "16": "gener8/img/icon16.png",
+    "48": "gener8/img/icon48.png"
+  }, 
+  "minimum_chrome_version": "49.0",
+  "permissions": [
+    "tabs",
+    "<all_urls>",
+    "contextMenus",
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation",
+    "storage",
+    "unlimitedStorage",
+    "notifications",
+    "cookies"
+  ], 
+  "short_name": "__MSG_name__", 
+  "storage": {
+    "managed_schema": "managed-storage-schema.json"
+  }
+}
