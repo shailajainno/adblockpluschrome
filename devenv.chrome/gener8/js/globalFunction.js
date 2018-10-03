@@ -3,15 +3,12 @@
  * @returns {string} - token
  */
 function getUserAccessToken(callback) {
+    console.log('test....', 6);
     cookieGet('jwtToken', function (token) {
         if (token) {
-            try {
-                token = JSON.parse(token);
-                token = atob(token.body);    
-                callback(token);
-            } catch (error) {
-                callback(null);
-            }
+            token = JSON.parse(token);
+            token = atob(token.body);
+            callback(token);
         } else {
             callback(null);
         }
@@ -31,12 +28,12 @@ function cookieSet(key, value, callback) {
         callback(null, error);
     }
     let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
-    chrome.cookies.set({
+    browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: key,
         value,
         expirationDate: Math.trunc(cookieExpDate)
-    },setItem);
+    }).then(setItem, onError);
 }
 
 /**
@@ -45,10 +42,15 @@ function cookieSet(key, value, callback) {
  * @param {function} callback
  */
 function cookieGet(key, callback) {
+    function logCookie(cookie) {
+        console.log('test....', 8, cookie);
+        callback(cookie ? cookie.value: null);
+    }
+    console.log('test....', 7);
     chrome.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key
-    }, callback);
+    }, logCookie);
 }
 
 /**
@@ -66,7 +68,7 @@ function storageRemove(key, callback) {
     chrome.cookies.remove({
         url: GENER8_FRONTEND_URL,
         name: key
-    },removeItem, onError);
+    }, removeItem);
 }
 
 /**

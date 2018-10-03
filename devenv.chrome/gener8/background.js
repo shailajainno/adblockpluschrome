@@ -7,10 +7,13 @@ function cookieGet(key, callback) {
     function logCookie(cookie) {
         callback(cookie ? cookie.value: null);
     }
-    chrome.cookies.get({
+    function onError() {
+        callback(null);
+    }
+    browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key
-    }, logCookie);
+    }).then(logCookie, onError);
 }
 
 /**
@@ -18,15 +21,16 @@ function cookieGet(key, callback) {
  * @param {string} action
  */
 function sendToAllContentScripts(_action) {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+    browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        console.log('tabs', tabs , _action);
         for (var i = 0; i < tabs.length; ++i) {
-            chrome.tabs.sendMessage(tabs[i].id, { action: _action });
+            browser.tabs.sendMessage(tabs[i].id, { action: _action });
         }
     });
 }
 
 // Listen to the messages and call processRequest
-chrome.runtime.onMessage.addListener(processRequest);
+browser.runtime.onMessage.addListener(processRequest);
 
 /**
  * Process request for
@@ -40,9 +44,10 @@ chrome.runtime.onMessage.addListener(processRequest);
 function processRequest(request, sender) {
     switch (request.action) {
         case 'openPopUpAndLogin':
-            chrome.windows.create({ url: GENER8_BACKEND_URL + request.data, type: 'popup', height: 900, width: 900, allowScriptsToClose: true });
+            browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: 'popup', height: 900, width: 900 });
             break;
         case 'saveLoginDetails':
+            console.log('request data===>>', request.data);
             var tkn = request.data.token;
             sendToAllContentScripts('TokenFromBackGround');
             saveUserDetails(request.data);
@@ -53,7 +58,7 @@ function processRequest(request, sender) {
                     token = JSON.parse(token).body;
                     token = atob(token);
                     try {
-                        chrome.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
+                        browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
                             token,
                             isBlocked: gener8TabData.whitelist[sender.tab.id],
                             adTags,
@@ -66,7 +71,7 @@ function processRequest(request, sender) {
             });
             break;
         case 'deleteToken':
-            chrome.cookies.remove({
+            browser.cookies.remove({
                 url: GENER8_FRONTEND_URL,
                 name: 'jwtToken'
             })
@@ -76,7 +81,6 @@ function processRequest(request, sender) {
             break;
         case 'SET_USERDATA':
             userData = request.data;
-            console.log('userData=====>>', userData)
             tokenRate = request.data.tokenRate;
             if(request.adTags){
                 adTags = request.adTags;
@@ -106,13 +110,13 @@ function setFraudPrevention(data) {
 
 function setTNCData(request, isLogin) {
     let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
-    chrome.cookies.set({
+    browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: 'tncAccepted',
         value: JSON.stringify({ "opts":{},"body": false}),
         expirationDate: Math.trunc(cookieExpDate)
     });
-    chrome.cookies.set({
+    browser.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: 'tnc',
         value: JSON.stringify({ "opts":{},"body": request.data}),
@@ -123,7 +127,7 @@ function setTNCData(request, isLogin) {
     }
     
     if(isLogin){
-        chrome.tabs.create({
+        browser.tabs.create({
             url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
         });
     }
@@ -143,7 +147,7 @@ function adImpression(newAdCount){
 setInterval(() => {
     if(userData){
         saveCookies('walletToken',userData.walletToken.toFixed(2));
-        chrome.storage.local.set({
+        browser.storage.local.set({
             user: userData
         });
     }
@@ -165,15 +169,11 @@ function saveCookies(key, value){
         cookieValue.body = btoa(value)
     }
     let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
-    return new Promise((success)=>{
-        chrome.cookies.set({
-            url: GENER8_FRONTEND_URL,
-            name: key,
-            value: JSON.stringify(cookieValue),
-            expirationDate: Math.trunc(cookieExpDate)
-        }, (t)=>{
-            success(t);
-        });
+    return browser.cookies.set({
+        url: GENER8_FRONTEND_URL,
+        name: key,
+        value: JSON.stringify(cookieValue),
+        expirationDate: Math.trunc(cookieExpDate)
     });
 }
 
@@ -182,6 +182,7 @@ function saveCookies(key, value){
  * @param {Object} data User Object
  */
 function saveUserDetails(data){
+    console.log('saving cookies===>>');
     Promise.all([
         saveCookies('jwtToken',data.token),
         saveCookies('profileStrength',JSON.stringify(data.profileStatus)    ),
@@ -192,13 +193,14 @@ function saveUserDetails(data){
         saveCookies('Notification',''),
         saveCookies('NotificationType',''),
         saveCookies('verifymailmessage',''),
-    ],t=>{
+    ]).then(t=>{
+        console.log('done...');
         if(data.tncAccepted){
-            chrome.tabs.create({
+            browser.tabs.create({
                 url: GENER8_FRONTEND_URL
             });
         }else{
-            chrome.tabs.create({
+            browser.tabs.create({
                 url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
             });
         }

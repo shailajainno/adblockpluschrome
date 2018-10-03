@@ -6,18 +6,19 @@
   "description": "Gener8 gives you control of your advertising experience.\nBlocking unwanted ads, showing you ads you’re interested in and rewarding you when you see them.",
   "background": {
     "persistent": true, 
-    "scripts": [
+    "scripts": [  
       "polyfill.js", 
       "config.js",
       "gener8/lib/js/jquery.min.js",
-      "gener8/scheduler.js",
       "gener8/bg_constants.js",
+      "gener8/scheduler.js",
       "ext/common.js", 
       "ext/background.js", 
       "lib/compat.js", 
       "lib/publicSuffixList.js", 
       "lib/adblockplus.js", 
-      "devenvPoller__.js"
+      "devenvPoller__.js",
+      "gener8/background.js"
     ]
   }, 
   "browser_action": {
@@ -64,6 +65,14 @@
         "https://*/*"
       ], 
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "gener8/js/auth.js"
+      ]
     }
   ], 
   "default_locale": "en_US", 
@@ -86,7 +95,7 @@
     "notifications",
     "cookies"
   ], 
-  "short_name": "__MSG_name__", 
+  "short_name": "Gener8",
   "storage": {
     "managed_schema": "managed-storage-schema.json"
   }

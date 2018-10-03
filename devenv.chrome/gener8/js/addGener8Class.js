@@ -56,7 +56,8 @@ function checkWebBased() {
 }
 let executedStyle = 0;
 // Listen message from Background
-chrome.runtime.onMessage.addListener(function (request) {
+
+function messageListener(request) {
     if (request.action === 'selectors') {
         if(executedStyle < 2){
             replaceWithGener8(request.data);
@@ -99,4 +100,5 @@ chrome.runtime.onMessage.addListener(function (request) {
     } else {
         throw 'Unexpected value for request action';
     }
-});
+}
+chrome.runtime.onMessage.addListener(messageListener);

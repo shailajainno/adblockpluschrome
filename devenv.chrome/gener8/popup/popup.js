@@ -1,12 +1,15 @@
 var generExtBody = $('.gnr-ext-bdy-prt');
-
+console.log('test....',1);
 $(function () {
+    console.log('test....',2);
     //Check User Token whether to show Login Page or Dashboard
     generExtBody.empty();
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
+        console.log('test....',3, token);
         if (token) {
             chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                console.log('test....',4);
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url),);
             });
         } else {
@@ -276,6 +279,7 @@ $(function () {
 
     //Call Facebook Login API
     generExtBody.on('click', '#gnr-fbLoginBtn', function () {
+        console.log('in......', FB_CALLBACK_URL);
         openWindow(FB_CALLBACK_URL);
     });
 
@@ -482,10 +486,11 @@ $(function () {
      * @param {string} domainName domain name
      */
     function getUserDetails(token, domainName, pageName, cb) {
-        const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
+        console.log('in.....');
+        const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];        
         chrome.storage.local.get(localStorageKeys, (tokenData)=>{
+            console.log('in.....',2, tokenData);
             const currentToken = tokenData.token;
-            console.log(tokenData);
             if(currentToken !== token){
                 console.log('om/...........');
                 schedulerAPI(token, domainName, pageName, cb);

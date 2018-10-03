@@ -7412,7 +7412,7 @@ function showNotification(notification)
         openNotificationLinks();
     }
   }
-  prepareNotificationIconAndPopup();
+  // prepareNotificationIconAndPopup(); //GENER8 - comment this line
 
   if (notification.type !== "question")
     NotificationStorage.markAsShown(notification.id);
@@ -10567,57 +10567,57 @@ FilterNotifier.on("page.WhitelistingStateRevalidate", (page, filter) =>
 function renderFrames(notificationType)
 {
   return Promise.all([
-    loadImage("icons/abp-16.png"),
-    loadImage("icons/abp-16-whitelisted.png"),
-    loadImage("icons/abp-16-notification-" + notificationType + ".png"),
-    loadImage("icons/abp-19.png"),
-    loadImage("icons/abp-19-whitelisted.png"),
-    loadImage("icons/abp-19-notification-" + notificationType + ".png"),
-    loadImage("icons/abp-20.png"),
-    loadImage("icons/abp-20-whitelisted.png"),
-    loadImage("icons/abp-20-notification-" + notificationType + ".png"),
-    loadImage("icons/abp-32.png"),
-    loadImage("icons/abp-32-whitelisted.png"),
-    loadImage("icons/abp-32-notification-" + notificationType + ".png"),
-    loadImage("icons/abp-38.png"),
-    loadImage("icons/abp-38-whitelisted.png"),
-    loadImage("icons/abp-38-notification-" + notificationType + ".png"),
-    loadImage("icons/abp-40.png"),
-    loadImage("icons/abp-40-whitelisted.png"),
-    loadImage("icons/abp-40-notification-" + notificationType + ".png")
+    // loadImage("icons/abp-16.png"),
+    // loadImage("icons/abp-16-whitelisted.png"),
+    // loadImage("icons/abp-16-notification-" + notificationType + ".png"),
+    // loadImage("icons/abp-19.png"),
+    // loadImage("icons/abp-19-whitelisted.png"),
+    // loadImage("icons/abp-19-notification-" + notificationType + ".png"),
+    // loadImage("icons/abp-20.png"),
+    // loadImage("icons/abp-20-whitelisted.png"),
+    // loadImage("icons/abp-20-notification-" + notificationType + ".png"),
+    // loadImage("icons/abp-32.png"),
+    // loadImage("icons/abp-32-whitelisted.png"),
+    // loadImage("icons/abp-32-notification-" + notificationType + ".png"),
+    // loadImage("icons/abp-38.png"),
+    // loadImage("icons/abp-38-whitelisted.png"),
+    // loadImage("icons/abp-38-notification-" + notificationType + ".png"),
+    // loadImage("icons/abp-40.png"),
+    // loadImage("icons/abp-40-whitelisted.png"),
+    // loadImage("icons/abp-40-notification-" + notificationType + ".png")
   ]).then(images =>
   {
     let imageMap = {
-      16: {base: [images[0], images[1]], overlay: images[2]},
-      19: {base: [images[3], images[4]], overlay: images[5]},
-      20: {base: [images[6], images[7]], overlay: images[8]},
-      32: {base: [images[9], images[10]], overlay: images[11]},
-      38: {base: [images[12], images[13]], overlay: images[14]},
-      40: {base: [images[15], images[16]], overlay: images[17]}
+      // 16: {base: [images[0], images[1]], overlay: images[2]},
+      // 19: {base: [images[3], images[4]], overlay: images[5]},
+      // 20: {base: [images[6], images[7]], overlay: images[8]},
+      // 32: {base: [images[9], images[10]], overlay: images[11]},
+      // 38: {base: [images[12], images[13]], overlay: images[14]},
+      // 40: {base: [images[15], images[16]], overlay: images[17]}
     };
 
     let frames = {};
-    let canvas = document.createElement("canvas");
-    let context = canvas.getContext("2d");
+    // let canvas = document.createElement("canvas");
+    // let context = canvas.getContext("2d");
 
-    for (let whitelisted of [false, true])
-    {
-      for (let i = 0, opacity = 0; i <= 10; opacity = ++i / 10)
-      {
-        let imageData = {};
-        let sizes = [16, 19, 20, 32, 38, 40];
-        for (let size of sizes)
-        {
-          canvas.width = size;
-          canvas.height = size;
-          context.globalAlpha = 1;
-          context.drawImage(imageMap[size]["base"][whitelisted | 0], 0, 0);
-          context.globalAlpha = opacity;
-          context.drawImage(imageMap[size]["overlay"], 0, 0);
-          imageData[size] = context.getImageData(0, 0, size, size);
-        }
-        frames["" + opacity + whitelisted] = imageData;
-      }
+    // for (let whitelisted of [false, true])
+    // {
+    //   for (let i = 0, opacity = 0; i <= 10; opacity = ++i / 10)
+    //   {
+    //     let imageData = {};
+    //     let sizes = [16, 19, 20, 32, 38, 40];
+    //     for (let size of sizes)
+    //     {
+    //       canvas.width = size;
+    //       canvas.height = size;
+    //       context.globalAlpha = 1;
+    //       context.drawImage(imageMap[size]["base"][whitelisted | 0], 0, 0);
+    //       context.globalAlpha = opacity;
+    //       context.drawImage(imageMap[size]["overlay"], 0, 0);
+    //       imageData[size] = context.getImageData(0, 0, size, size);
+    //     }
+    //     frames["" + opacity + whitelisted] = imageData;
+    //   }
     }
 
     return frames;
