@@ -5722,11 +5722,17 @@
           // (either through failure of reading from or writing to storage.local).
           // The first run page notifies the user about the data corruption.
           let url;
-          if (firstRun || dataCorrupted)
-            url = "firstRun.html";
-          else
-            url = "updates.html";
-          browser.tabs.create({url});
+          if (firstRun || dataCorrupted){
+            $.post( INSTALL_API, { 
+                  browser: 'chrome',
+                  isInstall: 1
+            });
+            browser.tabs.create({ url: 'firstRun.html' });
+          }
+          //   url = "firstRun.html";
+          // else
+          //   url = "updates.html";
+          // browser.tabs.create({url});
         }
       });
     }
@@ -6957,12 +6963,100 @@
     );
   }
   
-  browser.webRequest.onBeforeRequest.addListener(details =>
-  {
+// Add this to reduce onBeforeRequest loading time;
+browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
+  if(b.status !== 'loading')
+    return;
+  browser.cookies.get({
+    url: GENER8_FRONTEND_URL,
+    name: 'jwtToken'
+  }, (t)=>{
+    if(t){
+      browser.storage.local.get([
+        'pageWhitelist',
+        'userWhitelist',
+        'userStatusCode',
+        'adminWhitelist',
+        'notificationCount',
+        'adTags',
+        'tokenRate',
+        'user'
+      ], (gener8Data)=>{
+          const currentDomain = tab.url.split("/")[2];
+          const gener8CurrentPage = tab.url.split('?')[0];
+          gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
+            gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
+            gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
+            gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
+            browser.browserAction.setBadgeBackgroundColor({
+              color: "#d32d27",
+              tabId: tab.id
+            });
+            browser.browserAction.setBadgeText({
+              text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+              tabId: tab.id
+            });
+            console.log('--------------------------------');
+            console.log(minCount,defaultMinCount , minCount < defaultMinCount , hourCount, defaultHourCount, hourCount < defaultHourCount , dayCount,defaultDayCount, dayCount < defaultDayCount)
+            gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+            
+            if(!gener8TabData.whitelist[tabId]){
+                  browser.tabs.sendMessage(tabId, { 
+                    action: 'catchToken',
+                    data: {
+                      isBlocked: gener8TabData.whitelist[tabId],
+                      adTags,
+                      tabId,
+                      replace: gener8TabData.replace[tabId]
+                    } 
+                  });
+                  setTimeout(() => {
+                    browser.tabs.sendMessage(tabId, { 
+                      action: 'catchToken',
+                      data: {
+                        isBlocked: gener8TabData.whitelist[tabId],
+                        adTags,
+                        tabId,
+                        replace: gener8TabData.replace[tabId]
+                      } 
+                    });
+                  }, 200);
+                  setTimeout(() => {
+                    browser.tabs.sendMessage(tabId, { 
+                      action: 'catchToken',
+                      data: {
+                        isBlocked: gener8TabData.whitelist[tabId],
+                        adTags,
+                        tabId,
+                        replace: gener8TabData.replace[tabId]
+                      } 
+                    });
+                  }, 300);
+
+            }
+        });
+    }else{
+      gener8TabData.whitelist[tabId] = true;
+      return;
+    }
+  });
+});
+
+browser.webRequest.onBeforeRequest.addListener(details => {
+
     // Never block top-level documents.
     if (details.type == "main_frame")
       return;
-  
+
+    const isGener8Tag = details.url && details.url.indexOf(GENER8_AD_DOMAIN) > -1;
+    const isGener8Ads = details.originUrl && details.originUrl.indexOf(GENER8_AD_DOMAIN) > -1;
+    if(isGener8Ads || isGener8Tag){
+      return;
+    }
+
+    if(gener8TabData.whitelist[details.tabId])
+      return
+
     // Filter out requests from non web protocols. Ideally, we'd explicitly
     // specify the protocols we are interested in (i.e. http://, https://,
     // ws:// and wss://) with the url patterns, given below, when adding this
@@ -6972,13 +7066,13 @@
     if (url.protocol != "http:" && url.protocol != "https:" &&
         url.protocol != "ws:" && url.protocol != "wss:")
       return;
-  
+
     // Firefox provides us with the full origin URL, while Chromium (>=63)
     // provides only the protocol + host of the (top-level) document which
     // the request originates from through the "initiator" property.
     let originUrl = details.originUrl ? new URL(details.originUrl) :
                     details.initiator ? new URL(details.initiator) : null;
-  
+
     // Ignore requests sent by extensions or by Firefox itself:
     // * Firefox intercepts requests sent by any extensions, indicated with
     //   an "originURL" starting with "moz-extension:".
@@ -6989,7 +7083,7 @@
     if (originUrl && (originUrl.protocol == extensionProtocol ||
                       originUrl.protocol == "chrome:"))
       return;
-  
+
     let page = new ext.Page({id: details.tabId});
     let frame = ext.getFrame(
       details.tabId,
@@ -6999,32 +7093,45 @@
       // (e.g. iframes) we must instead use the request's parent frame ID.
       details.type == "sub_frame" ? details.parentFrameId : details.frameId
     );
-  
+
     // On Chromium >= 63, if both the frame is unknown and we haven't get
     // an "initator", this implies a request sent by the browser itself
     // (on older versions of Chromium, due to the lack of "initator",
     // this can also indicate a request sent by a Shared/Service Worker).
     if (!frame && !originUrl)
       return;
-  
+
     if (checkWhitelisted(page, frame, originUrl))
       return;
-  
+
     let type = resourceTypes.get(details.type) || "OTHER";
     let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
-                                                             originUrl);
+                                                              originUrl);
     let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
-                                                       sitekey, specificOnly);
-  
+                                                        sitekey, specificOnly);
+
     getRelatedTabIds(details).then(tabIds =>
     {
       logRequest(tabIds, urlString, type, docDomain,
-                 thirdParty, sitekey, specificOnly, filter);
+                  thirdParty, sitekey, specificOnly, filter);
     });
-  
-    if (filter instanceof BlockingFilter)
-      return {cancel: true};
-  }, {urls: ["<all_urls>"]}, ["blocking"]);
+    if (filter instanceof BlockingFilter){
+      console.log('replace ==== ', gener8TabData.replace[details.tabId])
+      if(!gener8TabData.replace[details.tabId]){
+        return {cancel: true}
+      }
+      if(details.type === 'image'){
+        return;
+      }
+      return browser.tabs.sendMessage(details.tabId, {
+          action: "GetFrame", details
+      })
+    }
+}, { 
+urls: ["<all_urls>"],
+types: ["sub_frame", "xmlhttprequest", "image"] 
+}, ["blocking"]);
+
   
   port.on("filters.collapse", (message, sender) =>
   {
@@ -7719,32 +7826,34 @@
    */
   exports.setUninstallURL = () =>
   {
-    let search = [];
-    for (let key of ["addonName", "addonVersion", "application",
-                     "applicationVersion", "platform", "platformVersion"])
-      search.push(key + "=" + encodeURIComponent(info[key]));
+    // let search = [];
+    // for (let key of ["addonName", "addonVersion", "application",
+    //                  "applicationVersion", "platform", "platformVersion"])
+    //   search.push(key + "=" + encodeURIComponent(info[key]));
   
-    let downlCount = Prefs.notificationdata.downloadCount || 0;
+    // let downlCount = Prefs.notificationdata.downloadCount || 0;
   
-    if (downlCount > 4)
-    {
-      if (downlCount < 8)
-        downlCount = "5-7";
-      else if (downlCount < 30)
-        downlCount = "8-29";
-      else if (downlCount < 90)
-        downlCount = "30-89";
-      else if (downlCount < 180)
-        downlCount = "90-179";
-      else
-        downlCount = "180+";
-    }
+    // if (downlCount > 4)
+    // {
+    //   if (downlCount < 8)
+    //     downlCount = "5-7";
+    //   else if (downlCount < 30)
+    //     downlCount = "8-29";
+    //   else if (downlCount < 90)
+    //     downlCount = "30-89";
+    //   else if (downlCount < 180)
+    //     downlCount = "90-179";
+    //   else
+    //     downlCount = "180+";
+    // }
   
-    search.push("notificationDownloadCount=" + encodeURIComponent(downlCount));
-    search.push("dataCorrupted=" + (isDataCorrupted() ? "1" : "0"));
+    // search.push("notificationDownloadCount=" + encodeURIComponent(downlCount));
+    // search.push("dataCorrupted=" + (isDataCorrupted() ? "1" : "0"));
   
-    browser.runtime.setUninstallURL(Utils.getDocLink("uninstalled") + "&" +
-                                    search.join("&"));
+    // browser.runtime.setUninstallURL(Utils.getDocLink("uninstalled") + "&" +
+    //                                 search.join("&"));
+
+    browser.runtime.setUninstallURL(GENER8_FRONTEND_URL + '#/uninstall-page');
   };
   
   Prefs.on("notificationdata", setUninstallURL);
@@ -11250,16 +11359,16 @@
   // blocked beforehand we display those on the badge now.
   browser.webNavigation.onCommitted.addListener(details =>
   {
-    if (details.frameId == 0)
-    {
-      let page = new ext.Page({id: details.tabId});
-      let blocked = blockedPerPage.get(page);
+    // if (details.frameId == 0)
+    // {
+    //   let page = new ext.Page({id: details.tabId});
+    //   let blocked = blockedPerPage.get(page);
   
-      page.browserAction.setBadge(blocked && {
-        color: badgeColor,
-        number: blocked
-      });
-    }
+    //   page.browserAction.setBadge(blocked && {
+    //     color: badgeColor,
+    //     number: blocked
+    //   });
+    // }
   });
   
   FilterNotifier.on("filter.hitCount", (filter, newValue, oldValue, tabIds) =>
@@ -11274,13 +11383,13 @@
       blockedPerPage.set(page, ++blocked);
   
       // Update number in icon
-      if (Prefs.show_statsinicon)
-      {
-        page.browserAction.setBadge({
-          color: badgeColor,
-          number: blocked
-        });
-      }
+      // if (Prefs.show_statsinicon)
+      // {
+      //   page.browserAction.setBadge({
+      //     color: badgeColor,
+      //     number: blocked
+      //   });
+      // }
     }
   
     Prefs.blocked_total++;
@@ -11307,7 +11416,7 @@
           }
         }
   
-        page.browserAction.setBadge(badge);
+        //page.browserAction.setBadge(badge);
       }
     });
   });
@@ -11468,7 +11577,7 @@
   function* createRules(selectors)
   {
     for (let selectorGroup of splitSelectors(selectors))
-      yield selectorGroup.join(", ") + " {display: none !important;}";
+      yield selectorGroup.join(", ");//+ " {display: none !important;}"; GENER8 EDITS
   }
   
   function createStyleSheet(selectors)
@@ -11478,6 +11587,7 @@
   
   function addStyleSheet(tabId, frameId, styleSheet)
   {
+    browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
     try
     {
       let promise = browser.tabs.insertCSS(tabId, {
@@ -11557,9 +11667,9 @@
   
     // Add the new style sheet first to keep previously hidden elements from
     // reappearing momentarily.
-    if (styleSheet && !addStyleSheet(tabId, frameId, styleSheet))
+    if (styleSheet && !addStyleSheet(tabId, frameId, styleSheet)){
       return false;
-  
+    }
     // Sometimes the old and new style sheets can be exactly the same. In such a
     // case, do not remove the "old" style sheet, because it is in fact the new
     // style sheet now.

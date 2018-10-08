@@ -60,15 +60,13 @@ $(function () {
         node.find('iframe').addClass('gener8Ad');
     }
     
-    
-    
     replaceGener8();
     var i = 0;
     var interval = setInterval(function () {
         const newAdCount = $('.gener8-added').length - replaceCount;
         replaceCount = $('.gener8-added').length;
         if(newAdCount > 0){
-            chrome.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
+            browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
         }
         replaceGener8();
     } , 3000);

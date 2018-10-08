@@ -18,7 +18,6 @@ function saveCookies(key, value){
   });
 }
 
-
 (()=>{
 
   function setBadge(count){
@@ -71,7 +70,7 @@ function saveCookies(key, value){
         userData = success.data.user;
         userData.walletToken = parseFloat(userData.walletToken);
         tokenRate = success.data.tokenRate;
-        //setFraudPrevention(userData);
+        setFraudPrevention(userData);
         chrome.storage.local.set({
           isGener8On: success.data.isGener8On,
           pageWhitelist: success.data.pageWhitelist,

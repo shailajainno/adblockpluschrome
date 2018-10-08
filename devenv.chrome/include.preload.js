@@ -360,27 +360,27 @@ function hideElement(element)
 {
   function doHide()
   {
-    let propertyName = "display";
-    let propertyValue = "none";
-    if (element.localName == "frame")
-    {
-      propertyName = "visibility";
-      propertyValue = "hidden";
-    }
+  //   let propertyName = "display";
+  //   let propertyValue = "none";
+  //   if (element.localName == "frame")
+  //   {
+  //     propertyName = "visibility";
+  //     propertyValue = "hidden";
+  //   }
 
-    if (element.style.getPropertyValue(propertyName) != propertyValue ||
-        element.style.getPropertyPriority(propertyName) != "important")
-      element.style.setProperty(propertyName, propertyValue, "important");
+  //   if (element.style.getPropertyValue(propertyName) != propertyValue ||
+  //       element.style.getPropertyPriority(propertyName) != "important")
+  //     element.style.setProperty(propertyName, propertyValue, "important");
   }
 
-  doHide();
+  // doHide();
 
-  new MutationObserver(doHide).observe(
-    element, {
-      attributes: true,
-      attributeFilter: ["style"]
-    }
-  );
+  // new MutationObserver(doHide).observe(
+  //   element, {
+  //     attributes: true,
+  //     attributeFilter: ["style"]
+  //   }
+  // ); //GENER8 EDIT
 }
 
 function checkCollapse(element)
@@ -665,6 +665,8 @@ ElemHide.prototype = {
         let subSelectors = splitSelector(selector);
         for (let subSelector of subSelectors)
           preparedSelectors.push("::content " + subSelector);
+          var findEl = document.querySelectorAll(subSelector);
+          $(findEl).addClass('gener8');
       }
     }
     else
@@ -688,8 +690,8 @@ ElemHide.prototype = {
       let selector = preparedSelectors.slice(
         i, i + this.selectorGroupSize
       ).join(", ");
-      style.sheet.insertRule(selector + "{display: none !important;}",
-                             style.sheet.cssRules.length);
+      style.sheet.insertRule(selector //+ "{display: none !important;}" //GENER8 EDITS
+      ,style.sheet.cssRules.length); 
     }
   },
 
@@ -741,30 +743,37 @@ ElemHide.prototype = {
 
   apply()
   {
-    browser.runtime.sendMessage({type: "elemhide.getSelectors"}, response =>
-    {
-      if (this.tracer)
-        this.tracer.disconnect();
-      this.tracer = null;
+    browser.runtime.onMessage.addListener(function (request, sender) {
+      if (request.action === 'catchToken') {
+        console.log('catch token===>>',request.data)
+        adTags = request.data.adTags;
+        adTagLoaded = true;
+        replace = request.data.replace;
+        browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
+          if (this.tracer)
+            this.tracer.disconnect();
+          this.tracer = null;
 
-      if (response.trace)
-        this.tracer = new ElementHidingTracer();
+          if (response.trace)
+            this.tracer = new ElementHidingTracer();
 
-      this.inline = response.inline;
-      this.inlineEmulated = !!response.inlineEmulated;
+          this.inline = response.inline;
+          this.inlineEmulated = !!response.inlineEmulated;
 
-      if (this.inline)
-        this.addSelectorsInline(response.selectors, "standard");
+          if (this.inline)
+            this.addSelectorsInline(response.selectors, "standard");
 
-      if (this.tracer)
-        this.tracer.addSelectors(response.selectors);
+          if (this.tracer)
+            this.tracer.addSelectors(response.selectors);
 
-      // Prefer CSS selectors for -abp-has and -abp-contains unless the
-      // background page has asked us to use inline styles.
-      this.elemHideEmulation.useInlineStyles = this.inline ||
-                                               this.inlineEmulated;
+          // Prefer CSS selectors for -abp-has and -abp-contains unless the
+          // background page has asked us to use inline styles.
+          this.elemHideEmulation.useInlineStyles = this.inline ||
+            this.inlineEmulated;
 
-      this.elemHideEmulation.apply(response.emulatedPatterns);
+          this.elemHideEmulation.apply(response.emulatedPatterns);
+        });
+      }
     });
   }
 };

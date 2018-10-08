@@ -6477,13 +6477,13 @@
                   return;  
                 } );
             }else{
-              gener8TabData.whitelist[a] = true;
+              gener8TabData.whitelist[tabId] = true;
               return;
             }
           }, (e)=>{
             return;
           });
-      })
+      });
 
       browser.webRequest.onBeforeRequest.addListener(details => {
        

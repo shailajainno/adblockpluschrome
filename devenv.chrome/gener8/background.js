@@ -47,7 +47,6 @@ function processRequest(request, sender) {
             browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: 'popup', height: 900, width: 900 });
             break;
         case 'saveLoginDetails':
-            console.log('request data===>>', request.data);
             var tkn = request.data.token;
             sendToAllContentScripts('TokenFromBackGround');
             saveUserDetails(request.data);
@@ -95,6 +94,7 @@ function processRequest(request, sender) {
 }
 
 function setFraudPrevention(data) {
+    console.log('====>>', data);
     if(data.globalAdsCounts){
         defaultMinCount = data.globalAdsCounts.minCount;
         defaultHourCount = data.globalAdsCounts.hourCount;
