@@ -1,8 +1,65 @@
-// browser.runtime.sendMessage({ action: 'tokenExists' });
-
 var currentTimeout;
 var callTimeout = 0;
 var newStylesheet;
+var adCounts = {};
+let replaceCount = 0;
+let executedStyle = 0;
+var replaceGener8 = () => {
+    var ArrayNodes = Array.prototype.slice.call($('.gener8'));
+    ArrayNodes.forEach(function (node) {
+        try {
+            if(adTagLoaded) createIFrame(node);
+        } catch (error) {
+            console.log('replace error',error);
+        }
+        return;
+    });
+    $('img[alt=AdChoices]').remove();
+};
+
+function createIFrame(node){
+    node = $(node);
+    if(!replace){
+        $(node).remove();
+        return;
+    }
+    if(node.hasClass('gener8-added'))
+        return;
+
+    const isIframe = node.prop('tagName') === 'IFRAME';
+    if(isIframe){
+        iframe = node;
+    }else{
+        iframe = node.find('iframe');
+    }
+    var height = iframe.height();
+    var width = iframe.width();
+    if(!height){
+        height = iframe.style ? iframe.style.height: '';
+        height = height ? height.replace('px', ''): '';
+    }
+    if(!width){
+        width = iframe.style ? iframe.style.width: '';
+        width = width ? width.replace('px', ''): '';
+    }
+    
+    let currentTag = adTags[width+'x'+height];
+    adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
+    if(!currentTag){
+        if(width && height)
+             $(node).remove();
+        return;
+    }
+    if(isIframe){
+        node = node.parent();
+        node = node.parent().addClass('gener8');
+    }
+
+    node.addClass('gener8-added');
+    node.html(currentTag);
+    node.find('iframe').addClass('gener8Ad');
+}
+
 // Add Gener8 class
 var replaceWithGener8 = function (data) {
     if (data) {
@@ -10,7 +67,8 @@ var replaceWithGener8 = function (data) {
         $(newStylesheet).addClass('gener8');
     }
     checkWebBased();
-    if(executedStyle < 2){
+    if(executedStyle === 0){
+        console.log('in..... mutation object', executedStyle);
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
                 [].filter.call(mutation.addedNodes, function (node) {
@@ -18,6 +76,7 @@ var replaceWithGener8 = function (data) {
                 }).forEach(function (node) {
                     node.addEventListener('load', function () {
                         checkWebBased();
+                        replaceGener8();
                     });
                 });
             });
@@ -27,10 +86,15 @@ var replaceWithGener8 = function (data) {
         });
         var i = 0;
         var addClassInterval = setInterval(function () {
-            checkWebBased();
-            if(i++ && i > 5){
-                clearInterval(addClassInterval);
+            if(i++ && i < 10){
+                checkWebBased();
             }
+            const newAdCount = $('.gener8-added').length - replaceCount;
+            replaceCount = $('.gener8-added').length;
+            if(newAdCount > 0){
+                browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
+            }
+            replaceGener8();
         } , 3000);
     }
 };
@@ -54,13 +118,16 @@ function checkWebBased() {
      console.error( error);   
     }
 }
-let executedStyle = 0;
+
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
         if(executedStyle < 2){
+            console.log('in,,,,', executedStyle);
             replaceWithGener8(request.data);
+            replaceGener8();
             executedStyle++;
+            console.log('out,,,,', executedStyle);
         }
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();

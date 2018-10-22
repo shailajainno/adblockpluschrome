@@ -50,24 +50,6 @@ function processRequest(request, sender) {
             sendToAllContentScripts('TokenFromBackGround');
             saveUserDetails(request.data);
             break;
-        case 'tokenExists':
-            cookieGet('jwtToken', function (token) {
-                if (token) {
-                    token = JSON.parse(token).body;
-                    token = atob(token);
-                    try {
-                        browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
-                            token,
-                            isBlocked: gener8TabData.whitelist[sender.tab.id],
-                            adTags,
-                            replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
-                        } });
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-            });
-            break;
         case 'deleteToken':
             browser.cookies.remove({
                 url: GENER8_FRONTEND_URL,
