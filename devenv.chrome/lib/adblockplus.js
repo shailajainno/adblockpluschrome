@@ -6997,7 +6997,9 @@ browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
               tabId: tab.id
             });
             console.log('--------------------------------');
-            console.log(minCount,defaultMinCount , minCount < defaultMinCount , hourCount, defaultHourCount, hourCount < defaultHourCount , dayCount,defaultDayCount, dayCount < defaultDayCount)
+            console.log('min', minCount, defaultMinCount , minCount < defaultMinCount );
+            console.log('hours',hourCount, defaultHourCount, hourCount < defaultHourCount);
+            console.log('day', dayCount,defaultDayCount, dayCount < defaultDayCount)
             gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
             
             if(!gener8TabData.whitelist[tabId]){

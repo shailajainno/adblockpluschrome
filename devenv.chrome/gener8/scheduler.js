@@ -208,6 +208,7 @@ function saveCookies(key, value){
         const newPreference = JSON.parse(changeInfo.cookie.value).body;
         adTagsUpdate(newPreference);
         tokenRate = JSON.parse(changeInfo.cookie.value).body.tokenRate;
+        console.log('newPerference===>>', newPreference, 'tokenRate', tokenRate);
       }
     }
   }
