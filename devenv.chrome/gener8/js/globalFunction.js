@@ -3,7 +3,6 @@
  * @returns {string} - token
  */
 function getUserAccessToken(callback) {
-    console.log('test....', 6);
     cookieGet('jwtToken', function (token) {
         if (token) {
             token = JSON.parse(token);
@@ -43,10 +42,8 @@ function cookieSet(key, value, callback) {
  */
 function cookieGet(key, callback) {
     function logCookie(cookie) {
-        console.log('test....', 8, cookie);
         callback(cookie ? cookie.value: null);
     }
-    console.log('test....', 7);
     chrome.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key

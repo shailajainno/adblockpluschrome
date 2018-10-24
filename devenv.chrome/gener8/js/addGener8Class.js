@@ -5,11 +5,10 @@ var adCounts = {};
 let replaceCount = 0;
 let executedStyle = 0;
 var replaceGener8 = () => {
+    $('ins[data-cp-preference]').removeClass('gener8');
     var ArrayNodes = Array.prototype.slice.call($('.gener8'));
-    console.log('------------------1')
     ArrayNodes.forEach(function (node) {
         try {
-            console.log('------------------2')
             if(adTagLoaded) createIFrame(node);
         } catch (error) {
             console.log('replace error',error);
@@ -20,13 +19,14 @@ var replaceGener8 = () => {
 };
 
 function createIFrame(node){
+   
     node = $(node);
     if(!replace){
         $(node).remove();
         return;
     }
-    console.log('------------------3')
-    if(node.hasClass('gener8-added'))
+
+    if(node.find('ins[data-cp-preference]').length > 0)
         return;
 
     const isIframe = node.prop('tagName') === 'IFRAME';
@@ -47,7 +47,6 @@ function createIFrame(node){
     }
     
     let currentTag = adTags[width+'x'+height];
-    console.log(width, height, currentTag);
     adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
     if(!currentTag){
         if(width && height && height > 1 && width > 1){
@@ -56,15 +55,10 @@ function createIFrame(node){
         }
         return;
     }
-    if(isIframe){
-        node = node.parent();
-        node = node.parent().addClass('gener8');
-    }
 
-    node.addClass('gener8-added');
     node.html(currentTag);
     node.css('visibility','visible');
-    node.find('iframe').addClass('gener8Ad');
+    node.find('ins');
 }
 
 // Add Gener8 class
@@ -75,7 +69,6 @@ var replaceWithGener8 = function (data) {
     }
     checkWebBased();
     if(executedStyle === 0){
-        console.log('in..... mutation object', executedStyle);
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
                 [].filter.call(mutation.addedNodes, function (node) {
@@ -96,8 +89,8 @@ var replaceWithGener8 = function (data) {
             if(i++ && i < 10){
                 checkWebBased();
             }
-            const newAdCount = $('.gener8-added').length - replaceCount;
-            replaceCount = $('.gener8-added').length;
+            const newAdCount = $('ins[data-cp-preference]').length - replaceCount;
+            replaceCount = $('ins[data-cp-preference]').length;
             if(newAdCount > 0){
                 browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
             }

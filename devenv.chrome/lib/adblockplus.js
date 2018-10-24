@@ -7003,16 +7003,7 @@ browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
             gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
             
             if(!gener8TabData.whitelist[tabId]){
-                  browser.tabs.sendMessage(tabId, { 
-                    action: 'catchToken',
-                    data: {
-                      isBlocked: gener8TabData.whitelist[tabId],
-                      adTags,
-                      tabId,
-                      replace: gener8TabData.replace[tabId]
-                    } 
-                  });
-                  setTimeout(() => {
+                  try {
                     browser.tabs.sendMessage(tabId, { 
                       action: 'catchToken',
                       data: {
@@ -7022,17 +7013,38 @@ browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
                         replace: gener8TabData.replace[tabId]
                       } 
                     });
+                  } catch (error) {
+                    
+                  }
+                  setTimeout(() => {
+                    try {
+                      browser.tabs.sendMessage(tabId, { 
+                        action: 'catchToken',
+                        data: {
+                          isBlocked: gener8TabData.whitelist[tabId],
+                          adTags,
+                          tabId,
+                          replace: gener8TabData.replace[tabId]
+                        } 
+                      });
+                    } catch (error) {
+                      
+                    }
                   }, 200);
                   setTimeout(() => {
-                    browser.tabs.sendMessage(tabId, { 
-                      action: 'catchToken',
-                      data: {
-                        isBlocked: gener8TabData.whitelist[tabId],
-                        adTags,
-                        tabId,
-                        replace: gener8TabData.replace[tabId]
-                      } 
-                    });
+                    try {
+                      browser.tabs.sendMessage(tabId, { 
+                        action: 'catchToken',
+                        data: {
+                          isBlocked: gener8TabData.whitelist[tabId],
+                          adTags,
+                          tabId,
+                          replace: gener8TabData.replace[tabId]
+                        } 
+                      });
+                    } catch (error) {
+                      
+                    }
                   }, 300);
 
             }
@@ -7045,8 +7057,7 @@ browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
 });
 
 browser.webRequest.onBeforeRequest.addListener(details => {
-
-    // Never block top-level documents.
+  // Never block top-level documents.
     if (details.type == "main_frame")
       return;
 
@@ -7068,6 +7079,7 @@ browser.webRequest.onBeforeRequest.addListener(details => {
     if (url.protocol != "http:" && url.protocol != "https:" &&
         url.protocol != "ws:" && url.protocol != "wss:")
       return;
+
 
     // Firefox provides us with the full origin URL, while Chromium (>=63)
     // provides only the protocol + host of the (top-level) document which
@@ -7105,7 +7117,6 @@ browser.webRequest.onBeforeRequest.addListener(details => {
 
     if (checkWhitelisted(page, frame, originUrl))
       return;
-
     let type = resourceTypes.get(details.type) || "OTHER";
     let [docDomain, sitekey, specificOnly] = getDocumentInfo(page, frame,
                                                               originUrl);
@@ -7118,7 +7129,6 @@ browser.webRequest.onBeforeRequest.addListener(details => {
                   thirdParty, sitekey, specificOnly, filter);
     });
     if (filter instanceof BlockingFilter){
-      console.log('replace ==== ', gener8TabData.replace[details.tabId])
       if(!gener8TabData.replace[details.tabId]){
         return {cancel: true}
       }

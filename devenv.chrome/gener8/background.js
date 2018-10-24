@@ -94,7 +94,6 @@ function processRequest(request, sender) {
 }
 
 function setFraudPrevention(data) {
-    console.log('====>>', data);
     if(data.globalAdsCounts){
         defaultMinCount = data.globalAdsCounts.minCount;
         defaultHourCount = data.globalAdsCounts.hourCount;
