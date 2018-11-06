@@ -5,12 +5,13 @@ var adCounts = {};
 let replaceCount = 0;
 let executedStyle = 0;
 var replaceGener8 = () => {
+    $('ins[data-cp-preference]').removeClass('gener8');
     var ArrayNodes = Array.prototype.slice.call($('.gener8'));
     ArrayNodes.forEach(function (node) {
         try {
-            if(adTagLoaded) createIFrame(node);
+          if(adTagLoaded) createIFrame(node);
         } catch (error) {
-            console.log('replace error',error);
+            console.error('replace error',error);
         }
         return;
     });
@@ -23,7 +24,12 @@ function createIFrame(node){
         $(node).remove();
         return;
     }
-    if(node.hasClass('gener8-added'))
+
+    if(node.find('.gener8').length > 0){
+        return;
+    }
+
+    if(node.find('ins[data-cp-preference]').length > 0)
         return;
 
     const isIframe = node.prop('tagName') === 'IFRAME';
@@ -46,8 +52,10 @@ function createIFrame(node){
     let currentTag = adTags[width+'x'+height];
     adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
     if(!currentTag){
-        if(width && height)
-             $(node).remove();
+        if(width && height && height > 5 && width > 5){
+            console.log('not supported ads....', width ,'x', height);
+            $(node).remove();
+        }
         return;
     }
     if(isIframe){
@@ -55,9 +63,8 @@ function createIFrame(node){
         node = node.parent().addClass('gener8');
     }
 
-    node.addClass('gener8-added');
     node.html(currentTag);
-    node.find('iframe').addClass('gener8Ad');
+    node.css('visibility','visible');
 }
 
 // Add Gener8 class
@@ -68,7 +75,6 @@ var replaceWithGener8 = function (data) {
     }
     checkWebBased();
     if(executedStyle === 0){
-        console.log('in..... mutation object', executedStyle);
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (mutation) {
                 [].filter.call(mutation.addedNodes, function (node) {
@@ -85,29 +91,32 @@ var replaceWithGener8 = function (data) {
             observer.observe(document.body, { childList: true, subtree: true });
         });
         var i = 0;
-        var addClassInterval = setInterval(function () {
+        setInterval(function () {
             if(i++ && i < 10){
                 checkWebBased();
-            }
-            const newAdCount = $('.gener8-added').length - replaceCount;
-            replaceCount = $('.gener8-added').length;
-            if(newAdCount > 0){
-                browser.runtime.sendMessage({ action: 'AD_IMPRESSION', data: replaceCount.toString(), newAdCount});
             }
             replaceGener8();
         } , 3000);
     }
 };
 
+function addAdCount() {
+    const newAdCount = $('ins[data-cp-preference]').length - replaceCount;
+    replaceCount = $('ins[data-cp-preference]').length;
+    if(newAdCount > 0){
+        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', total: replaceCount.toString(), newAdCount});
+    }
+}
+
 function checkWebBased() {
     try {
         $('div[id^=google_ads_iframe]').addClass('gener8');
         $('div[id^=my-ads]').addClass('gener8');
         $(newStylesheet).addClass('gener8');
+        $('div[id^=onetag-sync-skys]').addClass('gener8');
     switch (window.location.hostname) {
-        case 'www.engadget.com':
-            //$('iframe[id^=atwAdFrame]').addClass('gener8');
-            break;
+        case 'www.dailymail.co.uk':
+            $('#billBoard').remove();
         case 'www.mirror.co.uk':
             $('div.onscroll-injected-ad').addClass('gener8');
             break;
@@ -119,15 +128,21 @@ function checkWebBased() {
     }
 }
 
+let adCountInterval;
+
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
+        if(executedStyle === 0){
+            setInterval(() => {
+                addAdCount();
+            }, 1000);
+        }
         if(executedStyle < 2){
-            console.log('in,,,,', executedStyle);
             replaceWithGener8(request.data);
             replaceGener8();
+            addAdCount();
             executedStyle++;
-            console.log('out,,,,', executedStyle);
         }
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();
@@ -161,7 +176,7 @@ browser.runtime.onMessage.addListener(function (request) {
                 return;
             })
         }catch(e){
-            console.log(adURL, 'error',e)
+            console.error(adURL, 'error',e)
         }
     } else {
         throw 'Unexpected value for request action';

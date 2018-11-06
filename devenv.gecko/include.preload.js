@@ -1608,7 +1608,7 @@
       // browser.runtime.onMessage.addListener(
       //   function (request, sender) {
       //     if (request.data) {
-      //       console.log("LISTEN");
+
       //       var newStylesheet = request.data.replace("{display: none !important;}", "");
       //       var array = newStylesheet.split(',');
 
@@ -1624,13 +1624,11 @@
       //   });
 
       // function recursive(array) {
-      //   console.log("loopNumber", loopNumber);
-      //   console.log("message", messageReceived);
       //   if (array.length > chunkSize) {
       //     for (var start = 0; start <= array.length; start = start + 250) {
       //       if (messageReceived) {
       //         messageReceived = false;
-      //         console.log("+++++++break+++++++++");
+  
       //         break;
       //       }
       //       var chunkData = array.slice(start, start + chunkSize);

@@ -114,7 +114,7 @@
           browser.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
-          console.log("error in notification")
+          console.error("error in notification")
           return;
         }
       });
@@ -134,7 +134,7 @@
             saveCookies('installed', true);
         }
       }, (e)=>{
-        console.log('scheduler API error', e)
+        console.error('scheduler API error', e)
       });
    } 
    

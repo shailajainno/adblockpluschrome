@@ -6438,7 +6438,6 @@
                     });
 
                     gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
-                    
                     if(!gener8TabData.whitelist[tabId]){
                           browser.tabs.sendMessage(tabId, { 
                             action: 'catchToken',
@@ -6471,7 +6470,6 @@
                               } 
                             });
                           }, 300);
-
                     }
                 }, _error=>{
                   return;  
@@ -10115,8 +10113,8 @@
         let notification = {
           id: "antiadblock",
           type: "question",
-          title: browser.i18n.getMessage("notification_antiadblock_title"),
-          message: browser.i18n.getMessage("notification_antiadblock_message"),
+          title: '',
+          message: '',
           urlFilters: []
         };
 
@@ -10368,7 +10366,7 @@
       }
 
       let contextMenuItem = {
-        title: browser.i18n.getMessage("block_element"),
+        title: '',
         contexts: ["image", "video", "audio"],
         onclick(page) {
           page.sendMessage({ type: "composer.content.contextMenuClicked" });
@@ -10787,7 +10785,7 @@
         }
   
         function addStyleSheet(tabId, frameId, styleSheet) {
-          browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
+          
           return true;
         }
   
@@ -10808,7 +10806,7 @@
           if (selectors.length > 0) {
             styleSheet = createStyleSheet(selectors);
           }
-  
+          browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
           let frame = ext.getFrame(tabId, frameId);
           if (!frame)
             return false;
