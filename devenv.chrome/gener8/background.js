@@ -94,7 +94,6 @@ function processRequest(request, sender) {
 }
 
 function setFraudPrevention(data) {
-    console.log('====>>', data);
     if(data.globalAdsCounts){
         defaultMinCount = data.globalAdsCounts.minCount;
         defaultHourCount = data.globalAdsCounts.hourCount;
@@ -142,6 +141,7 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
+    console.log('===>>userWallet', userData.walletToken, 'new Ads got', newAdCount, ' tokenRate', tokenRate);
 }
 
 setInterval(() => {

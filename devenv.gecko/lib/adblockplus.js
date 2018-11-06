@@ -6552,12 +6552,11 @@
             if(!gener8TabData.replace[details.tabId]){
               return {cancel: true}
             }
-            if(details.type === 'image'){
-              return;
-            }
-            return browser.tabs.sendMessage(details.tabId, {
+            if(details.type !== 'image'){
+              return browser.tabs.sendMessage(details.tabId, {
                 action: "GetFrame", details
-            })
+              });
+            }
           }
       }, { 
         urls: ["<all_urls>"],
