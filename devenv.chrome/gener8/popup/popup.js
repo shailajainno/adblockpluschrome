@@ -208,8 +208,8 @@ $(function () {
                         </li>`
                         }
                         $('#notificationList').append(notificationHTML);
-                        chrome.runtime.sendMessage({action: "resetNotification"});
-                    })
+                    });
+                    chrome.runtime.sendMessage({action: "resetNotification"});
                 }
             },
             error: function (error) {

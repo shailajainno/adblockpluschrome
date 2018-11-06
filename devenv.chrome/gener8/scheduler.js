@@ -161,10 +161,12 @@ function saveCookies(key, value){
    scheduler();
    chrome.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
+      console.log('notification')
       setBadge('');
-      chrome.storage.local.set({
-        'notificationCount': undefined
-      });
+      console.log('clear')
+      chrome.storage.local.remove([
+        'notificationCount'
+      ]);
     }else if (request.action === 'LOGIN') {
       schedulerAPI(request.token, true, request.data);
     }

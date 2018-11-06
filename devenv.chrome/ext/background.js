@@ -515,6 +515,7 @@
   ext.getFrame = (tabId, frameId) =>
   {
     let frames = framesOfTabs.get(tabId);
+    
     return frames && frames.get(frameId);
   };
 

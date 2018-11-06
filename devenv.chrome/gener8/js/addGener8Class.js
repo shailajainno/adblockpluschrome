@@ -104,6 +104,7 @@ function checkWebBased() {
         $('div[id^=google_ads_iframe]').addClass('gener8');
         $('div[id^=my-ads]').addClass('gener8');
         $(newStylesheet).addClass('gener8');
+        $('div[id^=onetag-sync-skys]').addClass('gener8');
     switch (window.location.hostname) {
         case 'www.engadget.com':
             //$('iframe[id^=atwAdFrame]').addClass('gener8');
@@ -122,6 +123,7 @@ function checkWebBased() {
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
+        console.log(executedStyle, '=====>>>', request.data);
         if(executedStyle < 2){
             replaceWithGener8(request.data);
             replaceGener8();

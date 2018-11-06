@@ -33,7 +33,7 @@
   }, 
   "content_scripts": [
     {
-      "all_frames": true, 
+      "all_frames": false, 
       "js": [
         "polyfill.js", 
         "config.js",
@@ -53,7 +53,7 @@
       "run_at": "document_start"
     }, 
     {
-      "all_frames": true, 
+      "all_frames": false, 
       "js": [
         "gener8/lib/js/jquery.min.js",
         "include.postload.js",
