@@ -133,7 +133,7 @@ function saveCookies(key, value){
           chrome.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
-          console.log("error in notification")
+          console.error(jqXHR);
           return;
         }
       });
@@ -161,9 +161,7 @@ function saveCookies(key, value){
    scheduler();
    chrome.runtime.onMessage.addListener(function (request) {
     if (request.action === 'resetNotification') {
-      console.log('notification')
       setBadge('');
-      console.log('clear')
       chrome.storage.local.remove([
         'notificationCount'
       ]);

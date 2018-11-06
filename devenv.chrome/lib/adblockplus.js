@@ -11658,7 +11658,6 @@ types: ["sub_frame", "xmlhttprequest", "image"]
     let styleSheet = "";
     if (selectors.length > 0)
       styleSheet = createStyleSheet(selectors);
-      console.log('------', );
     browser.tabs.sendMessage(tabId, { action: 'selectors', data: styleSheet , no: tabId});
     let frame = ext.getFrame(tabId, frameId);
     if (!frame)

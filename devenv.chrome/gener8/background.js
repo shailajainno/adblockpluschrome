@@ -22,7 +22,6 @@ function cookieGet(key, callback) {
  */
 function sendToAllContentScripts(_action) {
     browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        console.log('tabs', tabs , _action);
         for (var i = 0; i < tabs.length; ++i) {
             browser.tabs.sendMessage(tabs[i].id, { action: _action });
         }
@@ -182,7 +181,6 @@ function saveCookies(key, value){
  * @param {Object} data User Object
  */
 function saveUserDetails(data){
-    console.log('saving cookies===>>');
     Promise.all([
         saveCookies('jwtToken',data.token),
         saveCookies('profileStrength',JSON.stringify(data.profileStatus)    ),
@@ -194,7 +192,6 @@ function saveUserDetails(data){
         saveCookies('NotificationType',''),
         saveCookies('verifymailmessage',''),
     ]).then(t=>{
-        console.log('done...');
         if(data.tncAccepted){
             browser.tabs.create({
                 url: GENER8_FRONTEND_URL

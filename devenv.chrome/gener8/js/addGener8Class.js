@@ -11,7 +11,7 @@ var replaceGener8 = () => {
         try {
             if(adTagLoaded) createIFrame(node);
         } catch (error) {
-            console.log('replace error',error);
+            console.error('replace error',error);
         }
         return;
     });
@@ -50,7 +50,7 @@ function createIFrame(node){
     adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
     if(!currentTag){
         if(width && height && height > 1 && width > 1){
-            console.log('not supported ads....', width ,'x', height);
+            console.error('not supported ads....', width ,'x', height);
             $(node).remove();
         }
         return;
@@ -123,7 +123,6 @@ function checkWebBased() {
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
-        console.log(executedStyle, '=====>>>', request.data);
         if(executedStyle < 2){
             replaceWithGener8(request.data);
             replaceGener8();
@@ -161,7 +160,7 @@ browser.runtime.onMessage.addListener(function (request) {
                 return;
             })
         }catch(e){
-            console.log(adURL, 'error',e)
+            console.log(adURL, e);
         }
     } else {
         throw 'Unexpected value for request action';

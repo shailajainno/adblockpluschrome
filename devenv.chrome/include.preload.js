@@ -745,7 +745,6 @@ ElemHide.prototype = {
   {
     browser.runtime.onMessage.addListener(function (request, sender) {
       if (request.action === 'catchToken') {
-        console.log('catch token===>>',request.data)
         adTags = request.data.adTags;
         adTagLoaded = true;
         replace = request.data.replace;
