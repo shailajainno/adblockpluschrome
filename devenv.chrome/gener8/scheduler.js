@@ -133,7 +133,7 @@ function saveCookies(key, value){
           chrome.storage.local.set({notificationCount: count});
         },
         error: function (jqXHR) {
-          console.error(jqXHR);
+          console.error("error in notification", jqXHR)
           return;
         }
       });
@@ -208,7 +208,6 @@ function saveCookies(key, value){
         const newPreference = JSON.parse(changeInfo.cookie.value).body;
         adTagsUpdate(newPreference);
         tokenRate = JSON.parse(changeInfo.cookie.value).body.tokenRate;
-        console.log('newPerference===>>', newPreference, 'tokenRate', tokenRate);
       }
     }
   }
@@ -238,7 +237,6 @@ function saveCookies(key, value){
           setWalletToken(changeInfo);
           break;
         case 'tncAccepted':
-          scheduler();
           break;
         default:
           break;

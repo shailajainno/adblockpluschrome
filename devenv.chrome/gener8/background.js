@@ -28,6 +28,64 @@ function sendToAllContentScripts(_action) {
     });
 }
 
+function replaceAds(tabId, tabURL) {
+
+    browser.cookies.get({
+        url: GENER8_FRONTEND_URL,
+        name: 'jwtToken'
+      }, (t)=>{
+        if(t){
+          browser.storage.local.get([
+            'pageWhitelist',
+            'userWhitelist',
+            'userStatusCode',
+            'adminWhitelist',
+            'notificationCount',
+            'adTags',
+            'tokenRate',
+            'user'
+          ], (gener8Data)=>{
+              const currentDomain = tabURL.split("/")[2];
+              const gener8CurrentPage = tabURL.split('?')[0];
+              gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
+                gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
+                gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
+                gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
+                browser.browserAction.setBadgeBackgroundColor({
+                  color: "#d32d27",
+                  tabId: tabId
+                });
+                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
+                if(!gener8TabData.whitelist[tabId]){
+                    try {
+                      browser.tabs.sendMessage(tabId, { 
+                        action: 'catchToken',
+                        data: {
+                          isBlocked: gener8TabData.whitelist[tabId],
+                          adTags,
+                          tabId,
+                          replace: gener8TabData.replace[tabId]
+                        } 
+                      });
+                    } catch (error) {
+                    }
+                }
+
+                browser.browserAction.setBadgeText({
+                  text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+                  tabId: tabId
+                });
+                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
+            });
+        }else{
+          gener8TabData.whitelist[tabId] = true;
+          return;
+        }
+      });
+
+    
+}
+
 // Listen to the messages and call processRequest
 browser.runtime.onMessage.addListener(processRequest);
 
@@ -50,24 +108,6 @@ function processRequest(request, sender) {
             sendToAllContentScripts('TokenFromBackGround');
             saveUserDetails(request.data);
             break;
-        case 'tokenExists':
-            cookieGet('jwtToken', function (token) {
-                if (token) {
-                    token = JSON.parse(token).body;
-                    token = atob(token);
-                    try {
-                        browser.tabs.sendMessage(sender.tab.id, { action: 'catchToken', data: {
-                            token,
-                            isBlocked: gener8TabData.whitelist[sender.tab.id],
-                            adTags,
-                            replace: (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
-                        } });
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-            });
-            break;
         case 'deleteToken':
             browser.cookies.remove({
                 url: GENER8_FRONTEND_URL,
@@ -86,6 +126,9 @@ function processRequest(request, sender) {
             break;
         case 'SET_TNC':
             setTNCData(request, false);
+            break;
+        case 'PAGE_LOADED':
+            replaceAds(sender.tab.id, sender.tab.url);
             break;
         default:
             break;
@@ -140,7 +183,7 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
-    console.log('===>>userWallet', userData.walletToken, 'new Ads got', newAdCount, ' tokenRate', tokenRate);
+    
 }
 
 setInterval(() => {

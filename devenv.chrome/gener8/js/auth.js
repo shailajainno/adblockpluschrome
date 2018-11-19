@@ -45,7 +45,6 @@ function checkAuth(){
             window.close();
         }
     } catch (error) {
-        console.error('checkAuth', error);
     }
 }
 

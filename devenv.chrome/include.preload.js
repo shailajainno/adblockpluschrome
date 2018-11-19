@@ -748,30 +748,7 @@ ElemHide.prototype = {
         adTags = request.data.adTags;
         adTagLoaded = true;
         replace = request.data.replace;
-        browser.runtime.sendMessage({ type: "elemhide.getSelectors" }, response => {
-          if (this.tracer)
-            this.tracer.disconnect();
-          this.tracer = null;
-
-          if (response.trace)
-            this.tracer = new ElementHidingTracer();
-
-          this.inline = response.inline;
-          this.inlineEmulated = !!response.inlineEmulated;
-
-          if (this.inline)
-            this.addSelectorsInline(response.selectors, "standard");
-
-          if (this.tracer)
-            this.tracer.addSelectors(response.selectors);
-
-          // Prefer CSS selectors for -abp-has and -abp-contains unless the
-          // background page has asked us to use inline styles.
-          this.elemHideEmulation.useInlineStyles = this.inline ||
-            this.inlineEmulated;
-
-          this.elemHideEmulation.apply(response.emulatedPatterns);
-        });
+        browser.runtime.sendMessage({ type: "elemhide.getSelectors" });
       }
     });
   }

@@ -652,7 +652,7 @@ $(function () {
     * @param {string} url - full url link
     */
     function extractHostname(url) {
-
+        if(!url) return '';
         //find & remove protocol (http, ftp, etc.) and get hostname
         var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
 
@@ -670,6 +670,8 @@ $(function () {
     * @param {string} url - full url link
     */
     function extractLink(url) {
-        return url.split('?')[0];
+        if(!url){
+            return ''
+        }else return url.split('?')[0];
     }
 });

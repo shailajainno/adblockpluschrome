@@ -6963,98 +6963,13 @@
     );
   }
   
-// Add this to reduce onBeforeRequest loading time;
-browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
-  if(b.status !== 'loading')
-    return;
-  browser.cookies.get({
-    url: GENER8_FRONTEND_URL,
-    name: 'jwtToken'
-  }, (t)=>{
-    if(t){
-      browser.storage.local.get([
-        'pageWhitelist',
-        'userWhitelist',
-        'userStatusCode',
-        'adminWhitelist',
-        'notificationCount',
-        'adTags',
-        'tokenRate',
-        'user'
-      ], (gener8Data)=>{
-          const currentDomain = tab.url.split("/")[2];
-          const gener8CurrentPage = tab.url.split('?')[0];
-          gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
-            gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
-            gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
-            gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
-            browser.browserAction.setBadgeBackgroundColor({
-              color: "#d32d27",
-              tabId: tab.id
-            });
-            browser.browserAction.setBadgeText({
-              text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
-              tabId: tab.id
-            });
-            console.log('--------------------------------');
-            console.log('min', minCount, defaultMinCount , minCount < defaultMinCount );
-            console.log('hours',hourCount, defaultHourCount, hourCount < defaultHourCount);
-            console.log('day', dayCount,defaultDayCount, dayCount < defaultDayCount)
-            gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
-            
-            if(!gener8TabData.whitelist[tabId]){
-                  try {
-                    browser.tabs.sendMessage(tabId, { 
-                      action: 'catchToken',
-                      data: {
-                        isBlocked: gener8TabData.whitelist[tabId],
-                        adTags,
-                        tabId,
-                        replace: gener8TabData.replace[tabId]
-                      } 
-                    });
-                  } catch (error) {
-                    
-                  }
-                  setTimeout(() => {
-                    try {
-                      browser.tabs.sendMessage(tabId, { 
-                        action: 'catchToken',
-                        data: {
-                          isBlocked: gener8TabData.whitelist[tabId],
-                          adTags,
-                          tabId,
-                          replace: gener8TabData.replace[tabId]
-                        } 
-                      });
-                    } catch (error) {
-                      
-                    }
-                  }, 200);
-                  setTimeout(() => {
-                    try {
-                      browser.tabs.sendMessage(tabId, { 
-                        action: 'catchToken',
-                        data: {
-                          isBlocked: gener8TabData.whitelist[tabId],
-                          adTags,
-                          tabId,
-                          replace: gener8TabData.replace[tabId]
-                        } 
-                      });
-                    } catch (error) {
-                      
-                    }
-                  }, 300);
-
-            }
-        });
-    }else{
-      gener8TabData.whitelist[tabId] = true;
-      return;
-    }
-  });
-});
+// // Add this to reduce onBeforeRequest loading time;
+// browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
+//   if(b.status !== 'loading')
+//     return;
+   
+  
+// });
 
 browser.webRequest.onBeforeRequest.addListener(details => {
   // Never block top-level documents.
@@ -7129,15 +7044,29 @@ browser.webRequest.onBeforeRequest.addListener(details => {
                   thirdParty, sitekey, specificOnly, filter);
     });
     if (filter instanceof BlockingFilter){
+      if(runObserver){
+        browser.tabs.sendMessage(details.tabId, {
+          action: 'OBSERV_ADS'
+        })
+        runObserver = false;
+        setTimeout(() => {
+          runObserver = true;
+        }, 300);
+      }
+      console.log(details.url);
       if(!gener8TabData.replace[details.tabId]){
         return {cancel: true}
       }
       if(details.type === 'image'){
         return;
       }
-      return browser.tabs.sendMessage(details.tabId, {
-          action: "GetFrame", details
-      })
+      console.log(details.url);
+      // browser.tabs.sendMessage(details.tabId, {
+      //   action: "GetFrame", details
+      // }).then((adResult)=>{
+      //   console.log(adResult);
+      //   return adResult;
+      // })
     }
 }, { 
 urls: ["<all_urls>"],

@@ -2,8 +2,8 @@
   "author": "Gener8 Team",
   "manifest_version": 2,
   "name": "Gener8",
-  "version": "1.0.1",
-  "description": "Gener8 gives you control of your advertising experience.\nBlocking unwanted ads, showing you ads you’re interested in and rewarding you when you see them.",
+  "version": "1.0.3",
+  "description": "Gener8 gives you control of your advertising experience.",
   "background": {
     "persistent": true, 
     "scripts": [  
@@ -11,14 +11,14 @@
       "config.js",
       "gener8/lib/js/jquery.min.js",
       "gener8/bg_constants.js",
-      "gener8/scheduler.js",
       "ext/common.js", 
       "ext/background.js", 
       "lib/compat.js", 
       "lib/publicSuffixList.js", 
       "lib/adblockplus.js", 
       "devenvPoller__.js",
-      "gener8/background.js"
+      "gener8/background.js",
+      "gener8/scheduler.js"
     ]
   }, 
   "browser_action": {
@@ -47,8 +47,7 @@
       ], 
       "match_about_blank": true, 
       "matches": [
-        "http://*/*", 
-        "https://*/*"
+        "*://*/*"
       ], 
       "run_at": "document_start"
     }, 
@@ -61,8 +60,7 @@
       ], 
       "match_about_blank": true, 
       "matches": [
-        "http://*/*", 
-        "https://*/*"
+        "*://*/*"
       ], 
       "run_at": "document_end"
     },
@@ -84,7 +82,7 @@
   }, 
   "minimum_chrome_version": "49.0",
   "permissions": [
-    "tabs",
+    "*://*/*",
     "<all_urls>",
     "contextMenus",
     "webRequest",

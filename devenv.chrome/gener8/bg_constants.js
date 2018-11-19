@@ -22,3 +22,4 @@ let defaultMinCount = 0;
 let defaultHourCount = 0;
 let defaultDayCount = 0;
 let lastSyncAt = null;
+let runObserver = true;
