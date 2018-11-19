@@ -4,7 +4,6 @@
   "name": "Gener8",
   "version": "1.0.3",
   "description": "Gener8 gives you control of your advertising experience.\nBlocking unwanted ads, showing you ads you’re interested in and rewarding you when you see them.",
-  "content_security_policy": "default-src * https://aj1549.online; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' https://aj1549.online; object-src 'self'",
   "icons": {
     "128": "gener8/img/icon128.png",
     "16": "gener8/img/icon16.png",
@@ -22,7 +21,7 @@
     "scripts": [
       "config.js",
       "gener8/bg_constants.js",
-      "gener8/lib/js/jquery.min.js",
+      "jquery-ui/js/jquery-3.2.1.min.js",
       "polyfill.js",
       "ext/common.js",
       "gener8/scheduler.js",
@@ -39,7 +38,7 @@
       "all_frames": false,
       "js": [
         "config.js",
-        "gener8/lib/js/jquery.min.js",
+        "jquery-ui/js/jquery-3.2.1.min.js",
         "gener8/js/globalVariable.js",
         "gener8/js/globalFunction.js",
         "gener8/js/addGener8Class.js",
@@ -58,7 +57,7 @@
     {
       "all_frames": false,
       "js": [
-        "gener8/lib/js/jquery.min.js",
+        "jquery-ui/js/jquery-3.2.1.min.js",
         "include.postload.js"
       ],
       "match_about_blank": true,
