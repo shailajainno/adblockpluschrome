@@ -1,12 +1,8 @@
-var currentTimeout;
-var callTimeout = 0;
+
 var newStylesheet;
-let replaceCount = 0;
 let executedStyle = 0;
 var replaceGener8 = () => {
-    $('ins[data-cp-preference]').removeClass('gener8');
-    var ArrayNodes = Array.prototype.slice.call($('.gener8'));
-    ArrayNodes.forEach(function (node) {
+    Array.prototype.slice.call($('.gener8')).forEach(function (node) {
         try {
             if(adTagLoaded) createIFrame(node);
         } catch (error) {
@@ -14,7 +10,6 @@ var replaceGener8 = () => {
         }
         return;
     });
-    $('img[alt=AdChoices]').remove();
 };
 
 function createIFrame(node){
@@ -25,21 +20,14 @@ function createIFrame(node){
         return;
     }
 
-    if(node.find('.gener8').length > 0){
+    if(node.find('.gener8,ins[data-cp-preference]').length > 0){
         return;
     }
-
-    if(node.find('ins[data-cp-preference]').length > 0)
-        return;
 
     const isIframe = node.prop('tagName') === 'IFRAME';
-    if(isIframe){
-        iframe = node;
-    }else{
-        iframe = node.find('iframe');
-    }
-    var height = iframe.height();
-    var width = iframe.width();
+    iframe = isIframe ? node : node.find('iframe');
+    let height = iframe.height();
+    let width = iframe.width();
     if(!height){
         height = iframe.style ? iframe.style.height: '';
         height = height ? height.replace('px', ''): '';
@@ -62,6 +50,7 @@ function createIFrame(node){
     }
 
     node.html(currentTag);
+    browser.runtime.sendMessage({ action: 'AD_IMPRESSION', newAdCount: 1});
     node.css('visibility','visible');
 }
 
@@ -69,34 +58,16 @@ function createIFrame(node){
 var replaceWithGener8 = function (data) {
     if (data) {
         newStylesheet = data.replace(/{([^}]*)}/g, '');
-        $(newStylesheet).addClass('gener8');
     }
     checkWebBased();
-    if(executedStyle === 0){
-        var i = 0;
-        setInterval(function () {
-            if(i++ && i < 10){
-                checkWebBased();
-            }
-            replaceGener8();
-        } , 3000);
-    }
 };
-
-function addAdCount() {
-    const newAdCount = $('ins[data-cp-preference]').length - replaceCount;
-    replaceCount = $('ins[data-cp-preference]').length;
-    if(newAdCount > 0){
-        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', total: replaceCount.toString(), newAdCount});
-    }
-}
 
 function checkWebBased() {
     try {
-        $('div[id^=google_ads_iframe]').addClass('gener8');
-        $('div[id^=my-ads]').addClass('gener8');
-        $(newStylesheet).addClass('gener8');
-        $('div[id^=onetag-sync-skys]').addClass('gener8');
+        
+        $(newStylesheet+',div[id^=google_ads_iframe],div[id^=my-ads],div[id^=onetag-sync-skys]').addClass('gener8');
+        $('img[alt=AdChoices]').remove();
+        $('ins[data-cp-preference]').removeClass('gener8');
         switch (window.location.hostname) {
             case 'www.dailymail.co.uk':
                 $('#billBoard').remove();
@@ -108,22 +79,16 @@ function checkWebBased() {
                 break;
         }
     } catch (error) {
-     console.error( error);   
+        console.error( error);   
     }
 }
 
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
-        if(executedStyle === 0){
-            setInterval(() => {
-                addAdCount();
-            }, 1000);
-        }
         if(executedStyle < 2){
             replaceWithGener8(request.data);
             replaceGener8();
-            addAdCount();
         }
         executedStyle++;
     } else if (request.action === 'TokenFromBackGround') {
@@ -133,7 +98,6 @@ browser.runtime.onMessage.addListener(function (request) {
             return new Promise((resolve)=>{
                 let blockRequest = false;
                 const adURL = request.details.url;
-                console.log('---->>',adURL)
                 let adIframe = $('ins[data-cp-preference]');
                 if(adIframe && adIframe.length){
                     if(adIframe.find('iframe').length){
@@ -173,4 +137,4 @@ browser.runtime.onMessage.addListener(function (request) {
 
 setTimeout(()=>{
     browser.runtime.sendMessage({ action: 'PAGE_LOADED'});
-}, 100)
+}, 100);

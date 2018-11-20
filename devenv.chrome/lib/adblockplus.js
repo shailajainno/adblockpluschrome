@@ -1939,6 +1939,7 @@
      */
     matchesAny(location, typeMask, docDomain, thirdParty, sitekey, specificOnly)
     {
+      if(!location) return;
       let candidates = location.toLowerCase().match(/[a-z0-9%]{3,}/g);
       if (candidates === null)
         candidates = [];
@@ -2190,6 +2191,7 @@
    */
   exports.getDecodedHostname = url =>
   {
+    if (!url) return;
     let {hostname} = url;
   
     if (hostname.indexOf("xn--") == -1)
@@ -2228,6 +2230,7 @@
    */
   exports.stringifyURL = url =>
   {
+    if(!url) return;
     let {protocol, href} = url;
   
     if (protocol == "http:" || protocol == "https:")
@@ -7053,14 +7056,12 @@ browser.webRequest.onBeforeRequest.addListener(details => {
           runObserver = true;
         }, 300);
       }
-      console.log(details.url);
       if(!gener8TabData.replace[details.tabId]){
         return {cancel: true}
       }
       if(details.type === 'image'){
         return;
       }
-      console.log(details.url);
       // browser.tabs.sendMessage(details.tabId, {
       //   action: "GetFrame", details
       // }).then((adResult)=>{

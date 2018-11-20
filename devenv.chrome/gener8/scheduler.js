@@ -94,7 +94,7 @@ function saveCookies(key, value){
       error: function (error) {
         chrome.storage.local.set({
           userStatusCode: error.status,
-          errorMessage: error.responseJSON.message
+          errorMessage: error.responseJSON ? error.responseJSON.message : ''
         });
         
         if(error.status === 401){
@@ -106,7 +106,7 @@ function saveCookies(key, value){
           if(isLogin){
             chrome.storage.local.set({
               userStatusCode: error.status,
-              errorMessage: error.responseJSON.message,
+              errorMessage: error.responseJSON ? error.responseJSON.message : '',
               token
             });
           }
