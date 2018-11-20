@@ -183,8 +183,6 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
-    console.log('new Add', newAdCount, 'walletToken', userData.walletToken);
-    
 }
 
 setInterval(() => {

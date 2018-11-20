@@ -2,7 +2,7 @@
   "author": "Gener8 Team",
   "manifest_version": 2,
   "name": "Gener8",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Gener8 gives you control of your advertising experience.",
   "background": {
     "persistent": true, 
