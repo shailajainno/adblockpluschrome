@@ -48,8 +48,11 @@ function createIFrame(node){
         node = node.parent();
         node = node.parent().addClass('gener8');
     }
-
-    node.html(currentTag);
+    let parentDiv = iframe.parent();
+    if(width > height){
+        parentDiv.css('display', 'block').css('margin', '0 auto');
+    }
+    parentDiv.html(currentTag);
     browser.runtime.sendMessage({ action: 'AD_IMPRESSION', newAdCount: 1});
     node.css('visibility','visible');
 }
@@ -64,7 +67,6 @@ var replaceWithGener8 = function (data) {
 
 function checkWebBased() {
     try {
-        
         $(newStylesheet+',div[id^=google_ads_iframe],div[id^=my-ads],div[id^=onetag-sync-skys]').addClass('gener8');
         $('img[alt=AdChoices]').remove();
         $('ins[data-cp-preference]').removeClass('gener8');

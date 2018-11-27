@@ -29,7 +29,6 @@ function sendToAllContentScripts(_action) {
 }
 
 function replaceAds(tabId, tabURL) {
-
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: 'jwtToken'
@@ -82,8 +81,6 @@ function replaceAds(tabId, tabURL) {
           return;
         }
       });
-
-    
 }
 
 // Listen to the messages and call processRequest
