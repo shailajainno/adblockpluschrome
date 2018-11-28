@@ -58,12 +58,11 @@ function createIFrame(node){
         }
         return;
     }
-    if(isIframe){
-        node = node.parent();
-        node = node.parent().addClass('gener8');
+    let parentDiv = iframe.parent();
+    if(width > height){
+        parentDiv.css('display', 'block').css('margin', '0 auto');
     }
-
-    node.html(currentTag);
+    parentDiv.html(currentTag);
     node.css('visibility','visible');
 }
 
