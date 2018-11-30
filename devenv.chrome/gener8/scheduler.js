@@ -175,6 +175,20 @@ function saveCookies(key, value){
 
   function removeBadge(changeInfo) {
     if(changeInfo.removed){
+      chrome.storage.local.get(['token']).then((a)=>{
+        $.ajax({
+          type: 'PUT',
+          url: EXT_UPDATE_INFO,
+          dataType: 'json',
+          headers: {
+            'Authorization': a.token
+          },
+          data: JSON.stringify({
+            'browser': BROWSER_NAME,
+            'action': 'uninstall'
+          })
+        });
+      });
       setBadge('');
     }else{
       scheduler();

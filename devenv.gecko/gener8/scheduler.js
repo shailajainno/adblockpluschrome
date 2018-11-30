@@ -158,6 +158,22 @@
 
   function removeBadge(changeInfo) {
     if(changeInfo.removed){
+      console.log('----------------------------');
+      browser.storage.local.get(['token']).then((data)=>{
+        console.log('----------------------------', data);
+        $.ajax({
+          type: 'PUT',
+          url: EXT_UPDATE_INFO,
+          dataType: 'json',
+          headers: {
+            'Authorization': data.token
+          },
+          data: JSON.stringify({
+            'browser': BROWSER_NAME,
+            'action': 'uninstall'
+          })
+        });
+      });
       setBadge('');
     }else{
       scheduler();
@@ -196,14 +212,12 @@
   }
 
   function setWalletToken(changeInfo) {
-    if(!changeInfo.removed){
-      if(changeInfo.cookie.value){
+    if(!changeInfo.removed && changeInfo.cookie.value && userData){
         const walletAmt = parseFloat(JSON.parse(changeInfo.cookie.value).body);
         userData.walletToken = walletAmt > userData.walletToken ? walletAmt : userData.walletToken;
         browser.storage.local.set({
           user: userData
         });
-      }
     }
   }
 

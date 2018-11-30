@@ -15,8 +15,7 @@
       "ext/background.js", 
       "lib/compat.js", 
       "lib/publicSuffixList.js", 
-      "lib/adblockplus.js", 
-      "devenvPoller__.js",
+      "lib/adblockplus.js",
       "gener8/background.js",
       "gener8/scheduler.js"
     ]

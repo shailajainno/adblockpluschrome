@@ -29,7 +29,6 @@
       "lib/compat.js",
       "lib/publicSuffixList.js",
       "lib/adblockplus.js",
-      "devenvPoller__.js",
       "gener8/background.js"
     ]
   },

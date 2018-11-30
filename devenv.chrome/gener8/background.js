@@ -95,7 +95,7 @@ browser.runtime.onMessage.addListener(processRequest);
  * @param {Object} request
  * @param {string} sender
  */
-function processRequest(request, sender) {
+function processRequest(request, sender, callback) {
     switch (request.action) {
         case 'openPopUpAndLogin':
             browser.windows.create({ url: GENER8_BACKEND_URL + request.data, type: 'popup', height: 900, width: 900 });
@@ -126,6 +126,12 @@ function processRequest(request, sender) {
             break;
         case 'PAGE_LOADED':
             replaceAds(sender.tab.id, sender.tab.url);
+            break;
+        case 'DISABLE_POPUP':
+            disablePopUp();
+            break;
+        case 'GET_COOKIE':
+            cookieGet(request.key, callback);
             break;
         default:
             break;
@@ -240,7 +246,18 @@ function saveUserDetails(data){
                 url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
             });
         }
+        
     }, e=>{
         console.error('Storing cookies failed', e)
     })
+}
+
+function disablePopUp(){
+    let cookieExpDate = new Date().getTime()/1000 +  60 * 1000 * GENER8_POPUP_DISABLE_HOURS;
+    chrome.cookies.set({
+        url: GENER8_FRONTEND_URL,
+        name: 'disable_popup',
+        value: 'true',
+        expirationDate: Math.trunc(cookieExpDate)
+    });
 }

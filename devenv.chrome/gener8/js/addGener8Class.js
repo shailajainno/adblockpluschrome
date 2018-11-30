@@ -140,3 +140,45 @@ browser.runtime.onMessage.addListener(function (request) {
 setTimeout(()=>{
     browser.runtime.sendMessage({ action: 'PAGE_LOADED'});
 }, 100);
+
+setTimeout(()=>{
+    browser.runtime.sendMessage({ action: 'GET_COOKIE', key : 'disable_popup'}, (cookie)=>{
+        console.log(cookie);
+    } );
+    $('body').prepend(`
+    <div style="display: block; 
+                text-align: center;
+                display: flex;
+                z-index:999999999;
+                color: white;
+                padding: 15px;
+                justify-content: center;
+                position: relative;
+                font-size: 18px;
+                background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);">
+            Please <a style=" cursor: pointer;display: block; text-align: center;
+                            cursor: pointer;
+                            display: block;
+                            -webkit-text-align: center;
+                            text-align: center;
+                            color: blue;
+                            margin-left: 3px;">Login </a> &nbsp;to earn tokens. 
+            <div style="background: none;
+                    border: 0;
+                    position: absolute;
+                    right: 0;
+                    top: 50%;
+                    right: 15px;
+                    transform: translateY(-50%);
+                    color: white;" id='closeGener8'>X</div>
+    `);
+
+    $('#closeGener8').on('click',()=>{
+        browser.runtime.sendMessage({ action: 'DISABLE_POPUP'});
+    });
+},2000);
+
+
+
+console.log('ttt')
+
