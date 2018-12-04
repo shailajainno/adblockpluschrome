@@ -137,7 +137,7 @@ function processRequest(request, sender, callback) {
                 cookieGet(request.key, (isDisabled)=>{
                     const showPopUp  = !isLoggedIn && !isDisabled;
                     if(showPopUp){
-                        if(request.key === 'disable_popup'){
+                        if(request.key === 'popupDisabled'){
                             insertCSSPopUp(sender.tab.id)
                         }
                     }
@@ -275,7 +275,7 @@ function disablePopUp(){
     let cookieExpDate = new Date().getTime()/1000 +  60 * 60 * GENER8_POPUP_DISABLE_HOURS;
     chrome.cookies.set({
         url: GENER8_FRONTEND_URL,
-        name: 'disable_popup',
+        name: 'popupDisabled',
         value: 'true',
         expirationDate: Math.trunc(cookieExpDate)
     });

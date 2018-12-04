@@ -1,0 +1,15 @@
+@font-face {
+	font-family: 'Metropolis-Regular';
+	src: url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-Regular.eot');
+	src: local('☺'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-Regular.woff') format('woff'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-Regular.ttf') format('truetype'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-Regular.svg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Metropolis-SemiBold';
+	src: url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-SemiBold.eot');
+	src: local('☺'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-SemiBold.woff') format('woff'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-SemiBold.ttf') format('truetype'), url('chrome-extension://__MSG_@@extension_id__/gener8/fonts/Metropolis-SemiBold.svg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}

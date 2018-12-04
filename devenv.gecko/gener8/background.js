@@ -69,9 +69,34 @@ function processRequest(request, sender) {
         case 'SET_TNC':
             setTNCData(request, false);
             break;
+        case 'DISABLE_POPUP':
+            disablePopUp();
+            break;
+        case 'CHECK_LOG_IN':
+            return new Promise((resolve)=>{
+                cookieGet('jwtToken', function (isLoggedIn) {
+                    cookieGet(request.key, (isDisabled)=>{
+                        const showPopUp  = !isLoggedIn && !isDisabled;
+                        if(showPopUp){
+                            if(request.key === 'popupDisabled'){
+                                insertCSSPopUp(sender.tab.id)
+                            }
+                        }
+                        resolve(showPopUp);
+                    });
+                })
+            })
+            
+        case 'OPEN_POPUP':
+            browser.browserAction.openPopup();
+            break;
         default:
             break;
     }
+}
+
+function insertCSSPopUp(tabId){
+    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'});
 }
 
 function setFraudPrevention(data) {
@@ -185,4 +210,14 @@ function saveUserDetails(data){
     }, e=>{
         console.error('Storing cookies failed', e)
     })
+}
+
+function disablePopUp(){
+    let cookieExpDate = new Date().getTime()/1000 +  60 * 60 * GENER8_POPUP_DISABLE_HOURS;
+    browser.cookies.set({
+        url: GENER8_FRONTEND_URL,
+        name: 'popupDisabled',
+        value: 'true',
+        expirationDate: Math.trunc(cookieExpDate)
+    });
 }
