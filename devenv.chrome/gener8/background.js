@@ -10,10 +10,12 @@ function cookieGet(key, callback) {
     function onError() {
         callback(null);
     }
-    browser.cookies.get({
+    chrome.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key
-    }).then(logCookie, onError);
+    },function (cookie) {
+        callback(cookie ? cookie.value: null);
+    })
 }
 
 /**
@@ -130,12 +132,29 @@ function processRequest(request, sender, callback) {
         case 'DISABLE_POPUP':
             disablePopUp();
             break;
-        case 'GET_COOKIE':
-            cookieGet(request.key, callback);
+        case 'CHECK_LOG_IN':
+            cookieGet('jwtToken', function (isLoggedIn) {
+                cookieGet(request.key, (isDisabled)=>{
+                    const showPopUp  = !isLoggedIn && !isDisabled;
+                    if(showPopUp){
+                        if(request.key === 'disable_popup'){
+                            insertCSSPopUp(sender.tab.id)
+                        }
+                    }
+                    callback(showPopUp);
+                });
+            })
+            return true;
+        case 'OPEN_POPUP':
+            browser.browserAction.openPopup();
             break;
         default:
             break;
     }
+}
+
+function insertCSSPopUp(tabId){
+    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'});
 }
 
 function setFraudPrevention(data) {
@@ -253,7 +272,7 @@ function saveUserDetails(data){
 }
 
 function disablePopUp(){
-    let cookieExpDate = new Date().getTime()/1000 +  60 * 1000 * GENER8_POPUP_DISABLE_HOURS;
+    let cookieExpDate = new Date().getTime()/1000 +  60 * 60 * GENER8_POPUP_DISABLE_HOURS;
     chrome.cookies.set({
         url: GENER8_FRONTEND_URL,
         name: 'disable_popup',

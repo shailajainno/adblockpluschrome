@@ -158,9 +158,7 @@
 
   function removeBadge(changeInfo) {
     if(changeInfo.removed){
-      console.log('----------------------------');
       browser.storage.local.get(['token']).then((data)=>{
-        console.log('----------------------------', data);
         $.ajax({
           type: 'PUT',
           url: EXT_UPDATE_INFO,

@@ -95,5 +95,10 @@
   "short_name": "Gener8",
   "storage": {
     "managed_schema": "managed-storage-schema.json"
-  }
+  },
+  "web_accessible_resources": [
+    "gener8/img/*",
+    "gener8/fonts/*",
+    "gener8/style.css"
+  ]
 }
