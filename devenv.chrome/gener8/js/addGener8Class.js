@@ -142,6 +142,8 @@ setTimeout(()=>{
 }, 100);
 
 setTimeout(()=>{
+    if(window.location.href.indexOf(GENER8_FRONTEND_URL) !== -1)
+        return;
     browser.runtime.sendMessage({ action: 'CHECK_LOG_IN', key : 'disable_popup'}, (showPopUp)=>{
         if(showPopUp){
             openPopUp();
