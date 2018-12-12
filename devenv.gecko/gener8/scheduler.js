@@ -166,10 +166,10 @@
           headers: {
             'Authorization': data.token
           },
-          data: JSON.stringify({
+          data: {
             'browser': BROWSER_NAME,
             'action': 'uninstall'
-          })
+          }
         });
       });
       setBadge('');
