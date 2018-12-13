@@ -1,14 +1,32 @@
 //Login HTML for popup.html
 var loginPage = `
 <div class="gnr-ext-log">
-   <a id="gnr-website"><img src="../img/logo.svg"></a>
+    <a id="gnr-website"><img src="../img/logo.svg"></a>
 </div>
 <div class="gnr-flex">
-<div class="col-6 login-tab-btn"><span >LOGIN</span></div>
-<div class="col-6 signup-tab-btn"><span class="active">SIGN UP</span></div>
+    <div class="col-6 login-tab-btn"><span>LOGIN</span></div>
+    <div class="col-6 signup-tab-btn"><span class="active">SIGN UP</span></div>
 </div>
-<div class="gnr-login-tab" style='display:none;'>
-    <div class="gnr-ext-login">
+<div class="gnr-login-tab" >
+<div class="gnr-ext-login-fb-twt">
+<ul>
+    <li>
+        <button id="gnr-fbLoginBtn" class="fb-button">
+            <img src="../img/fb.svg" height="30px;">
+            <span> Facebook </span>
+        </button>
+    </li>
+    <li>
+        <button id="gnr-twLoginBtn" class="twt-button">
+            <img src="../img/twt.svg" height="30px;"><span>  Twitter</span>
+        </button>
+    </li>
+</ul>
+</div>
+
+ <div class="gnr-ext-login-wth">
+        <span id="separatorText">Or signup with email</span>
+        <div class="gnr-ext-login" style='display:none;'>
         <div class="gnr-error-server-msg">
         </div>
         <div class="gnr-ext-log-ep">
@@ -22,37 +40,22 @@ var loginPage = `
             <div class="gnr-password">
                 <div class="gnr-error-msg">
                 </div>
-            <input id="password" type="password" alt="Password" placeholder="Password *">
+                <input id="password" type="password" alt="Password" placeholder="Password *">
+            </div>
         </div>
-   </div>
         <div class="gnr-ext-frgt-ps">
             <a id="gnr-forgot-password">Forgotten Password?</a>
         </div>
-        <div class="gnr-ext-login-btn" >
+        <div class="gnr-ext-login-btn">
             <input type="submit" value="Login with email" style=" cursor:pointer;">
         </div>
     </div>
-    <div class="gnr-ext-login-wth">
-    <span>Or Login with</span>
-    <div class="gnr-ext-login-fb-twt">
-        <ul>
-            <li>
-                <a id="gnr-fbLoginBtn" style="cursor:pointer;">
-                <img src="../img/fb.png" >
-                </a>
-            </li>
-            <li>
-                <a id="gnr-twLoginBtn" style="cursor:pointer;">
-                    <img src="../img/twt.png" >
-                </a>
-            </li>
-        </ul>
-    </div>
+    <div class="gnr-ext-login-smp">
+    <a id="gnr-sign-up">Sign-Up</a>
+ </div>
     </div>
 </div>
-<div class="gnr-ext-login-smp">
-   <a id="gnr-sign-up">Sign-Up</a>
-</div>
+
 `;
 
 //Dashboard HTML for popup.html

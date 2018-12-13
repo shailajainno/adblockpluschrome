@@ -14,21 +14,6 @@ $(function () {
         }
     });
 
-
-    function openLoginPage () {
-        $('.gnr-ext-login-smp').hide();
-        $('.gnr-login-tab').show();
-        $('.login-tab-btn').find('span').addClass('active');
-        $('.signup-tab-btn').find('span').removeClass('active');
-    }
-    
-    function openSignupPage () {
-        $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
-        $('.signup-tab-btn').find('span').addClass('active');
-        $('.login-tab-btn').find('span').removeClass('active'); 
-    }
-
     //Focus In on email
     generExtBody.on('focusin', '#emailid', function () {
         $('.gnr-error-server-msg').text('');
@@ -67,15 +52,24 @@ $(function () {
         }
     });
 
-    //Call Login API
-    generExtBody.on('click', '.login-tab-btn', openLoginPage);
-
+    function openLoginPage () {
+        $('.gnr-ext-login-smp').hide();
+        $('.gnr-ext-login').show();
+        $('.login-tab-btn').find('span').addClass('active');
+        $('.signup-tab-btn').find('span').removeClass('active');
+        $('#separatorText').text('Or Login with').css('width', '90px');
+    }
+    
     function openSignupPage () {
         $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
+        $('.gnr-ext-login').hide();
         $('.signup-tab-btn').find('span').addClass('active');
         $('.login-tab-btn').find('span').removeClass('active'); 
+        $('#separatorText').text('Or signup with email').css('width', '128px');
     }
+
+    //Call Login API
+    generExtBody.on('click', '.login-tab-btn', openLoginPage);
 
     //Call Login API
     generExtBody.on('click', '.signup-tab-btn', openSignupPage);
