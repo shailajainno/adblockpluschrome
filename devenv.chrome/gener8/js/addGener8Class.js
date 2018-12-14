@@ -49,8 +49,9 @@ function createIFrame(node){
         node = node.parent().addClass('gener8');
     }
     let parentDiv = iframe.parent();
-    if(width > height){
-        parentDiv.css('display', 'block').css('margin', '0 auto');
+    console.log(width, '------------->>');
+    if(width > 500){
+        parentDiv.css('display', 'block').css('margin', '0 auto').css('width','50%');
     }
     parentDiv.html(currentTag);
     browser.runtime.sendMessage({ action: 'AD_IMPRESSION', newAdCount: 1});

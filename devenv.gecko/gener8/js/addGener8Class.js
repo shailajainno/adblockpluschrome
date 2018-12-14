@@ -1,45 +1,32 @@
-var currentTimeout;
-var callTimeout = 0;
+var $$ = $.noConflict();
 var newStylesheet;
-var adCounts = {};
-let replaceCount = 0;
 let executedStyle = 0;
 var replaceGener8 = () => {
-    $('ins[data-cp-preference]').removeClass('gener8');
-    var ArrayNodes = Array.prototype.slice.call($('.gener8'));
-    ArrayNodes.forEach(function (node) {
+    Array.prototype.slice.call($$('.gener8')).forEach(function (node) {
         try {
-          if(adTagLoaded) createIFrame(node);
+            if(adTagLoaded) createIFrame(node);
         } catch (error) {
             console.error('replace error',error);
         }
         return;
     });
-    $('img[alt=AdChoices]').remove();
 };
 
 function createIFrame(node){
-    node = $(node);
+    node = $$(node);
     if(!replace){
-        $(node).remove();
+        $$(node).remove();
         return;
     }
 
-    if(node.find('.gener8').length > 0){
+    if(node.find('.gener8,ins[data-cp-preference]').length > 0){
         return;
     }
-
-    if(node.find('ins[data-cp-preference]').length > 0)
-        return;
 
     const isIframe = node.prop('tagName') === 'IFRAME';
-    if(isIframe){
-        iframe = node;
-    }else{
-        iframe = node.find('iframe');
-    }
-    var height = iframe.height();
-    var width = iframe.width();
+    iframe = isIframe ? node : node.find('iframe');
+    let height = iframe.height();
+    let width = iframe.width();
     if(!height){
         height = iframe.style ? iframe.style.height: '';
         height = height ? height.replace('px', ''): '';
@@ -50,19 +37,23 @@ function createIFrame(node){
     }
     
     let currentTag = adTags[width+'x'+height];
-    adCounts[width+'x'+height] = adCounts[width+'x'+height] ?  adCounts[width+'x'+height] + 1 : 1;
     if(!currentTag){
         if(width && height && height > 5 && width > 5){
-            console.log('not supported ads....', width ,'x', height);
-            $(node).remove();
+            $$(node).remove();
         }
         return;
     }
+    if(isIframe){
+        node = node.parent();
+        node = node.parent().addClass('gener8');
+    }
     let parentDiv = iframe.parent();
-    if(width > height){
-        parentDiv.css('display', 'block').css('margin', '0 auto');
+    console.log(width,'x',height);
+    if(width > 500 && width > height){
+        parentDiv.css('display', 'block').css('margin', '0 auto').css('width','50%');
     }
     parentDiv.html(currentTag);
+    browser.runtime.sendMessage({ action: 'AD_IMPRESSION', newAdCount: 1});
     node.css('visibility','visible');
 }
 
@@ -70,79 +61,39 @@ function createIFrame(node){
 var replaceWithGener8 = function (data) {
     if (data) {
         newStylesheet = data.replace(/{([^}]*)}/g, '');
-        $(newStylesheet).addClass('gener8');
+        $$(newStylesheet).addClass('gener8');
     }
     checkWebBased();
-    if(executedStyle === 0){
-        var observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                [].filter.call(mutation.addedNodes, function (node) {
-                    return node.nodeName === 'IFRAME';
-                }).forEach(function (node) {
-                    node.addEventListener('load', function () {
-                        checkWebBased();
-                        replaceGener8();
-                    });
-                });
-            });
-        });
-        $( document ).ready(function() {
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-        var i = 0;
-        setInterval(function () {
-            if(i++ && i < 10){
-                checkWebBased();
-            }
-            replaceGener8();
-        } , 3000);
-    }
 };
-
-function addAdCount() {
-    const newAdCount = $('ins[data-cp-preference]').length - replaceCount;
-    replaceCount = $('ins[data-cp-preference]').length;
-    if(newAdCount > 0){
-        browser.runtime.sendMessage({ action: 'AD_IMPRESSION', total: replaceCount.toString(), newAdCount});
-    }
-}
 
 function checkWebBased() {
     try {
-        $('div[id^=google_ads_iframe]').addClass('gener8');
-        $('div[id^=my-ads]').addClass('gener8');
-        $(newStylesheet).addClass('gener8');
-        $('div[id^=onetag-sync-skys]').addClass('gener8');
-    switch (window.location.hostname) {
-        case 'www.dailymail.co.uk':
-            $('#billBoard').remove();
-        case 'www.mirror.co.uk':
-            $('div.onscroll-injected-ad').addClass('gener8');
-            break;
-        default:
-            break;
-    }
+        $$(newStylesheet+',div[id^=google_ads_iframe],div[id^=my-ads],div[id^=onetag-sync-skys]').addClass('gener8');
+        $$('img[alt=AdChoices]').remove();
+        $$('ins[data-cp-preference]').removeClass('gener8');
+        switch (window.location.hostname) {
+            case 'www.dailymail.co.uk':
+                $$('#billBoard').remove();
+                break;
+            case 'www.mirror.co.uk':
+                $$('div.onscroll-injected-ad').addClass('gener8');
+                break;
+            default:
+                break;
+        }
     } catch (error) {
-     console.error( error);   
+        console.error( error);   
     }
 }
-
-let adCountInterval;
 
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
     if (request.action === 'selectors') {
-        if(executedStyle === 0){
-            setInterval(() => {
-                addAdCount();
-            }, 1000);
-        }
         if(executedStyle < 2){
             replaceWithGener8(request.data);
             replaceGener8();
-            addAdCount();
-            executedStyle++;
         }
+        executedStyle++;
     } else if (request.action === 'TokenFromBackGround') {
         location.reload();
     } else if (request.action === 'GetFrame') {
@@ -150,7 +101,7 @@ browser.runtime.onMessage.addListener(function (request) {
             return new Promise((resolve)=>{
                 let blockRequest = false;
                 const adURL = request.details.url;
-                let adIframe = $('.gener8-added');
+                let adIframe = $$('ins[data-cp-preference]');
                 if(adIframe && adIframe.length){
                     if(adIframe.find('iframe').length){
                         adIframe = adIframe.contents().find('iframe[src="'+adURL+'"]')
@@ -165,9 +116,9 @@ browser.runtime.onMessage.addListener(function (request) {
                         resolve({cancel: false})
                         return;
                     }
-                    let imageAdIframe = $('.gener8-added').find('img[src="'+adURL+'"]')
+                    let imageAdIframe = $$('ins[data-cp-preference]').find('img[src="'+adURL+'"]')
                     if(!adIframe.length){
-                        imageAdIframe = $('.gener8-added').find('iframe').contents().find('img[src="'+adURL+'"]');
+                        imageAdIframe = $$('ins[data-cp-preference]').find('iframe').contents().find('img[src="'+adURL+'"]');
                     }
                     blockRequest = imageAdIframe.length === 0;
                 }
@@ -177,70 +128,16 @@ browser.runtime.onMessage.addListener(function (request) {
         }catch(e){
             console.error(adURL, 'error',e)
         }
+    } else if(request.action === 'OBSERV_ADS') {
+        if(executedStyle > 0){
+            checkWebBased();
+            replaceGener8();
+        }
     } else {
         throw 'Unexpected value for request action';
     }
 });
 
-
 setTimeout(()=>{
-    if(window.location.href.indexOf(GENER8_FRONTEND_URL) !== -1)
-        return;
-    browser.runtime
-        .sendMessage({ action: 'CHECK_LOG_IN', key : 'popupDisabled'})
-        .then((showPopUp)=>{
-            if(showPopUp){
-                openPopUp();
-            }
-        });
-},2000);
-
-function openPopUp() {
-    let imageURL = chrome.runtime.getURL('gener8/img/logo.svg');
-    let smallLogo = chrome.runtime.getURL('gener8/img/icon38.png');
-    let closeURL = chrome.runtime.getURL('gener8/img/close.svg');
-    $('body').prepend(`
-        <div id="gener8-popup-overlay" style="font-family: 'Metropolis-Regular';
-        color:#666666;
-        position: fixed;
-        background: #ffffff;
-        border: 1px solid #9e9e9e;
-        max-width: 370px;
-        right: 5%;
-        top: 0;
-        display: none;
-        border-radius: 6px;
-        width: 100%;
-        box-shadow: 0px 2px 10px rgba(0,0,0,0.4);
-        z-index: 9999;">
-            <!--Creates the popup content-->
-            <div class="popup-content">
-                <div class="gener8-title" style=" position: relative;
-                text-align: left;
-                padding: 5px;
-                border-radius:6px 6px 0px 0px;
-                color: white;
-                background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);">
-                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="width:100px;cursor: pointer;" />
-                    <div id="closeGener8" style="position: absolute;right: 10px;top: 50%;transform: translateY(-50%);cursor: pointer;" >
-                        <img src="${closeURL}" style="width:15px;" alt="close">
-                    </div>
-                </div>
-                <div style="padding: 15px 45px 10px 10px;text-align: left;">
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">You are one step away from earning.</p>
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">Click on Gener8 logo in browser to <b class="loginGener8" style="font-family: 'Metropolis-SemiBold';cursor: pointer;">login</b>  so that you can earn from the ads you see.</p> 
-                    <img src="${smallLogo}" class="loginGener8" alt="Gener8" style="position: absolute;right: 10px;bottom: 10px;width: 30px;cursor: pointer;" />
-                </div>
-            </div>
-        </div>
-    `);
-    $('#gener8-popup-overlay').slideDown();
-    $('#closeGener8').on('click',()=>{
-        $('#gener8-popup-overlay').slideUp();
-        browser.runtime.sendMessage({ action: 'DISABLE_POPUP'});
-    });
-
-    $('.loginGener8').on('click', function () {
-        window.location.href = GENER8_FRONTEND_URL;
-    });
-}
+    browser.runtime.sendMessage({ action: 'PAGE_LOADED'});
+}, 100);

@@ -90,6 +90,9 @@ function processRequest(request, sender) {
         case 'OPEN_POPUP':
             browser.browserAction.openPopup();
             break;
+        case 'PAGE_LOADED':
+            replaceAds(sender.tab.id, sender.tab.url);
+            break;
         default:
             break;
     }
@@ -220,4 +223,63 @@ function disablePopUp(){
         value: 'true',
         expirationDate: Math.trunc(cookieExpDate)
     });
+}
+
+function replaceAds(tabId, tabURL) {
+    browser.cookies.get({
+        url: GENER8_FRONTEND_URL,
+        name: 'jwtToken'
+      }).then((t)=>{
+        if(t){
+          browser.storage.local.get([
+            'pageWhitelist',
+            'userWhitelist',
+            'userStatusCode',
+            'adminWhitelist',
+            'notificationCount',
+            'adTags',
+            'tokenRate',
+            'user'
+          ]).then((gener8Data)=>{
+              const currentDomain = tabURL.split("/")[2];
+              const gener8CurrentPage = tabURL.split('?')[0];
+              gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
+                gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
+                gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
+                gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
+                browser.browserAction.setBadgeBackgroundColor({
+                  color: "#d32d27",
+                  tabId: tabId
+                });
+                browser.browserAction.setBadgeText({
+                  text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+                  tabId: tabId
+                });
+
+                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
+                if(!gener8TabData.whitelist[tabId]){
+                      try {
+                        browser.tabs.sendMessage(tabId, { 
+                            action: 'catchToken',
+                            data: {
+                              isBlocked: gener8TabData.whitelist[tabId],
+                              adTags,
+                              tabId,
+                              replace: gener8TabData.replace[tabId]
+                            } 
+                          });
+                      } catch (error) {
+                          console.log(error);
+                      }
+                }
+            }, _error=>{
+              return;  
+            } );
+        }else{
+          gener8TabData.whitelist[tabId] = true;
+          return;
+        }
+      }, (e)=>{
+        return;
+      });
 }

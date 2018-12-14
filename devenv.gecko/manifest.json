@@ -97,7 +97,6 @@
   "web_accessible_resources": [
     "gener8/img/*",
     "gener8/fonts/*",
-    "gener8/style.css",
-    "config.js"
+    "gener8/style.css"
   ]
 }

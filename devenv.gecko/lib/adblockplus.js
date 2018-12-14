@@ -6402,86 +6402,6 @@
           specificOnly, filter
         );
       }
-    
-      // Add this to reduce onBeforeRequest loading time;
-      browser.tabs.onUpdated.addListener(( tabId,b ,tab)=>{
-          if(b.status !== 'loading')
-            return;
-          browser.cookies.get({
-            url: GENER8_FRONTEND_URL,
-            name: 'jwtToken'
-          }).then((t)=>{
-            if(t){
-              browser.storage.local.get([
-                'pageWhitelist',
-                'userWhitelist',
-                'userStatusCode',
-                'adminWhitelist',
-                'notificationCount',
-                'adTags',
-                'tokenRate',
-                'user'
-              ]).then((gener8Data)=>{
-                  const currentDomain = tab.url.split("/")[2];
-                  const gener8CurrentPage = tab.url.split('?')[0];
-                  gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
-                    gener8Data.pageWhitelist.indexOf(gener8CurrentPage) > -1 ||
-                    gener8Data.userWhitelist.indexOf(currentDomain) > -1 ||
-                    gener8Data.adminWhitelist.indexOf(currentDomain) > -1;
-                    browser.browserAction.setBadgeBackgroundColor({
-                      color: "#d32d27",
-                      tabId: tab.id
-                    });
-                    browser.browserAction.setBadgeText({
-                      text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
-                      tabId: tab.id
-                    });
-
-                    gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
-                    if(!gener8TabData.whitelist[tabId]){
-                          browser.tabs.sendMessage(tabId, { 
-                            action: 'catchToken',
-                            data: {
-                              isBlocked: gener8TabData.whitelist[tabId],
-                              adTags,
-                              tabId,
-                              replace: gener8TabData.replace[tabId]
-                            } 
-                          });
-                          setTimeout(() => {
-                            browser.tabs.sendMessage(tabId, { 
-                              action: 'catchToken',
-                              data: {
-                                isBlocked: gener8TabData.whitelist[tabId],
-                                adTags,
-                                tabId,
-                                replace: gener8TabData.replace[tabId]
-                              } 
-                            });
-                          }, 200);
-                          setTimeout(() => {
-                            browser.tabs.sendMessage(tabId, { 
-                              action: 'catchToken',
-                              data: {
-                                isBlocked: gener8TabData.whitelist[tabId],
-                                adTags,
-                                tabId,
-                                replace: gener8TabData.replace[tabId]
-                              } 
-                            });
-                          }, 300);
-                    }
-                }, _error=>{
-                  return;  
-                } );
-            }else{
-              gener8TabData.whitelist[tabId] = true;
-              return;
-            }
-          }, (e)=>{
-            return;
-          });
-      });
 
       browser.webRequest.onBeforeRequest.addListener(details => {
        
@@ -6549,6 +6469,17 @@
         let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
           sitekey, specificOnly);
           if (filter instanceof BlockingFilter){
+            console.log(details.type);
+            if( runObserver){
+              browser.tabs.sendMessage(details.tabId, {
+                action: 'OBSERV_ADS'
+              })
+              runObserver = false;
+              setTimeout(() => {
+                runObserver = true;
+              }, 300);
+            }
+
             if(!gener8TabData.replace[details.tabId]){
               return {cancel: true}
             }

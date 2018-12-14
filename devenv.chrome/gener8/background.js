@@ -34,7 +34,7 @@ function replaceAds(tabId, tabURL) {
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: 'jwtToken'
-      }, (t)=>{
+      }).then((t)=>{
         if(t){
           browser.storage.local.get([
             'pageWhitelist',
@@ -45,7 +45,7 @@ function replaceAds(tabId, tabURL) {
             'adTags',
             'tokenRate',
             'user'
-          ], (gener8Data)=>{
+          ]).then((gener8Data)=>{
               const currentDomain = tabURL.split("/")[2];
               const gener8CurrentPage = tabURL.split('?')[0];
               gener8TabData.whitelist[tabId] = !!gener8Data.userStatusCode || 
@@ -56,9 +56,13 @@ function replaceAds(tabId, tabURL) {
                   color: "#d32d27",
                   tabId: tabId
                 });
-                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
+                browser.browserAction.setBadgeText({
+                  text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
+                  tabId: tabId
+                });
+
+                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount)
                 if(!gener8TabData.whitelist[tabId]){
-                    try {
                       browser.tabs.sendMessage(tabId, { 
                         action: 'catchToken',
                         data: {
@@ -68,20 +72,16 @@ function replaceAds(tabId, tabURL) {
                           replace: gener8TabData.replace[tabId]
                         } 
                       });
-                    } catch (error) {
-                    }
                 }
-
-                browser.browserAction.setBadgeText({
-                  text: gener8Data.notificationCount > 0 ? gener8Data.notificationCount.toString() : '',
-                  tabId: tabId
-                });
-                gener8TabData.replace[tabId] = (minCount < defaultMinCount && hourCount < defaultHourCount && dayCount < defaultDayCount);
-            });
+            }, _error=>{
+              return;  
+            } );
         }else{
           gener8TabData.whitelist[tabId] = true;
           return;
         }
+      }, (e)=>{
+        return;
       });
 }
 

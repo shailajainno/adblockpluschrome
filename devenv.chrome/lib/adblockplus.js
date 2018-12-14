@@ -7062,12 +7062,6 @@ browser.webRequest.onBeforeRequest.addListener(details => {
       if(details.type === 'image'){
         return;
       }
-      // browser.tabs.sendMessage(details.tabId, {
-      //   action: "GetFrame", details
-      // }).then((adResult)=>{
-      //   console.log(adResult);
-      //   return adResult;
-      // })
     }
 }, { 
 urls: ["<all_urls>"],
