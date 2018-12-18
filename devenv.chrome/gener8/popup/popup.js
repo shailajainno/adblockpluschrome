@@ -14,21 +14,6 @@ $(function () {
         }
     });
 
-
-    function openLoginPage () {
-        $('.gnr-ext-login-smp').hide();
-        $('.gnr-login-tab').show();
-        $('.login-tab-btn').find('span').addClass('active');
-        $('.signup-tab-btn').find('span').removeClass('active');
-    }
-    
-    function openSignupPage () {
-        $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
-        $('.signup-tab-btn').find('span').addClass('active');
-        $('.login-tab-btn').find('span').removeClass('active'); 
-    }
-
     //Focus In on email
     generExtBody.on('focusin', '#emailid', function () {
         $('.gnr-error-server-msg').text('');
@@ -67,15 +52,28 @@ $(function () {
         }
     });
 
-    //Call Login API
-    generExtBody.on('click', '.login-tab-btn', openLoginPage);
-
+    function openLoginPage () {
+        $('.gnr-ext-login-smp').hide();
+        $('.gnr-ext-login').show();
+        $('.gnr-ext-login-fb-twt').show();
+        $('.login-tab-btn').find('span').addClass('active');
+        $('.signup-tab-btn').find('span').removeClass('active');
+        $('#separatorText').text('Or Login with').css('width', '90px');
+        $('.gnr-ext-login-wth').css('border-top','1px solid #dbdbdb' );
+    }
+    
     function openSignupPage () {
         $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
+        $('.gnr-ext-login').hide();
+        $('.gnr-ext-login-fb-twt').hide();
         $('.signup-tab-btn').find('span').addClass('active');
         $('.login-tab-btn').find('span').removeClass('active'); 
+        $('#separatorText').hide()
+        $('.gnr-ext-login-wth').css('border-top','none');
     }
+
+    //Call Login API
+    generExtBody.on('click', '.login-tab-btn', openLoginPage);
 
     //Call Login API
     generExtBody.on('click', '.signup-tab-btn', openSignupPage);
