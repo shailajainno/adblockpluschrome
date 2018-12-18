@@ -55,17 +55,21 @@ $(function () {
     function openLoginPage () {
         $('.gnr-ext-login-smp').hide();
         $('.gnr-ext-login').show();
+        $('.gnr-ext-login-fb-twt').show();
         $('.login-tab-btn').find('span').addClass('active');
         $('.signup-tab-btn').find('span').removeClass('active');
         $('#separatorText').text('Or Login with').css('width', '90px');
+        $('.gnr-ext-login-wth').css('border-top','1px solid #dbdbdb' );
     }
     
     function openSignupPage () {
         $('.gnr-ext-login-smp').show();
         $('.gnr-ext-login').hide();
+        $('.gnr-ext-login-fb-twt').hide();
         $('.signup-tab-btn').find('span').addClass('active');
         $('.login-tab-btn').find('span').removeClass('active'); 
-        $('#separatorText').text('Or signup with email').css('width', '128px');
+        $('#separatorText').hide()
+        $('.gnr-ext-login-wth').css('border-top','none');
     }
 
     //Call Login API

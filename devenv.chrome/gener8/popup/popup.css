@@ -95,7 +95,6 @@ body {
 .gnr-ext-login-wth{
     padding: 0 20px;
     background-color: #fff;
-    border-top: 1px solid #dbdbdb; 
 }
 .gnr-ext-login-wth{
     padding: 0px;
@@ -108,7 +107,7 @@ body {
     background-color: white;
     margin: -7px auto 0 auto;
     display: block;
-    width: 128px;
+    width: 90px;
 }
 .gnr-ext-login-fb-twt{
     text-align: center;
@@ -132,6 +131,10 @@ body {
     margin-bottom: 10px;
     width: 50%;
     padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .gnr-ext-login-fb-twt ul li span{
@@ -797,6 +800,5 @@ cursor: pointer;
     background-color: #e9ecef;
     opacity: 1;
 }
-
 
 /*Harshad changes*/
