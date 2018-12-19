@@ -1,12 +1,11 @@
 var generExtBody = $('.gnr-ext-bdy-prt');
-
 $(function () {
     //Check User Token whether to show Login Page or Dashboard
     generExtBody.empty();
     generExtBody.append(loader);
     getUserAccessToken(function (token) {
         if (token) {
-            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url),);
             });
         } else {
@@ -14,21 +13,6 @@ $(function () {
             generExtBody.append(loginPage);
         }
     });
-
-
-    function openLoginPage () {
-        $('.gnr-ext-login-smp').hide();
-        $('.gnr-login-tab').show();
-        $('.login-tab-btn').find('span').addClass('active');
-        $('.signup-tab-btn').find('span').removeClass('active');
-    }
-    
-    function openSignupPage () {
-        $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
-        $('.signup-tab-btn').find('span').addClass('active');
-        $('.login-tab-btn').find('span').removeClass('active'); 
-    }
 
     //Focus In on email
     generExtBody.on('focusin', '#emailid', function () {
@@ -68,15 +52,28 @@ $(function () {
         }
     });
 
-    //Call Login API
-    generExtBody.on('click', '.login-tab-btn', openLoginPage);
-
+    function openLoginPage () {
+        $('.gnr-ext-login-smp').hide();
+        $('.gnr-ext-login').show();
+        $('.gnr-ext-login-fb-twt').show();
+        $('.login-tab-btn').find('span').addClass('active');
+        $('.signup-tab-btn').find('span').removeClass('active');
+        $('#separatorText').text('Or Login with').css('width', '90px');
+        $('.gnr-ext-login-wth').css('border-top','1px solid #dbdbdb' );
+    }
+    
     function openSignupPage () {
         $('.gnr-ext-login-smp').show();
-        $('.gnr-login-tab').hide();
+        $('.gnr-ext-login').hide();
+        $('.gnr-ext-login-fb-twt').hide();
         $('.signup-tab-btn').find('span').addClass('active');
         $('.login-tab-btn').find('span').removeClass('active'); 
+        $('#separatorText').hide()
+        $('.gnr-ext-login-wth').css('border-top','none');
     }
+
+    //Call Login API
+    generExtBody.on('click', '.login-tab-btn', openLoginPage);
 
     //Call Login API
     generExtBody.on('click', '.signup-tab-btn', openSignupPage);
@@ -142,13 +139,13 @@ $(function () {
                         },
                         success: function (success) {
                             let cookieExpDate = new Date().getTime()/1000 + 365 * 24 * 60 * 60 * 100;
-                            browser.cookies.set({
+                            chrome.cookies.set({
                                 url: GENER8_FRONTEND_URL,
                                 name: 'tncAccepted',
                                 value: JSON.stringify({ "opts":{},"body": true}),
                                 expirationDate: Math.trunc(cookieExpDate)
                             });
-                            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                                 schedulerAPI(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
                             });
                         },
@@ -205,8 +202,8 @@ $(function () {
                         </li>`
                         }
                         $('#notificationList').append(notificationHTML);
-                        browser.runtime.sendMessage({action: "resetNotification"});
-                    })
+                    });
+                    chrome.runtime.sendMessage({action: "resetNotification"});
                 }
             },
             error: function (error) {
@@ -246,7 +243,7 @@ $(function () {
     });
 
     function openNewTab(url){
-        browser.tabs.create({url});
+        chrome.tabs.create({url});
         window.close();
     }
 
@@ -263,7 +260,7 @@ $(function () {
     generExtBody.on('click', '#back', function () {
         getUserAccessToken(function (token) {
             if (token !== null) {
-                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url));
                 });
             } else {
@@ -315,7 +312,7 @@ $(function () {
     });
 
     function updateStorage(type, enable, hostName) {
-        browser.storage.local.get([type]).then((local)=>{
+        chrome.storage.local.get([type],(local)=>{
             if(enable){
                  if(local[type]){
                      local[type].push(hostName);
@@ -329,7 +326,7 @@ $(function () {
                      local[type] = [];
                  }
             }
-            browser.storage.local.set({
+            chrome.storage.local.set({
                 [type]: local[type]
             })
          });
@@ -341,11 +338,11 @@ $(function () {
         $('#styled-checkbox-1').prop( "disabled", enable );
         getUserAccessToken(function (token) {
             if (token !== null) {
-                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     const hostName = extractHostname(tabs[0].url);
                     whitelistDomain('domain', hostName, token, enable, function (reload) {
                         updateStorage('userWhitelist', enable, hostName);
-                        browser.tabs.reload(tabs[0].id);
+                        chrome.tabs.reload(tabs[0].id);
                     });
                 });
             }
@@ -357,11 +354,11 @@ $(function () {
         const enable = this.checked;
         getUserAccessToken(function (token) {
             if (token !== null) {
-                browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                     const hostName = extractLink(tabs[0].url);
                     whitelistDomain('page',  hostName, token, enable, function (reload) {
                         updateStorage('pageWhitelist', enable, hostName);
-                        browser.tabs.reload(tabs[0].id);
+                        chrome.tabs.reload(tabs[0].id);
                     });
                 });
             }
@@ -374,7 +371,7 @@ $(function () {
      * @param {string} loginType
      */
     function openWindow(loginType) {
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
             action: 'openPopUpAndLogin',
             data: loginType
         });
@@ -448,11 +445,11 @@ $(function () {
                     $('.gnr-error-server-msg').text(error.responseJSON.message);
                     openLoginPage();
                 } else if (success && success.data) {
-                    browser.runtime.sendMessage({
+                    chrome.runtime.sendMessage({
                         action: 'saveLoginDetails',
                         data: success.data
                     });
-                    browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                         getUserDetails(success.data.token, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
                     });
                     //schedulerAPI(success.data.token);
@@ -467,9 +464,9 @@ $(function () {
     }
 
     // Add listener to get user profile
-    browser.runtime.onMessage.addListener(function (request) {
+    chrome.runtime.onMessage.addListener(function (request) {
         if (request.action === 'getUserDetails' && request.data) {
-            browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 getUserDetails(request.data, extractHostname(tabs[0].url),  extractLink(tabs[0].url));
             });
         }
@@ -482,8 +479,8 @@ $(function () {
      * @param {string} domainName domain name
      */
     function getUserDetails(token, domainName, pageName, cb) {
-        const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];
-        browser.storage.local.get(localStorageKeys).then((tokenData)=>{
+        const localStorageKeys = ['token','isGener8On','pageWhitelist','userWhitelist','adminWhitelist','user','userStatusCode','notificationCount', 'errorMessage'];        
+        chrome.storage.local.get(localStorageKeys, (tokenData)=>{
             const currentToken = tokenData.token;
             if(currentToken !== token){
                 schedulerAPI(token, domainName, pageName, cb);
@@ -492,7 +489,7 @@ $(function () {
                 switch (tokenData.userStatusCode) {
                     case 423:
                         generExtBody.append(suspendPage('Account Suspended', tokenData.errorMessage ? tokenData.errorMessage: null));
-                        browser.runtime.sendMessage({ action: 'deleteToken' });
+                        chrome.runtime.sendMessage({ action: 'deleteToken' });
                         break;
                     case 503: 
                         generExtBody.append(suspendPage('We\'ll back soon!', tokenData.errorMessage ? tokenData.errorMessage: null));
@@ -533,7 +530,7 @@ $(function () {
             success: function (success) {
                 const userData = success.data;
                 userData.user.walletToken = parseFloat(userData.user.walletToken);
-                browser.storage.local.set({
+                chrome.storage.local.set({
                     isGener8On: userData.isGener8On,
                     pageWhitelist: userData.pageWhitelist,
                     userWhitelist: userData.userWhitelist,
@@ -543,13 +540,14 @@ $(function () {
                     userStatusCode: null,
                     errorMessage: ''
                 });
+
                 let adTags = {};
                 success.data.adtags.forEach(tag=>{
                     adTags[tag.width+'x'+tag.height] = tag.content;
                 });
                 userData.user.tokenRate = success.data.tokenRate;
-                browser.runtime.sendMessage({action: "SET_USERDATA", data: userData.user, adTags});
-                browser.runtime.sendMessage({
+                chrome.runtime.sendMessage({action: "SET_USERDATA", data: userData.user, adTags});
+                chrome.runtime.sendMessage({
                     action: 'FRAUD_PREVENTION',
                     data: userData
                 });
@@ -558,7 +556,7 @@ $(function () {
                 if(cb) cb(userData);
             },
             error: function (error) {
-                browser.storage.local.set({
+                chrome.storage.local.set({
                     userStatusCode: error.status,
                     isGener8On: null,
                     pageWhitelist: null,
@@ -578,17 +576,17 @@ $(function () {
         switch (error.status) {
             case 423:
                 generExtBody.append(suspendPage('Account Suspended', error.responseJSON.message));
-                browser.runtime.sendMessage({ action: 'deleteToken' });
+                chrome.runtime.sendMessage({ action: 'deleteToken' });
                 break;
             case 503:
                 generExtBody.append(suspendPage('We\'ll back soon!', error.responseJSON.message));
                 break;
             case 401:
-                browser.runtime.sendMessage({ action: 'deleteToken' });
+                chrome.runtime.sendMessage({ action: 'deleteToken' });
                 generExtBody.append(loginPage);
                 break;
             case 451:
-                browser.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
+                chrome.runtime.sendMessage({action: "SET_TNC", data: error.responseJSON.data.tnc.version});
                 const message = `We have updated the new T&C,
                 please accept it to continue.
                 You can read the new T&C <a href='#' id='tnc'>here</a>
@@ -652,7 +650,7 @@ $(function () {
     * @param {string} url - full url link
     */
     function extractHostname(url) {
-
+        if(!url) return '';
         //find & remove protocol (http, ftp, etc.) and get hostname
         var hostname  = url.indexOf('://') > -1 ? url.split('/')[2] : url.split('/')[0];
 
@@ -670,6 +668,8 @@ $(function () {
     * @param {string} url - full url link
     */
     function extractLink(url) {
-        return url.split('?')[0];
+        if(!url){
+            return ''
+        }else return url.split('?')[0];
     }
 });

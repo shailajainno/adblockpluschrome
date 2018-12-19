@@ -176,23 +176,29 @@ function saveCookies(key, value){
   function removeBadge(changeInfo) {
     if(changeInfo.removed){
       browser.storage.local.get(['token']).then((data)=>{
-        $.ajax({
-          type: 'PUT',
-          url: EXT_UPDATE_INFO,
-          dataType: 'json',
-          headers: {
-            'Authorization': data.token
-          },
-          data: {
-            'browser': BROWSER_NAME,
-            'action': 'uninstall'
-          }
-        });
+        updateExtDetails(data.token, changeInfo.removed);
       });
       setBadge('');
     }else{
+      updateExtDetails(atob(JSON.parse(changeInfo.cookie.value).body), changeInfo.removed);
       scheduler();
     }
+  }
+
+  function updateExtDetails(token, uninstall){
+    console.log('token', token, uninstall);
+    $.ajax({
+      type: 'PUT',
+      url: EXT_UPDATE_INFO,
+      dataType: 'json',
+      headers: {
+        'Authorization': token
+      },
+      data: {
+        'browser': BROWSER_NAME,
+        'action': uninstall ? 'uninstall' : 'install'
+      }
+    });
   }
 
   function changeTag(tag, preference) {

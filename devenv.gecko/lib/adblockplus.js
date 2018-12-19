@@ -6469,7 +6469,6 @@
         let [filter, urlString, thirdParty] = matchRequest(url, type, docDomain,
           sitekey, specificOnly);
           if (filter instanceof BlockingFilter){
-            console.log(details.type);
             if( runObserver){
               browser.tabs.sendMessage(details.tabId, {
                 action: 'OBSERV_ADS'

@@ -34,7 +34,7 @@ function replaceAds(tabId, tabURL) {
     browser.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: 'jwtToken'
-      }).then((t)=>{
+      }, (t)=>{
         if(t){
           browser.storage.local.get([
             'pageWhitelist',
@@ -80,8 +80,6 @@ function replaceAds(tabId, tabURL) {
           gener8TabData.whitelist[tabId] = true;
           return;
         }
-      }, (e)=>{
-        return;
       });
 }
 
@@ -137,9 +135,7 @@ function processRequest(request, sender, callback) {
                 cookieGet(request.key, (isDisabled)=>{
                     const showPopUp  = !isLoggedIn && !isDisabled;
                     if(showPopUp){
-                        if(request.key === 'popupDisabled'){
-                            insertCSSPopUp(sender.tab.id)
-                        }
+                        insertCSSPopUp(sender.tab.id)
                     }
                     callback(showPopUp);
                 });
@@ -205,6 +201,11 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
+    console.log('---ad count after ad insert---');
+    console.log('min',minCount, defaultMinCount, minCount < defaultMinCount);
+    console.log('hour',hourCount, defaultHourCount, hourCount < defaultHourCount);
+    console.log('day',dayCount, defaultDayCount, dayCount < defaultDayCount);;
+    console.log('wallet amout', userData.walletToken.toFixed(2), 'newAds',newAdCount);
 }
 
 setInterval(() => {
@@ -265,7 +266,6 @@ function saveUserDetails(data){
                 url: GENER8_FRONTEND_URL + '#/privacy?isPrivacy=true'
             });
         }
-        
     }, e=>{
         console.error('Storing cookies failed', e)
     })

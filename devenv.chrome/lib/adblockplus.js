@@ -5732,10 +5732,6 @@
             });
             browser.tabs.create({ url: 'firstRun.html' });
           }
-          //   url = "firstRun.html";
-          // else
-          //   url = "updates.html";
-          // browser.tabs.create({url});
         }
       });
     }

@@ -49,7 +49,6 @@ function createIFrame(node){
         node = node.parent().addClass('gener8');
     }
     let parentDiv = iframe.parent();
-    console.log(width, '------------->>');
     if(width > 500){
         parentDiv.css('display', 'block').css('margin', '0 auto').css('width','50%');
     }
@@ -142,15 +141,15 @@ setTimeout(()=>{
     browser.runtime.sendMessage({ action: 'PAGE_LOADED'});
 }, 100);
 
-setTimeout(()=>{
-    if(window.location.href.indexOf(GENER8_FRONTEND_URL) !== -1)
-        return;
+if(window.location.href.indexOf(GENER8_FRONTEND_URL) === -1){
     browser.runtime.sendMessage({ action: 'CHECK_LOG_IN', key : 'popupDisabled'}, (showPopUp)=>{
         if(showPopUp){
-            openPopUp();
+            setTimeout(()=>{
+                openPopUp();
+            },3000);
         }
-    } );
-},2000);
+    });
+}
 
 function openPopUp() {
     let imageURL = chrome.runtime.getURL('gener8/img/logo.svg');
@@ -169,7 +168,7 @@ function openPopUp() {
         border-radius: 6px;
         width: 100%;
         box-shadow: 0px 2px 10px rgba(0,0,0,0.4);
-        z-index: 9999;">
+        z-index: 99999999999;">
             <!--Creates the popup content-->
             <div class="popup-content">
                 <div class="gener8-title" style=" position: relative;
@@ -184,8 +183,8 @@ function openPopUp() {
                     </div>
                 </div>
                 <div style="padding: 15px 45px 10px 10px;text-align: left;">
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">You are one step away from earning.</p>
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">Click on Gener8 logo in browser to <b class="loginGener8" style="font-family: 'Metropolis-SemiBold';cursor: pointer;">login</b>  so that you can earn from the ads you see.</p> 
+                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">We noticed that you're not logged in.</p>
+                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">Click on the Gener8 icon in your browser to earn from the ads you see</p> 
                     <img src="${smallLogo}" class="loginGener8" alt="Gener8" style="position: absolute;right: 10px;bottom: 10px;width: 30px;cursor: pointer;" />
                 </div>
             </div>

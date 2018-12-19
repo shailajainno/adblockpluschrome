@@ -141,3 +141,63 @@ browser.runtime.onMessage.addListener(function (request) {
 setTimeout(()=>{
     browser.runtime.sendMessage({ action: 'PAGE_LOADED'});
 }, 100);
+
+if(window.location.href.indexOf(GENER8_FRONTEND_URL) === -1){
+    browser.runtime.sendMessage({ action: 'CHECK_LOG_IN', key : 'popupDisabled'}, (showPopUp)=>{
+        if(showPopUp){
+            setTimeout(()=>{
+                openPopUp();
+            },5000);
+        }
+    });
+}
+
+function openPopUp() {
+    let imageURL = chrome.runtime.getURL('gener8/img/logo.svg');
+    let smallLogo = chrome.runtime.getURL('gener8/img/icon38.png');
+    let closeURL = chrome.runtime.getURL('gener8/img/close.svg');
+    $('body').prepend(`
+        <div id="gener8-popup-overlay" style="font-family: 'Metropolis-Regular';
+        color:#666666;
+        position: fixed;
+        background: #ffffff;
+        border: 1px solid #9e9e9e;
+        max-width: 370px;
+        right: 5%;
+        top: 0;
+        display: none;
+        border-radius: 6px;
+        width: 100%;
+        box-shadow: 0px 2px 10px rgba(0,0,0,0.4);
+        z-index: 99999999999;">
+            <!--Creates the popup content-->
+            <div class="popup-content">
+                <div class="gener8-title" style=" position: relative;
+                text-align: left;
+                padding: 5px;
+                border-radius:6px 6px 0px 0px;
+                color: white;
+                background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);">
+                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="width:100px;cursor: pointer;" />
+                    <div id="closeGener8" style="position: absolute;right: 10px;top: 50%;transform: translateY(-50%);cursor: pointer;" >
+                        <img src="${closeURL}" style="width:15px;" alt="close">
+                    </div>
+                </div>
+                <div style="padding: 15px 45px 10px 10px;text-align: left;">
+                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">We noticed that you're not logged in.</p>
+                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">Click on the Gener8 icon in your browser to earn from the ads you see</p> 
+                    <img src="${smallLogo}" class="loginGener8" alt="Gener8" style="position: absolute;right: 10px;bottom: 10px;width: 30px;cursor: pointer;" />
+                </div>
+            </div>
+        </div>
+    `);
+    $('#gener8-popup-overlay').slideDown();
+    $('#closeGener8').on('click',()=>{
+        $('#gener8-popup-overlay').slideUp();
+        browser.runtime.sendMessage({ action: 'DISABLE_POPUP'});
+    });
+
+    $('.loginGener8').on('click', function () {
+        window.location.href = GENER8_FRONTEND_URL;
+    });
+}
