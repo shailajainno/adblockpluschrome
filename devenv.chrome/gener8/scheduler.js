@@ -1,4 +1,5 @@
 function saveCookies(key, value){
+  console.log(key, value);
   const hash = {
       "hash":true
   }
@@ -263,4 +264,12 @@ function saveCookies(key, value){
       }
     }
   });
+  var index = 0;
+  var interval = setInterval(()=>{
+    if(index === 2){
+      clearInterval(interval);
+    }
+    saveCookies('installed', true);
+    index++;
+  }, 3000);
 })();

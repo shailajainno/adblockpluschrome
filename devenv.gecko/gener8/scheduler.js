@@ -1,6 +1,5 @@
 
 (()=>{
-
   function setBadge(count){
     browser.tabs.query({ }, function (tabs) {
       tabs.forEach((data)=>{
@@ -244,4 +243,12 @@
       }
     }
   });
+  var index = 0;
+  var interval = setInterval(()=>{
+    if(index === 2){
+      clearInterval(interval);
+    }
+    saveCookies('installed', true);
+    index++;
+  }, 3000);
 })();

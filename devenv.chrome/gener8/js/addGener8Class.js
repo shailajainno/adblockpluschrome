@@ -87,6 +87,7 @@ function checkWebBased() {
 
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
+    console.log(request.action);
     if (request.action === 'selectors') {
         if(executedStyle < 2){
             replaceWithGener8(request.data);
@@ -132,6 +133,8 @@ browser.runtime.onMessage.addListener(function (request) {
             checkWebBased();
             replaceGener8();
         }
+    } else if(request.action === 'CLOSE_NOTIFY_POPUP') {
+        $('#gener8-popup-overlay').hide();
     } else {
         throw 'Unexpected value for request action';
     }
@@ -144,9 +147,11 @@ setTimeout(()=>{
 if(window.location.href.indexOf(GENER8_FRONTEND_URL) === -1){
     browser.runtime.sendMessage({ action: 'CHECK_LOG_IN', key : 'popupDisabled'}, (showPopUp)=>{
         if(showPopUp){
-            setTimeout(()=>{
-                openPopUp();
-            },3000);
+            $( document ).ready(function() {
+                setTimeout(()=>{
+                    openPopUp();
+                },1000);
+            });
         }
     });
 }
@@ -156,7 +161,7 @@ function openPopUp() {
     let smallLogo = chrome.runtime.getURL('gener8/img/icon38.png');
     let closeURL = chrome.runtime.getURL('gener8/img/close.svg');
     $('body').prepend(`
-        <div id="gener8-popup-overlay" style="font-family: 'Metropolis-Regular';
+        <div id="gener8-popup-overlay" style="all:initial;display:block;box-sizing:border-box;font-family: 'Metropolis-Regular';
         color:#666666;
         position: fixed;
         background: #ffffff;
@@ -171,21 +176,21 @@ function openPopUp() {
         z-index: 99999999999;">
             <!--Creates the popup content-->
             <div class="popup-content">
-                <div class="gener8-title" style=" position: relative;
+                <div class="gener8-title" style="all:initial; display:block;position: relative;
                 text-align: left;
                 padding: 5px;
                 border-radius:6px 6px 0px 0px;
                 color: white;
                 background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);">
-                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="width:100px;cursor: pointer;" />
-                    <div id="closeGener8" style="position: absolute;right: 10px;top: 50%;transform: translateY(-50%);cursor: pointer;" >
-                        <img src="${closeURL}" style="width:15px;" alt="close">
+                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="all: initial;width:100px;cursor: pointer;" />
+                    <div id="closeGener8" style="all: initial;position: absolute;right: 10px;top: 50%;transform: translateY(-50%);cursor: pointer;" >
+                        <img src="${closeURL}" style="all: initial;width:15px;" alt="close">
                     </div>
                 </div>
-                <div style="padding: 15px 45px 10px 10px;text-align: left;">
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">We noticed that you're not logged in.</p>
-                    <p style="margin:0 0 10px;font-size: 14px;line-height: 1.1;">Click on the Gener8 icon in your browser to earn from the ads you see</p> 
-                    <img src="${smallLogo}" class="loginGener8" alt="Gener8" style="position: absolute;right: 10px;bottom: 10px;width: 30px;cursor: pointer;" />
+                <div style="all: initial;display:block;padding: 15px 45px 10px 10px;text-align: left;font-family: Metropolis-Regular;">
+                    <p style="all: initial; margin: 0 0 10px; font-size: 14px; line-height: 1.1; text-align: left; font-family: Metropolis-Regular;display:block;">We noticed that you're not logged in.</p>
+                    <p style="all: initial; margin: 0 0 10px; font-size: 14px; line-height: 1.1; text-align: left; font-family: Metropolis-Regular;display:block;">Click on the Gener8 icon in your browser to earn from the ads you see</p> 
+                    <img src="${smallLogo}" class="loginGener8" alt="Gener8" style="all: initial;position: absolute;right: 10px;bottom: 10px;width: 30px;cursor: pointer;" />
                 </div>
             </div>
         </div>

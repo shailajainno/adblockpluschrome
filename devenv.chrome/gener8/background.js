@@ -142,7 +142,11 @@ function processRequest(request, sender, callback) {
             })
             return true;
         case 'OPEN_POPUP':
-            browser.browserAction.openPopup();
+            browser.tabs.getAllInWindow(null, function(tabs){
+                for (var i = 0; i < tabs.length; i++) {
+                    browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" }).then(console.log);
+                }
+            });
             break;
         default:
             break;
@@ -219,6 +223,7 @@ setInterval(() => {
     saveCookies('hourCount', hourCount);
     saveCookies('dayCount', dayCount);
     saveCookies('lastSyncAt', lastSyncAt);
+    saveCookies('installed', true);
 }, 30 * 1000);
 
 function saveCookies(key, value){
@@ -278,5 +283,10 @@ function disablePopUp(){
         name: 'popupDisabled',
         value: 'true',
         expirationDate: Math.trunc(cookieExpDate)
+    });
+    browser.tabs.getAllInWindow(null, function(tabs){
+        for (var i = 0; i < tabs.length; i++) {
+            browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" });
+        }
     });
 }

@@ -9,6 +9,7 @@ $(function () {
                 getUserDetails(token, extractHostname(tabs[0].url), extractLink(tabs[0].url),);
             });
         } else {
+            chrome.runtime.sendMessage({action: "OPEN_POPUP"});
             generExtBody.empty();
             generExtBody.append(loginPage);
         }

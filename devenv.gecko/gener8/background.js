@@ -86,12 +86,15 @@ function processRequest(request, sender) {
                     });
                 })
             })
-            
-        case 'OPEN_POPUP':
-            browser.browserAction.openPopup();
-            break;
         case 'PAGE_LOADED':
             replaceAds(sender.tab.id, sender.tab.url);
+            break;
+        case 'OPEN_POPUP':
+            browser.tabs.query({}, function(tabs){
+                for (var i = 0; i < tabs.length; i++) {
+                    browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" });
+                }
+            });
             break;
         default:
             break;
@@ -99,7 +102,7 @@ function processRequest(request, sender) {
 }
 
 function insertCSSPopUp(tabId){
-    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'});
+    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'}).then(console.log);
 }
 
 function setFraudPrevention(data) {
@@ -168,6 +171,7 @@ setInterval(() => {
     saveCookies('hourCount', hourCount);
     saveCookies('dayCount', dayCount);
     saveCookies('lastSyncAt', lastSyncAt);
+    saveCookies('installed', true);
 }, 30 * 1000);
 
 function saveCookies(key, value){
@@ -227,6 +231,11 @@ function disablePopUp(){
         name: 'popupDisabled',
         value: 'true',
         expirationDate: Math.trunc(cookieExpDate)
+    });
+    browser.tabs.query({}, function(tabs){
+        for (var i = 0; i < tabs.length; i++) {
+            browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" });
+        }
     });
 }
 
