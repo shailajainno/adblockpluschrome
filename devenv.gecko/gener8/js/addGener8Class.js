@@ -183,7 +183,7 @@ function openPopUp() {
                 border-radius:6px 6px 0px 0px;
                 color: white;
                 background: linear-gradient(to bottom, rgba(69,177,172,1) 0%, rgba(63,129,187,1) 100%);">
-                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="all: initial;width:100px;cursor: pointer;" />
+                <img class="loginGener8" src="${imageURL}" alt="Gener8" style="all: initial;width:100px;cursor: pointer;display: block;" />
                     <div id="closeGener8" style="all: initial;position: absolute;right: 10px;top: 50%;transform: translateY(-50%);cursor: pointer;" >
                         <img src="${closeURL}" style="all: initial;width:15px;" alt="close">
                     </div>
