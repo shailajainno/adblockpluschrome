@@ -87,7 +87,6 @@ function checkWebBased() {
 
 // Listen message from Background
 browser.runtime.onMessage.addListener(function (request) {
-    console.log(request.action);
     if (request.action === 'selectors') {
         if(executedStyle < 2){
             replaceWithGener8(request.data);

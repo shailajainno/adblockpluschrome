@@ -144,7 +144,7 @@ function processRequest(request, sender, callback) {
         case 'OPEN_POPUP':
             browser.tabs.getAllInWindow(null, function(tabs){
                 for (var i = 0; i < tabs.length; i++) {
-                    browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" }).then(console.log);
+                    browser.tabs.sendMessage(tabs[i].id, { action: "CLOSE_NOTIFY_POPUP" });
                 }
             });
             break;
@@ -205,11 +205,6 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
-    console.log('---ad count after ad insert---');
-    console.log('min',minCount, defaultMinCount, minCount < defaultMinCount);
-    console.log('hour',hourCount, defaultHourCount, hourCount < defaultHourCount);
-    console.log('day',dayCount, defaultDayCount, dayCount < defaultDayCount);;
-    console.log('wallet amout', userData.walletToken.toFixed(2), 'newAds',newAdCount);
 }
 
 setInterval(() => {

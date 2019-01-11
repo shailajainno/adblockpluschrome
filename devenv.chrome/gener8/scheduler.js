@@ -1,5 +1,4 @@
 function saveCookies(key, value){
-  console.log(key, value);
   const hash = {
       "hash":true
   }
@@ -187,7 +186,6 @@ function saveCookies(key, value){
   }
 
   function updateExtDetails(token, uninstall){
-    console.log('token', token, uninstall);
     $.ajax({
       type: 'PUT',
       url: EXT_UPDATE_INFO,
