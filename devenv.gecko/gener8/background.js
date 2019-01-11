@@ -102,7 +102,7 @@ function processRequest(request, sender) {
 }
 
 function insertCSSPopUp(tabId){
-    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'}).then(console.log);
+    browser.tabs.insertCSS(tabId, {file: 'gener8/style.css'});
 }
 
 function setFraudPrevention(data) {
@@ -153,11 +153,6 @@ function adImpression(newAdCount){
     dayCount = dayCount + newAdCount;
     userData.walletToken += newAdCount * tokenRate;
     userData.walletToken = Math.round(userData.walletToken * 10000) / 10000;
-    console.log('---ad count after ad insert---');
-    console.log('min',minCount, defaultMinCount, minCount < defaultMinCount);
-    console.log('hour',hourCount, defaultHourCount, hourCount < defaultHourCount);
-    console.log('day',dayCount, defaultDayCount, dayCount < defaultDayCount);;
-    console.log('wallet amout', userData.walletToken, 'newAds',newAdCount);
 }
 
 setInterval(() => {
@@ -283,7 +278,7 @@ function replaceAds(tabId, tabURL) {
                             } 
                           });
                       } catch (error) {
-                          console.log(error);
+                          
                       }
                 }
             }, _error=>{

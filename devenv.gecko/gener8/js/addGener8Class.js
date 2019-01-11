@@ -48,7 +48,6 @@ function createIFrame(node){
         node = node.parent().addClass('gener8');
     }
     let parentDiv = iframe.parent();
-    console.log(width,'x',height);
     if(width > 500 && width > height){
         parentDiv.css('display', 'block').css('margin', '0 auto').css('width','50%');
     }
