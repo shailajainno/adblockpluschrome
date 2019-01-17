@@ -72,10 +72,6 @@
         });
       },
       error: function (error) {
-        browser.storage.local.set({
-          userStatusCode: error.status,
-          errorMessage: error.responseJSON.message
-        });
         
         if(error.status === 401){
           browser.cookies.remove({
@@ -91,7 +87,17 @@
             });
           }
           setTNCData({ data: error.responseJSON.data.tnc.version, token}, isLogin);
+        }else {
+          console.log(error);
+          setTimeout(() => {
+            scheduler();
+          }, 2000);
+          return;
         }
+        browser.storage.local.set({
+          userStatusCode: error.status,
+          errorMessage: error.responseJSON.message
+        });
         return;
       }
     });

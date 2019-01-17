@@ -91,7 +91,7 @@ function saveCookies(key, value){
           adTags[tag.width+'x'+tag.height] = tag.content;
         });
       },
-      error: function (error) {
+      error: (error) => {
         chrome.storage.local.set({
           userStatusCode: error.status,
           errorMessage: error.responseJSON ? error.responseJSON.message : ''
@@ -111,6 +111,10 @@ function saveCookies(key, value){
             });
           }
           setTNCData({ data: error.responseJSON.data.tnc.version, token}, isLogin);
+        } else {
+          setTimeout(() => {
+            scheduler();
+          }, 2000);
         }
         return;
       }
