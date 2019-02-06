@@ -2,7 +2,7 @@
   "author": "Gener8 Team",
   "manifest_version": 2,
   "name": "Gener8",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Gener8 gives you control of your advertising experience.",
   "background": {
     "persistent": true, 
@@ -54,8 +54,7 @@
       "all_frames": false, 
       "js": [
         "gener8/lib/js/jquery.min.js",
-        "include.postload.js",
-        "gener8/js/replace.js"
+        "include.postload.js"
       ], 
       "match_about_blank": true, 
       "matches": [

@@ -90,6 +90,7 @@ function saveCookies(key, value){
         success.data.adtags.forEach(tag=>{
           adTags[tag.width+'x'+tag.height] = tag.content;
         });
+        
       },
       error: (error) => {
         chrome.storage.local.set({

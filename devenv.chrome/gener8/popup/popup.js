@@ -99,11 +99,11 @@ $(function () {
         const url = $(this).attr('id');
         switch (url) {
             case 'faq':
-                openNewTab(GENER8_WEBSITE + '#faq');
+                openNewTab(GENER8_WEBSITE + '/faq');
                 window.close();
                 break;
             case 'contactus':
-                openNewTab(GENER8_WEBSITE + '#contacts');
+                openNewTab(GENER8_WEBSITE + '/contact-us');
                 break;
             case 'rateus':
                 openNewTab(GENER8_EXT_URL);

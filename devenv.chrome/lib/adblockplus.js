@@ -6970,6 +6970,7 @@
   
 // });
 
+// GENER8CODE
 browser.webRequest.onBeforeRequest.addListener(details => {
   // Never block top-level documents.
     if (details.type == "main_frame")

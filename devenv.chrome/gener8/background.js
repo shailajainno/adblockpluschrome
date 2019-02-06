@@ -4,12 +4,6 @@
  * @param {function} callback
  */
 function cookieGet(key, callback) {
-    function logCookie(cookie) {
-        callback(cookie ? cookie.value: null);
-    }
-    function onError() {
-        callback(null);
-    }
     chrome.cookies.get({
         url: GENER8_FRONTEND_URL,
         name: key
